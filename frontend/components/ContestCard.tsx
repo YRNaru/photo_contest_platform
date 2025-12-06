@@ -13,7 +13,12 @@ interface Contest {
   entry_count: number;
 }
 
-export function ContestCard({ contest }: { contest: Contest }) {
+interface ContestCardProps {
+  contest: Contest;
+  priority?: boolean;
+}
+
+export function ContestCard({ contest, priority = false }: ContestCardProps) {
   return (
     <Link href={`/contests/${contest.slug}`}>
       <div className="group bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl shadow-lg dark:shadow-purple-500/10 overflow-hidden hover:shadow-2xl dark:hover:shadow-purple-500/20 transition-all duration-300 hover:scale-105 transform-gpu border border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-600">
@@ -25,6 +30,7 @@ export function ContestCard({ contest }: { contest: Contest }) {
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-500"
               unoptimized
+              priority={priority}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           </div>

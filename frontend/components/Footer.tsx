@@ -52,6 +52,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/my-entries" className="group flex items-center gap-2 hover:text-purple-400 dark:hover:text-purple-300 transition-all duration-300 hover:translate-x-2">
+                  <span className="w-1.5 h-1.5 bg-purple-400 dark:bg-purple-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  マイ投稿
+                </Link>
+              </li>
+              <li>
                 <Link href="/profile" className="group flex items-center gap-2 hover:text-purple-400 dark:hover:text-purple-300 transition-all duration-300 hover:translate-x-2">
                   <span className="w-1.5 h-1.5 bg-purple-400 dark:bg-purple-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
                   マイページ

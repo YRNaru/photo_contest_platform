@@ -13,6 +13,7 @@ export function Header() {
   const { isLeftOpen, isRightOpen, toggleLeft, toggleRight } = useSidebar();
   const { theme, toggleTheme } = useTheme();
   const [isContestMenuOpen, setIsContestMenuOpen] = useState(false);
+  const [isSubmitMenuOpen, setIsSubmitMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export function Header() {
           <div className="relative hidden md:block">
             <button 
               onClick={() => setIsContestMenuOpen(!isContestMenuOpen)}
-              className="hover:text-primary dark:text-gray-100 dark:hover:text-purple-400 transition flex items-center gap-1 font-semibold text-sm lg:text-base"
+              className="hover:text-primary dark:text-white dark:hover:text-purple-400 transition flex items-center gap-1 font-semibold text-sm lg:text-base"
             >
               コンテスト
               <svg 
@@ -110,10 +111,51 @@ export function Header() {
             )}
           </div>
 
+          {/* 投稿ドロップダウン（デスクトップのみ） */}
           {isAuthenticated && (
-            <Link href="/submit" className="hidden md:block hover:text-primary dark:text-gray-100 dark:hover:text-purple-400 transition font-semibold text-sm lg:text-base">
-              投稿
-            </Link>
+            <div className="relative hidden md:block">
+              <button 
+                onClick={() => setIsSubmitMenuOpen(!isSubmitMenuOpen)}
+                className="hover:text-primary dark:text-white dark:hover:text-purple-400 transition flex items-center gap-1 font-semibold text-sm lg:text-base"
+              >
+                投稿
+                <svg 
+                  className={`w-4 h-4 transition-transform ${isSubmitMenuOpen ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isSubmitMenuOpen && (
+                <>
+                  {/* 背景クリックで閉じる */}
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setIsSubmitMenuOpen(false)}
+                  />
+                  
+                  <div className="absolute top-full left-0 mt-2 w-48 glass dark:bg-gray-950 rounded-xl shadow-2xl border border-white/20 dark:border-gray-700 py-2 z-20 animate-fadeInUp">
+                    <Link 
+                      href="/submit" 
+                      className="block px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/50 dark:text-gray-100 transition rounded-lg mx-2"
+                      onClick={() => setIsSubmitMenuOpen(false)}
+                    >
+                      📸 写真を投稿
+                    </Link>
+                    <Link 
+                      href="/my-entries" 
+                      className="block px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/50 dark:text-gray-100 transition rounded-lg mx-2"
+                      onClick={() => setIsSubmitMenuOpen(false)}
+                    >
+                      📷 マイ投稿
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
           )}
 
           {/* ダークモードトグル */}

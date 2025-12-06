@@ -53,6 +53,12 @@ api.interceptors.response.use(
 
           originalRequest.headers.Authorization = `Bearer ${access}`;
           return api(originalRequest);
+        } else {
+          // リフレッシュトークンがない場合、トークンをクリアして認証なしで再試行
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          delete originalRequest.headers.Authorization;
+          return api(originalRequest);
         }
       } catch (refreshError) {
         // リフレッシュ失敗時はログアウト

@@ -17,6 +17,7 @@ export function LeftSidebar() {
       ? [
           { href: "/my-contests", label: "マイコンテスト", icon: "📋" },
           { href: "/submit", label: "写真を投稿", icon: "📸" },
+          { href: "/my-entries", label: "マイ投稿", icon: "📷" },
           { href: "/profile", label: "プロフィール", icon: "👤" },
         ]
       : []),
