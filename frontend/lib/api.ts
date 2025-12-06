@@ -9,15 +9,22 @@ export const api = axios.create({
   },
 });
 
-// リクエストインターセプター（JWT追加）
+// リクエストインターセプター（JWT追加 + FormData処理）
 api.interceptors.request.use(
   (config) => {
+    // JWT トークンを追加
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('access_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
+    
+    // FormDataの場合はContent-Typeを削除（ブラウザが自動設定）
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => {
@@ -65,8 +72,21 @@ export const contestApi = {
   // コンテスト一覧
   getContests: () => api.get('/contests/'),
   
+  // 自分のコンテスト一覧
+  getMyContests: () => api.get('/contests/my_contests/'),
+  
   // コンテスト詳細
   getContest: (slug: string) => api.get(`/contests/${slug}/`),
+  
+  // コンテスト作成（認証済みユーザー）
+  createContest: (data: FormData) => api.post('/contests/', data),
+  
+  // コンテスト更新（作成者または管理者）
+  updateContest: (slug: string, data: FormData) => 
+    api.patch(`/contests/${slug}/`, data),
+  
+  // コンテスト削除（作成者または管理者）
+  deleteContest: (slug: string) => api.delete(`/contests/${slug}/`),
   
   // コンテストのエントリー一覧
   getContestEntries: (slug: string, params?: any) => 
@@ -81,10 +101,7 @@ export const entryApi = {
   getEntry: (id: string) => api.get(`/entries/${id}/`),
   
   // エントリー作成
-  createEntry: (data: FormData) => 
-    api.post('/entries/', data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  createEntry: (data: FormData) => api.post('/entries/', data),
   
   // 投票
   vote: (id: string) => api.post(`/entries/${id}/vote/`),

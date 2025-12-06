@@ -10,6 +10,12 @@ const nextConfig = {
         pathname: '/media/**',
       },
       {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '18000',
+        pathname: '/media/**',
+      },
+      {
         protocol: 'https',
         hostname: '**.amazonaws.com',
         pathname: '/**',

@@ -30,6 +30,30 @@ export default function SubmitPage() {
     },
   });
 
+  // 選択されたコンテストの詳細を取得
+  const { data: contestDetail } = useQuery({
+    queryKey: ["contest", selectedContest],
+    queryFn: async () => {
+      if (!selectedContest) return null;
+      const response = await contestApi.getContest(selectedContest);
+      return response.data;
+    },
+    enabled: !!selectedContest,
+  });
+
+  // ユーザーの既存エントリーを取得
+  const { data: userEntries } = useQuery({
+    queryKey: ["user-entries", selectedContest],
+    queryFn: async () => {
+      if (!selectedContest || !isAuthenticated) return [];
+      const response = await entryApi.getEntries({ contest: selectedContest });
+      const allEntries = response.data.results || response.data;
+      // 現在のユーザーのエントリーのみフィルター（クライアント側で）
+      return allEntries;
+    },
+    enabled: !!selectedContest && isAuthenticated,
+  });
+
   // ドロップゾーン
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [".png", ".jpg", ".jpeg", ".webp"] },
@@ -54,12 +78,49 @@ export default function SubmitPage() {
       router.push(`/entries/${data.id}`);
     },
     onError: (error: any) => {
-      setError(error.response?.data?.detail || "投稿に失敗しました");
+      console.error('投稿エラー:', error);
+      console.error('エラーレスポンス:', error.response?.data);
+      console.error('エラーステータス:', error.response?.status);
+      console.error('エラーヘッダー:', error.response?.headers);
+      
+      // non_field_errorsの中身を詳細に表示
+      if (error.response?.data?.non_field_errors) {
+        console.error('non_field_errors 詳細:', error.response.data.non_field_errors);
+        error.response.data.non_field_errors.forEach((err: any, index: number) => {
+          console.error(`  [${index}]:`, err);
+        });
+      }
+      
+      // エラーメッセージを整形
+      let errorMessage = '投稿に失敗しました。';
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error.response.data.non_field_errors) {
+          errorMessage = Array.isArray(error.response.data.non_field_errors) 
+            ? error.response.data.non_field_errors.join('\n')
+            : error.response.data.non_field_errors;
+        } else {
+          // フィールドごとのエラーを表示
+          const errors = Object.entries(error.response.data).map(([field, messages]: [string, any]) => {
+            const fieldName = field === 'non_field_errors' ? '' : `${field}: `;
+            return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`;
+          }).join('\n');
+          errorMessage = errors || JSON.stringify(error.response.data);
+        }
+      }
+      setError(errorMessage);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // デバッグ: 認証状態を確認
+    console.log('認証状態:', isAuthenticated);
+    console.log('アクセストークン:', localStorage.getItem('access_token') ? '存在する' : '存在しない');
 
     if (!isAuthenticated) {
       setError("ログインしてください");
@@ -90,6 +151,16 @@ export default function SubmitPage() {
       formData.append("images", image);
     });
 
+    // デバッグ: FormDataの内容を確認
+    console.log('送信するFormData:');
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}:`, value.name, value.type, value.size, 'bytes');
+      } else {
+        console.log(`  ${key}:`, value);
+      }
+    }
+
     submitMutation.mutate(formData);
   };
 
@@ -113,6 +184,20 @@ export default function SubmitPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <h1 className="text-4xl font-bold mb-8">作品を投稿</h1>
+
+      {/* 投稿制限の警告 */}
+      {contestDetail && userEntries && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            このコンテストへの投稿可能数: {contestDetail.max_entries_per_user}件
+            {userEntries.length > 0 && (
+              <span className="ml-2">
+                （現在 {userEntries.length}件投稿済み）
+              </span>
+            )}
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* コンテスト選択 */}
@@ -222,7 +307,7 @@ export default function SubmitPage() {
         {/* エラーメッセージ */}
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-            {error}
+            <pre className="whitespace-pre-wrap text-sm">{error}</pre>
           </div>
         )}
 

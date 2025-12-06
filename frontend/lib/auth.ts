@@ -9,6 +9,8 @@ export interface User {
   avatar_url?: string;
   is_judge: boolean;
   is_moderator: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
   created_at: string;
 }
 

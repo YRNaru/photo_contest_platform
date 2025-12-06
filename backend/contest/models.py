@@ -10,6 +10,7 @@ class Contest(models.Model):
     title = models.CharField(max_length=200, verbose_name='タイトル')
     description = models.TextField(blank=True, verbose_name='説明')
     banner_image = models.ImageField(upload_to='contests/banners/', blank=True, null=True, verbose_name='バナー画像')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_contests', verbose_name='作成者', null=True, blank=True)
     start_at = models.DateTimeField(verbose_name='開始日時')
     end_at = models.DateTimeField(verbose_name='終了日時')
     voting_end_at = models.DateTimeField(null=True, blank=True, verbose_name='投票終了日時')
@@ -104,6 +105,7 @@ class EntryImage(models.Model):
     height = models.IntegerField(null=True, blank=True, verbose_name='高さ')
     is_thumbnail_ready = models.BooleanField(default=False, verbose_name='サムネイル生成済み')
     order = models.IntegerField(default=0, verbose_name='表示順')
+    image_hash = models.CharField(max_length=64, blank=True, null=True, verbose_name='画像ハッシュ', db_index=True, help_text='SHA256ハッシュ値（重複チェック用）')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

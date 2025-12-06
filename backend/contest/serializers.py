@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Contest, Entry, EntryImage, Vote, JudgeScore, Flag
 from accounts.serializers import UserSerializer
+import hashlib
 
 
 class EntryImageSerializer(serializers.ModelSerializer):
@@ -14,41 +15,82 @@ class EntryImageSerializer(serializers.ModelSerializer):
                            'is_thumbnail_ready', 'created_at')
 
 
-class ContestListSerializer(serializers.ModelSerializer):
-    """コンテスト一覧シリアライザー"""
-    phase = serializers.SerializerMethodField()
-    entry_count = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Contest
-        fields = ('slug', 'title', 'description', 'banner_image',
-                  'start_at', 'end_at', 'voting_end_at', 'is_public',
-                  'phase', 'entry_count', 'created_at')
-    
-    def get_phase(self, obj):
-        return obj.phase()
-    
-    def get_entry_count(self, obj):
-        return obj.entries.filter(approved=True).count()
-
-
-class ContestDetailSerializer(serializers.ModelSerializer):
-    """コンテスト詳細シリアライザー"""
-    phase = serializers.SerializerMethodField()
-    entry_count = serializers.SerializerMethodField()
+class ContestCreateSerializer(serializers.ModelSerializer):
+    """コンテスト作成シリアライザー"""
     
     class Meta:
         model = Contest
         fields = ('slug', 'title', 'description', 'banner_image',
                   'start_at', 'end_at', 'voting_end_at', 'is_public',
                   'max_entries_per_user', 'max_images_per_entry',
-                  'phase', 'entry_count', 'created_at', 'updated_at')
+                  'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve')
+    
+    def validate(self, data):
+        # 開始日時と終了日時のチェック
+        if data['start_at'] >= data['end_at']:
+            raise serializers.ValidationError('終了日時は開始日時より後である必要があります。')
+        
+        # 投票終了日時のチェック
+        if data.get('voting_end_at') and data['voting_end_at'] <= data['end_at']:
+            raise serializers.ValidationError('投票終了日時は応募終了日時より後である必要があります。')
+        
+        return data
+
+
+class ContestListSerializer(serializers.ModelSerializer):
+    """コンテスト一覧シリアライザー"""
+    phase = serializers.SerializerMethodField()
+    entry_count = serializers.SerializerMethodField()
+    creator_username = serializers.CharField(source='creator.username', read_only=True)
+    is_owner = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Contest
+        fields = ('slug', 'title', 'description', 'banner_image',
+                  'start_at', 'end_at', 'voting_end_at', 'is_public',
+                  'phase', 'entry_count', 'creator_username', 'is_owner', 'created_at')
     
     def get_phase(self, obj):
         return obj.phase()
     
     def get_entry_count(self, obj):
         return obj.entries.filter(approved=True).count()
+    
+    def get_is_owner(self, obj):
+        """現在のユーザーがこのコンテストの作成者かどうか"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.creator == request.user
+        return False
+
+
+class ContestDetailSerializer(serializers.ModelSerializer):
+    """コンテスト詳細シリアライザー"""
+    phase = serializers.SerializerMethodField()
+    entry_count = serializers.SerializerMethodField()
+    creator_username = serializers.CharField(source='creator.username', read_only=True)
+    is_owner = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Contest
+        fields = ('slug', 'title', 'description', 'banner_image',
+                  'start_at', 'end_at', 'voting_end_at', 'is_public',
+                  'max_entries_per_user', 'max_images_per_entry',
+                  'phase', 'entry_count', 'creator_username', 'is_owner',
+                  'created_at', 'updated_at')
+    
+    def get_phase(self, obj):
+        return obj.phase()
+    
+    def get_entry_count(self, obj):
+        return obj.entries.filter(approved=True).count()
+    
+    def get_is_owner(self, obj):
+        """現在のユーザーがこのコンテストの作成者かどうか"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.creator == request.user
+        return False
 
 
 class EntryListSerializer(serializers.ModelSerializer):
@@ -105,6 +147,10 @@ class EntryDetailSerializer(serializers.ModelSerializer):
 
 class EntryCreateSerializer(serializers.ModelSerializer):
     """エントリー作成シリアライザー"""
+    contest = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Contest.objects.all()
+    )
     images = serializers.ListField(
         child=serializers.ImageField(),
         write_only=True,
@@ -114,15 +160,41 @@ class EntryCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Entry
-        fields = ('contest', 'title', 'description', 'tags', 'images')
+        fields = ('id', 'contest', 'title', 'description', 'tags', 'images')
+        read_only_fields = ('id',)
+    
+    def _calculate_image_hash(self, image_file):
+        """画像ファイルのSHA256ハッシュを計算"""
+        sha256 = hashlib.sha256()
+        # ファイルポインタを先頭に戻す
+        image_file.seek(0)
+        # チャンクごとに読み込んでハッシュ計算
+        for chunk in iter(lambda: image_file.read(4096), b''):
+            sha256.update(chunk)
+        # ファイルポインタを先頭に戻す
+        image_file.seek(0)
+        return sha256.hexdigest()
     
     def validate(self, data):
+        from django.conf import settings
         contest = data.get('contest')
         request = self.context['request']
         
         # コンテストフェーズチェック
-        if contest.phase() != 'submission':
-            raise serializers.ValidationError('現在このコンテストは応募期間ではありません。')
+        current_phase = contest.phase()
+        if current_phase != 'submission':
+            error_msg = (
+                f'現在このコンテストは応募期間ではありません。'
+                f'現在のフェーズ: {current_phase} '
+                f'(開始: {contest.start_at}, 終了: {contest.end_at})'
+            )
+            # 開発環境では警告のみ、本番環境ではエラー
+            if not settings.DEBUG:
+                raise serializers.ValidationError(error_msg)
+            # DEBUGモードでは警告を出すが続行
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f'[DEV] {error_msg}')
         
         # 応募数制限チェック
         user_entries = Entry.objects.filter(
@@ -141,24 +213,61 @@ class EntryCreateSerializer(serializers.ModelSerializer):
                 f'画像は最大{contest.max_images_per_entry}枚までアップロードできます。'
             )
         
+        # 画像の重複チェック
+        for image in images:
+            image_hash = self._calculate_image_hash(image)
+            # 同じハッシュ値の画像が既に存在するかチェック
+            existing_image = EntryImage.objects.filter(image_hash=image_hash).first()
+            if existing_image:
+                # 既存の画像のエントリー情報を取得
+                existing_entry = existing_image.entry
+                raise serializers.ValidationError(
+                    f'この画像は既に投稿されています。'
+                    f'（エントリー: "{existing_entry.title}"）'
+                )
+        
         return data
     
     def create(self, validated_data):
+        from django.conf import settings
         images = validated_data.pop('images')
+        
+        # 開発環境では自動承認、本番環境では手動承認
+        auto_approve = settings.DEBUG
+        
         entry = Entry.objects.create(
             **validated_data,
-            author=self.context['request'].user
+            author=self.context['request'].user,
+            approved=auto_approve
         )
         
-        # 画像を作成
+        # 画像を作成（ハッシュ値も保存）
         for idx, img in enumerate(images):
-            EntryImage.objects.create(entry=entry, image=img, order=idx)
+            image_hash = self._calculate_image_hash(img)
+            EntryImage.objects.create(
+                entry=entry, 
+                image=img, 
+                order=idx,
+                image_hash=image_hash
+            )
         
         # Celeryタスクで画像処理をキック（後で実装）
         # from .tasks import process_entry_images
         # process_entry_images.delay(entry.id)
         
         return entry
+    
+    def to_representation(self, instance):
+        """作成後のレスポンスに詳細情報を含める"""
+        return {
+            'id': str(instance.id),
+            'contest': instance.contest.slug,
+            'title': instance.title,
+            'description': instance.description,
+            'tags': instance.tags,
+            'approved': instance.approved,
+            'created_at': instance.created_at.isoformat(),
+        }
 
 
 class VoteSerializer(serializers.ModelSerializer):

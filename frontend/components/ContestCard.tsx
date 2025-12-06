@@ -24,6 +24,7 @@ export function ContestCard({ contest }: { contest: Contest }) {
               alt={contest.title}
               fill
               className="object-cover"
+              unoptimized
             />
           </div>
         ) : (

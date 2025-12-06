@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: mysql:8.0
@@ -63,6 +61,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app
+          ignore:
+            - __pycache__/
+            - "*.pyc"
+            - staticfiles/
+            - media/
+        - action: rebuild
+          path: ./backend/requirements.txt
 
   celery_worker:
     build:
@@ -125,6 +135,16 @@ services:
       - /app/.next
     depends_on:
       - backend
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+        - action: rebuild
+          path: ./frontend/package.json
 
 volumes:
   db_data:

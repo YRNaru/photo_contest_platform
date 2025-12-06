@@ -6,14 +6,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from .models import Contest, Entry, Vote, JudgeScore, Flag
 from .serializers import (
-    ContestListSerializer, ContestDetailSerializer,
+    ContestCreateSerializer, ContestListSerializer, ContestDetailSerializer,
     EntryListSerializer, EntryDetailSerializer, EntryCreateSerializer,
     VoteSerializer, JudgeScoreSerializer, FlagSerializer
 )
 from .permissions import IsJudge, IsModerator
 
 
-class ContestViewSet(viewsets.ReadOnlyModelViewSet):
+class ContestViewSet(viewsets.ModelViewSet):
     """コンテストViewSet"""
     queryset = Contest.objects.filter(is_public=True)
     lookup_field = 'slug'
@@ -23,9 +23,77 @@ class ContestViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['title', 'description']
     
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action == 'create' or self.action == 'update' or self.action == 'partial_update':
+            return ContestCreateSerializer
+        elif self.action == 'retrieve':
             return ContestDetailSerializer
         return ContestListSerializer
+    
+    def get_permissions(self):
+        """
+        作成: 認証済みユーザー
+        更新・削除: 作成者または管理者
+        読み取り: 全員可能
+        """
+        if self.action == 'create':
+            return [permissions.IsAuthenticated()]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+    
+    def perform_create(self, serializer):
+        """コンテスト作成時に作成者を自動設定"""
+        serializer.save(creator=self.request.user)
+    
+    def perform_update(self, serializer):
+        """更新時に作成者または管理者のみ許可"""
+        contest = self.get_object()
+        if contest.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("このコンテストを編集する権限がありません。")
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        """削除時に作成者または管理者のみ許可"""
+        if instance.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("このコンテストを削除する権限がありません。")
+        instance.delete()
+    
+    def get_queryset(self):
+        """
+        全員: 公開コンテスト
+        作成者: 自分のコンテスト（公開・非公開問わず）
+        管理者: すべてのコンテスト
+        """
+        queryset = Contest.objects.all()
+        
+        # 管理者はすべて見える
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            return queryset
+        
+        # 認証済みユーザーは公開コンテスト + 自分のコンテスト
+        if self.request.user.is_authenticated:
+            from django.db.models import Q
+            return queryset.filter(
+                Q(is_public=True) | Q(creator=self.request.user)
+            )
+        
+        # 未認証ユーザーは公開コンテストのみ
+        return queryset.filter(is_public=True)
+    
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def my_contests(self, request):
+        """自分が作成したコンテスト一覧"""
+        contests = Contest.objects.filter(creator=request.user).order_by('-created_at')
+        
+        page = self.paginate_queryset(contests)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(contests, many=True)
+        return Response(serializer.data)
     
     @action(detail=True, methods=['get'])
     def entries(self, request, slug=None):
