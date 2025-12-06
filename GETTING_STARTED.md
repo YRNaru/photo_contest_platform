@@ -181,8 +181,6 @@ print('✅ Twitter OAuth2設定完了')
 
 http://localhost:13000 で「ログイン」→「Twitterでログイン」をクリック
 
-✅ **詳細**: [docs/OAUTH_SETUP.md](./docs/OAUTH_SETUP.md)
-
 ### Google OAuth 2.0
 
 ユーザーがGoogleアカウントでログインできるようにします。
@@ -228,8 +226,6 @@ print('✅ Google OAuth2設定完了')
 #### 3. テスト
 
 http://localhost:13000 で「ログイン」→「Googleでログイン」をクリック
-
-✅ **詳細**: [docs/OAUTH_SETUP.md](./docs/OAUTH_SETUP.md)
 
 ---
 
@@ -377,9 +373,10 @@ make migrate     # マイグレーション
 ## 📚 関連ドキュメント
 
 - [README.md](./README.md) - プロジェクト概要
-- [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md) - Google OAuth詳細
 - [TWITTER_SETUP.md](./TWITTER_SETUP.md) - Twitter連携詳細
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番環境デプロイ
+- [TESTING.md](./TESTING.md) - テストガイド
+- [ACHIEVEMENT.md](./ACHIEVEMENT.md) - テスト品質達成記録
 - [PORT_CONFIG.md](./PORT_CONFIG.md) - ポート設定
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - 開発ガイドライン
 

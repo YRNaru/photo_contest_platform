@@ -26,13 +26,28 @@ class ContestCreateSerializer(serializers.ModelSerializer):
                   'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve')
     
     def validate(self, data):
-        # 開始日時と終了日時のチェック
-        if data['start_at'] >= data['end_at']:
+        # 開始日時と終了日時のチェック（両方が存在する場合のみ）
+        start_at = data.get('start_at')
+        end_at = data.get('end_at')
+        
+        # 既存のインスタンスがある場合は、そこから値を取得
+        if self.instance:
+            if not start_at:
+                start_at = self.instance.start_at
+            if not end_at:
+                end_at = self.instance.end_at
+        
+        # 両方の値がある場合のみバリデーション
+        if start_at and end_at and start_at >= end_at:
             raise serializers.ValidationError('終了日時は開始日時より後である必要があります。')
         
         # 投票終了日時のチェック
-        if data.get('voting_end_at') and data['voting_end_at'] <= data['end_at']:
-            raise serializers.ValidationError('投票終了日時は応募終了日時より後である必要があります。')
+        voting_end_at = data.get('voting_end_at')
+        if voting_end_at:
+            if not end_at and self.instance:
+                end_at = self.instance.end_at
+            if end_at and voting_end_at <= end_at:
+                raise serializers.ValidationError('投票終了日時は応募終了日時より後である必要があります。')
         
         return data
 
