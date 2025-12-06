@@ -5,8 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { contestApi, entryApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { useDropzone } from "react-dropzone";
-import { FaUpload, FaTimes } from "react-icons/fa";
+import { ContestSelect } from "@/components/submit/ContestSelect";
+import { EntryLimitInfo } from "@/components/submit/EntryLimitInfo";
+import { FormInput } from "@/components/submit/FormInput";
+import { ImageUploadSection } from "@/components/submit/ImageUploadSection";
+import { ErrorDisplay } from "@/components/submit/ErrorDisplay";
+import { SubmitButton } from "@/components/submit/SubmitButton";
 
 export default function SubmitPage() {
   const router = useRouter();
@@ -54,19 +58,15 @@ export default function SubmitPage() {
     enabled: !!selectedContest && isAuthenticated,
   });
 
-  // ドロップゾーン
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/*": [".png", ".jpg", ".jpeg", ".webp"] },
-    maxFiles: 5,
-    onDrop: (acceptedFiles) => {
-      if (images.length + acceptedFiles.length > 5) {
-        setError("画像は最大5枚までアップロードできます");
-        return;
-      }
-      setImages([...images, ...acceptedFiles]);
-      setError("");
-    },
-  });
+  // 画像追加ハンドラー
+  const handleImagesAdd = (acceptedFiles: File[]) => {
+    if (images.length + acceptedFiles.length > 5) {
+      setError("画像は最大5枚までアップロードできます");
+      return;
+    }
+    setImages([...images, ...acceptedFiles]);
+    setError("");
+  };
 
   // 投稿mutation
   const submitMutation = useMutation({
@@ -190,165 +190,55 @@ export default function SubmitPage() {
         📸 作品を投稿
       </h1>
 
-      {/* 投稿制限の警告 */}
       {contestDetail && userEntries && (
-        <div className="mb-8 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-blue-700 rounded-xl animate-fadeInUp" style={{ animationDelay: '50ms' }}>
-          <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">
-            💡 このコンテストへの投稿可能数: <span className="text-lg">{contestDetail.max_entries_per_user}</span>件
-            {userEntries.length > 0 && (
-              <span className="ml-2 text-blue-700 dark:text-blue-300">
-                （現在 <span className="font-bold text-lg">{userEntries.length}</span>件投稿済み）
-              </span>
-            )}
-          </p>
-        </div>
+        <EntryLimitInfo 
+          maxEntriesPerUser={contestDetail.max_entries_per_user}
+          currentEntriesCount={userEntries.length}
+        />
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8 animate-fadeInUp" style={{ animationDelay: '100ms' }}>
-        {/* コンテスト選択 */}
-        <div>
-          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
-            🏆 コンテスト <span className="text-red-500 dark:text-red-400">*</span>
-          </label>
-          <select
-            value={selectedContest}
-            onChange={(e) => setSelectedContest(e.target.value)}
-            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
-            required
-          >
-            <option value="">選択してください</option>
-            {contests?.map((contest: any) => (
-              <option key={contest.slug} value={contest.slug}>
-                {contest.title}
-              </option>
-            ))}
-          </select>
-        </div>
+        <ContestSelect
+          value={selectedContest}
+          onChange={setSelectedContest}
+          contests={contests}
+        />
 
-        {/* タイトル */}
-        <div>
-          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
-            ✏️ タイトル <span className="text-red-500 dark:text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
-            placeholder="作品のタイトルを入力"
-            required
-          />
-        </div>
+        <FormInput
+          label="タイトル"
+          icon="✏️"
+          required
+          value={title}
+          onChange={setTitle}
+          placeholder="作品のタイトルを入力"
+        />
 
-        {/* 説明 */}
-        <div>
-          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
-            📝 説明
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all h-32 resize-none"
-            placeholder="作品の説明を入力"
-          />
-        </div>
+        <FormInput
+          label="説明"
+          icon="📝"
+          value={description}
+          onChange={setDescription}
+          placeholder="作品の説明を入力"
+          multiline
+        />
 
-        {/* タグ */}
-        <div>
-          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
-            🏷️ タグ（カンマ区切り）
-          </label>
-          <input
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
-            placeholder="VRChat, しなの, ツーショット"
-          />
-        </div>
+        <FormInput
+          label="タグ（カンマ区切り）"
+          icon="🏷️"
+          value={tags}
+          onChange={setTags}
+          placeholder="VRChat, しなの, ツーショット"
+        />
 
-        {/* 画像アップロード */}
-        <div>
-          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
-            📷 画像（最大5枚） <span className="text-red-500 dark:text-red-400">*</span>
-          </label>
+        <ImageUploadSection
+          images={images}
+          onImagesAdd={handleImagesAdd}
+          onImageRemove={removeImage}
+          maxImages={5}
+        />
 
-          <div
-            {...getRootProps()}
-            className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
-              isDragActive 
-                ? "border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30 scale-105" 
-                : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:border-purple-400 dark:hover:border-purple-600"
-            }`}
-          >
-            <input {...getInputProps()} />
-            <FaUpload className="mx-auto text-6xl text-purple-500 dark:text-purple-400 mb-6 animate-float" />
-            <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-              {isDragActive
-                ? "✨ ここにドロップしてください"
-                : "クリックまたはドラッグ＆ドロップで画像をアップロード"}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-              PNG, JPG, JPEG, WEBP対応
-            </p>
-          </div>
-
-          {/* プレビュー */}
-          {images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6">
-              {images.map((file, index) => (
-                <div key={index} className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu">
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all hover:scale-110 transform-gpu shadow-lg"
-                    >
-                      <FaTimes size={20} />
-                    </button>
-                  </div>
-                  <div className="absolute top-2 left-2 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-bold">
-                    {index + 1}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* エラーメッセージ */}
-        {error && (
-          <div className="p-5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 border-2 border-red-300 dark:border-red-700 rounded-xl">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">⚠️</span>
-              <pre className="whitespace-pre-wrap text-sm font-semibold text-red-700 dark:text-red-300 flex-1">{error}</pre>
-            </div>
-          </div>
-        )}
-
-        {/* 送信ボタン */}
-        <button
-          type="submit"
-          disabled={submitMutation.isPending}
-          className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
-        >
-          {submitMutation.isPending ? (
-            <>
-              <span className="animate-spin">⏳</span>
-              投稿中...
-            </>
-          ) : (
-            <>
-              <span className="text-2xl">🚀</span>
-              投稿する
-            </>
-          )}
-        </button>
+        <ErrorDisplay error={error} />
+        <SubmitButton isSubmitting={submitMutation.isPending} />
       </form>
     </div>
   );

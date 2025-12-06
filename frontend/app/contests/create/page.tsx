@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { contestApi } from '@/lib/api';
+import { ContestFormInput } from '@/components/contest/ContestFormInput';
+import { DateTimeInput } from '@/components/contest/DateTimeInput';
+import { TwitterSettings } from '@/components/contest/TwitterSettings';
 
 export default function CreateContestPage() {
   const router = useRouter();
@@ -124,126 +127,80 @@ export default function CreateContestPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            スラッグ（URL用）<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="summer-photo-2024"
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            英数字とハイフンのみ使用可能
-          </p>
-        </div>
+        <ContestFormInput
+          label="スラッグ（URL用）"
+          value={formData.slug}
+          onChange={(value) => setFormData({ ...formData, slug: value })}
+          required
+          placeholder="summer-photo-2024"
+          helperText="英数字とハイフンのみ使用可能"
+        />
 
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            タイトル<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="夏のフォトコンテスト2024"
-          />
-        </div>
+        <ContestFormInput
+          label="タイトル"
+          value={formData.title}
+          onChange={(value) => setFormData({ ...formData, title: value })}
+          required
+          placeholder="夏のフォトコンテスト2024"
+        />
 
-        <div>
-          <label className="block text-sm font-medium mb-2">説明</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={4}
-            placeholder="コンテストの説明を入力してください"
-          />
-        </div>
+        <ContestFormInput
+          label="説明"
+          value={formData.description}
+          onChange={(value) => setFormData({ ...formData, description: value })}
+          type="textarea"
+          placeholder="コンテストの説明を入力してください"
+        />
 
-        <div>
-          <label className="block text-sm font-medium mb-2">バナー画像</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setBannerImage(e.target.files?.[0] || null)}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        <ContestFormInput
+          label="バナー画像"
+          value=""
+          onChange={() => {}}
+          type="file"
+          accept="image/*"
+          onFileChange={(e) => setBannerImage(e.target.files?.[0] || null)}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              開始日時<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              required
-              value={formData.start_at}
-              onChange={(e) => setFormData({ ...formData, start_at: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              終了日時<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              required
-              value={formData.end_at}
-              onChange={(e) => setFormData({ ...formData, end_at: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">投票終了日時（任意）</label>
-          <input
-            type="datetime-local"
-            value={formData.voting_end_at}
-            onChange={(e) => setFormData({ ...formData, voting_end_at: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <DateTimeInput
+            label="開始日時"
+            value={formData.start_at}
+            onChange={(value) => setFormData({ ...formData, start_at: value })}
+            required
           />
-          <p className="text-sm text-gray-500 mt-1">
-            未設定の場合、投票機能は無効になります
-          </p>
+
+          <DateTimeInput
+            label="終了日時"
+            value={formData.end_at}
+            onChange={(value) => setFormData({ ...formData, end_at: value })}
+            required
+          />
         </div>
+
+        <DateTimeInput
+          label="投票終了日時（任意）"
+          value={formData.voting_end_at}
+          onChange={(value) => setFormData({ ...formData, voting_end_at: value })}
+          helperText="未設定の場合、投票機能は無効になります"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              ユーザーあたり最大応募数
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={formData.max_entries_per_user}
-              onChange={(e) => setFormData({ ...formData, max_entries_per_user: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <ContestFormInput
+            label="ユーザーあたり最大応募数"
+            value={formData.max_entries_per_user}
+            onChange={(value) => setFormData({ ...formData, max_entries_per_user: value })}
+            type="number"
+            min="1"
+          />
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              エントリーあたり最大画像数
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="10"
-              value={formData.max_images_per_entry}
-              onChange={(e) => setFormData({ ...formData, max_images_per_entry: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <ContestFormInput
+            label="エントリーあたり最大画像数"
+            value={formData.max_images_per_entry}
+            onChange={(value) => setFormData({ ...formData, max_images_per_entry: value })}
+            type="number"
+            min="1"
+            max="10"
+          />
         </div>
 
         <div>
@@ -258,44 +215,14 @@ export default function CreateContestPage() {
           </label>
         </div>
 
-        <div className="border-t pt-6">
-          <h2 className="text-xl font-bold mb-4">Twitter連携設定</h2>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Twitterハッシュタグ
-            </label>
-            <input
-              type="text"
-              value={formData.twitter_hashtag}
-              onChange={(e) => setFormData({ ...formData, twitter_hashtag: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="例: フォトコンテスト（#は不要）"
-            />
-          </div>
-
-          <div className="mt-4 space-y-2">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.twitter_auto_fetch}
-                onChange={(e) => setFormData({ ...formData, twitter_auto_fetch: e.target.checked })}
-                className="mr-2"
-              />
-              <span className="text-sm font-medium">Twitter自動取得を有効にする</span>
-            </label>
-
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.twitter_auto_approve}
-                onChange={(e) => setFormData({ ...formData, twitter_auto_approve: e.target.checked })}
-                className="mr-2"
-              />
-              <span className="text-sm font-medium">Twitter投稿を自動承認する</span>
-            </label>
-          </div>
-        </div>
+        <TwitterSettings
+          hashtag={formData.twitter_hashtag}
+          autoFetch={formData.twitter_auto_fetch}
+          autoApprove={formData.twitter_auto_approve}
+          onHashtagChange={(value) => setFormData({ ...formData, twitter_hashtag: value })}
+          onAutoFetchChange={(value) => setFormData({ ...formData, twitter_auto_fetch: value })}
+          onAutoApproveChange={(value) => setFormData({ ...formData, twitter_auto_approve: value })}
+        />
 
         <div className="flex gap-4">
           <button
