@@ -5,12 +5,20 @@ from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
     """ユーザーシリアライザー"""
+    avatar_url = serializers.SerializerMethodField()
     
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'avatar_url', 
                   'is_judge', 'is_moderator', 'created_at')
         read_only_fields = ('id', 'created_at', 'is_judge', 'is_moderator')
+    
+    def get_avatar_url(self, obj):
+        """アバター画像のURLを取得"""
+        if obj.avatar:
+            # バックエンドの完全なURLを返す（ポート18000）
+            return f"http://localhost:18000{obj.avatar.url}"
+        return obj.avatar_url
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -18,6 +26,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     entry_count = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     social_accounts = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -27,6 +36,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
                   'entry_count', 'vote_count', 'social_accounts')
         read_only_fields = ('id', 'created_at', 'is_judge', 'is_moderator', 
                            'is_staff', 'is_superuser')
+    
+    def get_avatar_url(self, obj):
+        """アバター画像のURLを取得"""
+        if obj.avatar:
+            # バックエンドの完全なURLを返す（ポート18000）
+            return f"http://localhost:18000{obj.avatar.url}"
+        return obj.avatar_url
     
     def get_entry_count(self, obj):
         return obj.entries.filter(approved=True).count()

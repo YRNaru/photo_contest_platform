@@ -148,5 +148,11 @@ export const userApi = {
   
   // 現在のユーザー
   me: () => api.get('/users/me/'),
+  
+  // プロフィール更新
+  updateProfile: (data: FormData) => api.patch('/users/update_me/', data),
+  
+  // Twitterアイコンをプロフィール画像に設定
+  setTwitterIcon: () => api.post('/users/set_twitter_icon/'),
 };
 

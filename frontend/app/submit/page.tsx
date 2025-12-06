@@ -171,9 +171,12 @@ export default function SubmitPage() {
   if (!isAuthenticated) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">ログインが必要です</h1>
-          <p className="text-muted-foreground">
+        <div className="text-center p-16 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-dashed border-purple-300 dark:border-purple-700">
+          <span className="text-7xl mb-6 block">🔒</span>
+          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+            ログインが必要です
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             作品を投稿するにはGoogleアカウントでログインしてください
           </p>
         </div>
@@ -182,33 +185,35 @@ export default function SubmitPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-4xl font-bold mb-8">作品を投稿</h1>
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-3xl">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-6 sm:mb-8 lg:mb-10 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent animate-fadeInUp">
+        📸 作品を投稿
+      </h1>
 
       {/* 投稿制限の警告 */}
       {contestDetail && userEntries && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            このコンテストへの投稿可能数: {contestDetail.max_entries_per_user}件
+        <div className="mb-8 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-blue-700 rounded-xl animate-fadeInUp" style={{ animationDelay: '50ms' }}>
+          <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">
+            💡 このコンテストへの投稿可能数: <span className="text-lg">{contestDetail.max_entries_per_user}</span>件
             {userEntries.length > 0 && (
-              <span className="ml-2">
-                （現在 {userEntries.length}件投稿済み）
+              <span className="ml-2 text-blue-700 dark:text-blue-300">
+                （現在 <span className="font-bold text-lg">{userEntries.length}</span>件投稿済み）
               </span>
             )}
           </p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8 animate-fadeInUp" style={{ animationDelay: '100ms' }}>
         {/* コンテスト選択 */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            コンテスト <span className="text-red-500">*</span>
+          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
+            🏆 コンテスト <span className="text-red-500 dark:text-red-400">*</span>
           </label>
           <select
             value={selectedContest}
             onChange={(e) => setSelectedContest(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
             required
           >
             <option value="">選択してください</option>
@@ -222,14 +227,14 @@ export default function SubmitPage() {
 
         {/* タイトル */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            タイトル <span className="text-red-500">*</span>
+          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
+            ✏️ タイトル <span className="text-red-500 dark:text-red-400">*</span>
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
             placeholder="作品のタイトルを入力"
             required
           />
@@ -237,67 +242,79 @@ export default function SubmitPage() {
 
         {/* 説明 */}
         <div>
-          <label className="block text-sm font-medium mb-2">説明</label>
+          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
+            📝 説明
+          </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg h-32"
+            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all h-32 resize-none"
             placeholder="作品の説明を入力"
           />
         </div>
 
         {/* タグ */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            タグ（カンマ区切り）
+          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
+            🏷️ タグ（カンマ区切り）
           </label>
           <input
             type="text"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-5 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-2 border-gray-300 dark:border-gray-700 rounded-xl font-semibold hover:border-purple-400 dark:hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 transition-all"
             placeholder="VRChat, しなの, ツーショット"
           />
         </div>
 
         {/* 画像アップロード */}
         <div>
-          <label className="block text-sm font-medium mb-2">
-            画像（最大5枚） <span className="text-red-500">*</span>
+          <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
+            📷 画像（最大5枚） <span className="text-red-500 dark:text-red-400">*</span>
           </label>
 
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition ${
-              isDragActive ? "border-primary bg-primary/5" : "border-gray-300"
+            className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
+              isDragActive 
+                ? "border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30 scale-105" 
+                : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:border-purple-400 dark:hover:border-purple-600"
             }`}
           >
             <input {...getInputProps()} />
-            <FaUpload className="mx-auto text-4xl text-gray-400 mb-4" />
-            <p className="text-muted-foreground">
+            <FaUpload className="mx-auto text-6xl text-purple-500 dark:text-purple-400 mb-6 animate-float" />
+            <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
               {isDragActive
-                ? "ここにドロップしてください"
+                ? "✨ ここにドロップしてください"
                 : "クリックまたはドラッグ＆ドロップで画像をアップロード"}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+              PNG, JPG, JPEG, WEBP対応
             </p>
           </div>
 
           {/* プレビュー */}
           {images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6">
               {images.map((file, index) => (
-                <div key={index} className="relative">
+                <div key={index} className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu">
                   <img
                     src={URL.createObjectURL(file)}
                     alt={`Preview ${index + 1}`}
-                    className="w-full h-40 object-cover rounded-lg"
+                    className="w-full h-48 object-cover"
                   />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                  >
-                    <FaTimes />
-                  </button>
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all hover:scale-110 transform-gpu shadow-lg"
+                    >
+                      <FaTimes size={20} />
+                    </button>
+                  </div>
+                  <div className="absolute top-2 left-2 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-bold">
+                    {index + 1}
+                  </div>
                 </div>
               ))}
             </div>
@@ -306,8 +323,11 @@ export default function SubmitPage() {
 
         {/* エラーメッセージ */}
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-            <pre className="whitespace-pre-wrap text-sm">{error}</pre>
+          <div className="p-5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 border-2 border-red-300 dark:border-red-700 rounded-xl">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">⚠️</span>
+              <pre className="whitespace-pre-wrap text-sm font-semibold text-red-700 dark:text-red-300 flex-1">{error}</pre>
+            </div>
           </div>
         )}
 
@@ -315,9 +335,19 @@ export default function SubmitPage() {
         <button
           type="submit"
           disabled={submitMutation.isPending}
-          className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition disabled:opacity-50"
+          className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
         >
-          {submitMutation.isPending ? "投稿中..." : "投稿する"}
+          {submitMutation.isPending ? (
+            <>
+              <span className="animate-spin">⏳</span>
+              投稿中...
+            </>
+          ) : (
+            <>
+              <span className="text-2xl">🚀</span>
+              投稿する
+            </>
+          )}
         </button>
       </form>
     </div>

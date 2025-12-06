@@ -8,19 +8,24 @@ export default function ContestsPage() {
   const { user, isAuthenticated } = useAuth();
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">コンテスト一覧</h1>
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 lg:mb-10 gap-3 sm:gap-4 animate-fadeInUp">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+          🏆 コンテスト一覧
+        </h1>
         {isAuthenticated && (
           <Link
             href="/contests/create"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+            className="group w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 sm:hover:scale-110 transform-gpu flex items-center justify-center gap-2"
           >
-            + 新しいコンテストを作成
+            <span className="text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-300">➕</span>
+            新しいコンテストを作成
           </Link>
         )}
       </div>
-      <ContestList />
+      <div className="animate-fadeInUp" style={{ animationDelay: '100ms' }}>
+        <ContestList />
+      </div>
     </div>
   );
 }
