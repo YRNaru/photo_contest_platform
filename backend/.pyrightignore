@@ -1,0 +1,12 @@
+# Pyright type checker ignore patterns
+# IDEはDockerコンテナ内のパッケージを認識できないため、
+# 以下のパターンを無視します
+
+# migrations - 自動生成ファイル
+**/migrations/**
+
+# pycache - コンパイル済みファイル
+**/__pycache__/**
+**/*.pyc
+**/*.pyo
+

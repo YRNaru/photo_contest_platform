@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}アカウント連携 - VRChat Photo Contest{% endblock %}
+
+{% block header_title %}🔗 アカウント連携{% endblock %}
+{% block header_subtitle %}ソーシャルアカウントの管理{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.3em;">連携済みアカウント</h2>
+    
+    {% if form.accounts %}
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+            {% for base_account in form.accounts %}
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: white; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center;">
+                        {% if base_account.get_provider.name == "Twitter" %}
+                            <span style="font-size: 24px; margin-right: 15px;">𝕏</span>
+                        {% elif base_account.get_provider.name == "Google" %}
+                            <span style="font-size: 24px; margin-right: 15px;">🔵</span>
+                        {% else %}
+                            <span style="font-size: 24px; margin-right: 15px;">🔗</span>
+                        {% endif %}
+                        <div>
+                            <div style="font-weight: 600; color: #333;">{{ base_account.get_provider.name }}</div>
+                            <div style="font-size: 0.85em; color: #666;">{{ base_account.get_provider_account.to_str }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if form.accounts|length > 1 %}
+                        <button type="submit" 
+                                form="disconnect-{{ base_account.id }}"
+                                style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em;"
+                                onclick="return confirm('本当にこのアカウントの連携を解除しますか？');">
+                            解除
+                        </button>
+                        <form id="disconnect-{{ base_account.id }}" method="post" action="{% url 'socialaccount_connections' %}" style="display: none;">
+                            {% csrf_token %}
+                            <input type="hidden" name="account" value="{{ base_account.id }}">
+                        </form>
+                    {% else %}
+                        <span style="color: #999; font-size: 0.85em;">プライマリ</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px; color: #999;">
+            連携されているアカウントはありません
+        </div>
+    {% endif %}
+</div>
+
+<div style="margin-top: 40px;">
+    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.3em;">新しいアカウントを連携</h2>
+    
+    <div class="social-buttons">
+        <a href="{% url 'twitter_oauth2_login' %}" class="social-btn social-btn-twitter">
+            <span style="font-size: 20px; margin-right: 10px;">𝕏</span>
+            Twitter (X) で連携
+        </a>
+        
+        <a href="{% url 'google_login' %}" class="social-btn social-btn-google">
+            <span style="font-size: 20px; margin-right: 10px;">G</span>
+            Google で連携
+        </a>
+    </div>
+</div>
+
+<div class="footer-text" style="margin-top: 30px;">
+    <a href="/profile/">プロフィールに戻る</a>
+</div>
+{% endblock %}
+

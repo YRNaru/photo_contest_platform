@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}新規登録 - VRChat Photo Contest{% endblock %}
+
+{% block header_title %}✨ 新規登録{% endblock %}
+{% block header_subtitle %}アカウントを作成してコンテストに参加{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="color: #333; margin-bottom: 20px; font-size: 1.3em; text-align: center;">ソーシャルアカウントで登録</h2>
+    
+    <div class="social-buttons">
+        <a href="{% url 'twitter_oauth2_login' %}" class="social-btn social-btn-twitter">
+            <span style="font-size: 20px; margin-right: 10px;">𝕏</span>
+            Twitter (X) で登録
+        </a>
+        
+        <a href="{% url 'google_login' %}" class="social-btn social-btn-google">
+            <span style="font-size: 20px; margin-right: 10px;">G</span>
+            Google で登録
+        </a>
+    </div>
+</div>
+
+{% if form %}
+<div class="divider">または</div>
+
+<form method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+        <div class="message error">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label for="id_email">メールアドレス *</label>
+        <input type="email" 
+               name="email" 
+               id="id_email" 
+               value="{{ form.email.value|default:'' }}"
+               required
+               autocomplete="email">
+        {% if form.email.errors %}
+            <ul class="errorlist">
+                {% for error in form.email.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    
+    {% if form.username %}
+    <div class="form-group">
+        <label for="id_username">ユーザー名 *</label>
+        <input type="text" 
+               name="username" 
+               id="id_username" 
+               value="{{ form.username.value|default:'' }}"
+               required
+               autocomplete="username">
+        {% if form.username.errors %}
+            <ul class="errorlist">
+                {% for error in form.username.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label for="id_password1">パスワード *</label>
+        <input type="password" 
+               name="password1" 
+               id="id_password1" 
+               required
+               autocomplete="new-password">
+        {% if form.password1.errors %}
+            <ul class="errorlist">
+                {% for error in form.password1.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <p class="helptext">8文字以上で設定してください</p>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_password2">パスワード（確認） *</label>
+        <input type="password" 
+               name="password2" 
+               id="id_password2" 
+               required
+               autocomplete="new-password">
+        {% if form.password2.errors %}
+            <ul class="errorlist">
+                {% for error in form.password2.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    
+    <button type="submit">
+        ✨ アカウントを作成
+    </button>
+</form>
+{% endif %}
+
+<div class="footer-text" style="margin-top: 30px;">
+    <p>既にアカウントをお持ちですか？ <a href="{% url 'account_login' %}">ログイン</a></p>
+</div>
+{% endblock %}
+

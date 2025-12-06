@@ -87,6 +87,11 @@ DATABASES = {
     )
 }
 
+# MySQLで絵文字などの4バイトUTF-8文字を扱えるようにする
+DATABASES['default']['OPTIONS'] = {
+    'charset': 'utf8mb4',
+}
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -124,9 +129,32 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS settings
 CORS_ALLOWED_ORIGINS = os.environ.get(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://localhost:8742'
+    'http://localhost:13000,http://127.0.0.1:13000'
 ).split(',')
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Session & CSRF Cookie settings for development
+if DEBUG:
+    SESSION_COOKIE_SAMESITE = 'Lax'  # Noneは開発環境（HTTP）では使えない
+    SESSION_COOKIE_SECURE = False  # 開発環境ではFalse
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_DOMAIN = None
+    
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:13000', 'http://127.0.0.1:13000', 'http://localhost:18000', 'http://127.0.0.1:18000']
 
 # Django REST Framework
 REST_FRAMEWORK = {
@@ -166,12 +194,37 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
 }
 
+# Email設定（開発環境）
+if DEBUG:
+    # 開発環境ではメールをコンソールに出力
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    # 本番環境ではSMTPを使用
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
 # django-allauth settings
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+# ログイン/ログアウト後のリダイレクト先（フロントエンド）
+LOGIN_REDIRECT_URL = '/accounts/profile/'  # ログイン後はprofileビューへ（そこからフロントエンドにリダイレクト）
+LOGOUT_REDIRECT_URL = 'http://localhost:13000/'  # ログアウト後はフロントエンドのホームへ
+
+# ソーシャルアカウント設定
+SOCIALACCOUNT_AUTO_SIGNUP = True  # ソーシャルログイン時に自動サインアップ
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'optional'  # メール確認を任意に
+SOCIALACCOUNT_QUERY_EMAIL = True  # メールアドレスを要求
+SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'  # カスタムアダプター
+SOCIALACCOUNT_LOGIN_ON_GET = True  # GETリクエストで直接ログインプロセスを開始
+SOCIALACCOUNT_EMAIL_REQUIRED = True  # メールアドレス必須
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

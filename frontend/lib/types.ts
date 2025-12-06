@@ -1,5 +1,14 @@
 // 型定義
 
+export interface SocialAccount {
+  provider: 'twitter_oauth2' | 'google';
+  uid: string;
+  username?: string;  // Twitter
+  profile_image_url?: string;  // Twitter
+  name?: string;  // Google
+  picture?: string;  // Google
+}
+
 export interface User {
   id: string;
   username: string;
@@ -7,7 +16,14 @@ export interface User {
   avatar_url?: string;
   is_judge: boolean;
   is_moderator: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
+  first_name?: string;
+  last_name?: string;
   created_at: string;
+  entry_count?: number;
+  vote_count?: number;
+  social_accounts?: SocialAccount[];
 }
 
 export interface Contest {

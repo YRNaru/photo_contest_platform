@@ -66,9 +66,10 @@ export const useAuth = create<AuthState>()(
       },
 
       loadUser: async () => {
-        const token = localStorage.getItem('access_token');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        
         if (!token) {
-          set({ isAuthenticated: false, user: null });
+          set({ isAuthenticated: false, user: null, isLoading: false });
           return;
         }
 
@@ -80,8 +81,17 @@ export const useAuth = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           });
-        } catch (error) {
-          console.error('Failed to load user:', error);
+        } catch (error: any) {
+          console.error('Failed to load user:', error.message || error);
+          
+          // ネットワークエラーやトークンエラーの場合はトークンを削除
+          if (error.message === 'Network Error' || error.response?.status === 401) {
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('refresh_token');
+            }
+          }
+          
           set({
             user: null,
             isAuthenticated: false,

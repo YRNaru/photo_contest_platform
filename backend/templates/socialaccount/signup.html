@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}アカウント登録 - VRChat Photo Contest{% endblock %}
+
+{% block header_title %}👤 アカウント登録{% endblock %}
+{% block header_subtitle %}ソーシャルアカウントで登録{% endblock %}
+
+{% block content %}
+<form method="post" action="{% url 'socialaccount_signup' %}">
+    {% csrf_token %}
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+        <p style="margin: 0; color: #666; font-size: 0.95em;">
+            <strong style="color: #333;">{{ provider.name }}</strong> アカウントでログインしています。
+        </p>
+        <p style="margin: 10px 0 0 0; color: #666; font-size: 0.85em;">
+            以下の情報を確認して、アカウントを作成してください。
+        </p>
+    </div>
+    
+    {% if form.errors %}
+        <div class="message error">
+            <strong>エラーがあります：</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label for="id_email">メールアドレス確認 *</label>
+        <input type="email" 
+               name="email" 
+               id="id_email" 
+               value="{{ form.email.value|default:'' }}"
+               required
+               {% if form.email.value %}readonly{% endif %}
+               style="{% if form.email.value %}background: #f5f5f5; cursor: not-allowed;{% endif %}">
+        {% if form.email.errors %}
+            <ul class="errorlist">
+                {% for error in form.email.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if form.email.value %}
+            <p class="helptext">このメールアドレスは {{ provider.name }} から取得されました。</p>
+        {% endif %}
+    </div>
+    
+    {% if form.username %}
+    <div class="form-group">
+        <label for="id_username">ユーザー名 *</label>
+        <input type="text" 
+               name="username" 
+               id="id_username" 
+               value="{{ form.username.value|default:'' }}"
+               required>
+        {% if form.username.errors %}
+            <ul class="errorlist">
+                {% for error in form.username.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <p class="helptext">半角英数字、@、.、+、-、_ が使用できます。</p>
+    </div>
+    {% endif %}
+    
+    {{ form.as_p }}
+    
+    <button type="submit" style="margin-top: 30px;">
+        ✅ アカウントを作成して続行
+    </button>
+</form>
+
+<div class="footer-text" style="margin-top: 30px;">
+    <p>既にアカウントをお持ちですか？ <a href="/">ログイン</a></p>
+</div>
+
+<script>
+    // フォーム送信時の確認
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const email = document.getElementById('id_email').value;
+        if (!email) {
+            e.preventDefault();
+            alert('メールアドレスを入力してください');
+        }
+    });
+</script>
+{% endblock %}
+

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}認証エラー - VRChat Photo Contest{% endblock %}
+
+{% block header_title %}❌ 認証エラー{% endblock %}
+{% block header_subtitle %}ソーシャルログインに失敗しました{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 30px 0;">
+    <div style="font-size: 80px; margin-bottom: 20px;">😕</div>
+    
+    <h2 style="color: #333; margin-bottom: 15px; font-size: 1.5em;">認証に失敗しました</h2>
+    
+    <div style="background: #fee; padding: 20px; border-radius: 10px; margin: 30px 0; border: 2px solid #fcc;">
+        <p style="color: #c33; margin: 0;">
+            {% if provider %}
+                {{ provider.name }} アカウントでの認証中にエラーが発生しました。
+            {% else %}
+                ソーシャルアカウントでの認証中にエラーが発生しました。
+            {% endif %}
+        </p>
+    </div>
+    
+    <div style="color: #666; margin-bottom: 30px;">
+        <p style="margin-bottom: 10px;">以下の点を確認してください：</p>
+        <ul style="text-align: left; max-width: 400px; margin: 20px auto; line-height: 1.8;">
+            <li>ブラウザのCookieが有効になっているか</li>
+            <li>ポップアップブロッカーが無効になっているか</li>
+            <li>ネットワーク接続が正常か</li>
+        </ul>
+    </div>
+    
+    <div class="social-buttons" style="max-width: 400px; margin: 0 auto;">
+        <a href="{% url 'twitter_oauth2_login' %}" class="social-btn social-btn-twitter">
+            <span style="font-size: 20px; margin-right: 10px;">𝕏</span>
+            Twitter (X) でもう一度試す
+        </a>
+        
+        <a href="{% url 'google_login' %}" class="social-btn social-btn-google">
+            <span style="font-size: 20px; margin-right: 10px;">G</span>
+            Google でもう一度試す
+        </a>
+    </div>
+    
+    <div class="footer-text" style="margin-top: 30px;">
+        <a href="/">ホームに戻る</a>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ provider.name }}でログイン - VRChat Photo Contest{% endblock %}
+
+{% block header_title %}
+    {% if provider.name == "Twitter" %}🐦{% elif provider.name == "Google" %}🔵{% else %}🔐{% endif %} {{ provider.name }}でログイン
+{% endblock %}
+
+{% block header_subtitle %}{{ provider.name }} アカウントで認証します{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 30px 0;">
+    <div style="font-size: 80px; margin-bottom: 20px;">
+        {% if provider.name == "Twitter" %}
+            𝕏
+        {% elif provider.name == "Google" %}
+            <span style="color: #4285F4;">G</span>
+        {% else %}
+            🔗
+        {% endif %}
+    </div>
+    
+    <h2 style="color: #333; margin-bottom: 15px; font-size: 1.5em;">{{ provider.name }} で認証</h2>
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 30px 0; max-width: 400px; margin-left: auto; margin-right: auto;">
+        <p style="color: #666; margin: 0; line-height: 1.6;">
+            {{ provider.name }} の認証ページにリダイレクトします。<br>
+            アカウント情報の確認と認証を行ってください。
+        </p>
+    </div>
+    
+    <form method="post" action="{{ form_url }}">
+        {% csrf_token %}
+        
+        {% if process %}
+            <input type="hidden" name="process" value="{{ process }}" />
+        {% endif %}
+        
+        {% if scope %}
+            <input type="hidden" name="scope" value="{{ scope }}" />
+        {% endif %}
+        
+        {% if auth_params %}
+            {% for key, value in auth_params.items %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}" />
+            {% endfor %}
+        {% endif %}
+        
+        <button type="submit" 
+                style="max-width: 400px; margin: 20px auto; display: block; width: 100%; 
+                       {% if provider.name == 'Twitter' %}background: #1DA1F2;{% elif provider.name == 'Google' %}background: white; color: #333; border: 2px solid #dadce0;{% endif %}">
+            {% if provider.name == "Twitter" %}
+                <span style="font-size: 20px; margin-right: 10px;">𝕏</span>
+                Twitter (X) で続行
+            {% elif provider.name == "Google" %}
+                <span style="font-size: 20px; margin-right: 10px;">G</span>
+                Google で続行
+            {% else %}
+                {{ provider.name }} で続行
+            {% endif %}
+        </button>
+    </form>
+    
+    <div style="margin-top: 20px; color: #999; font-size: 0.9em;">
+        <p>認証をキャンセルする場合は、ブラウザの戻るボタンを押してください</p>
+    </div>
+    
+    <div class="footer-text" style="margin-top: 30px;">
+        <a href="/">ホームに戻る</a>
+    </div>
+</div>
+
+<script>
+    // 自動的にフォームを送信（オプション）
+    // setTimeout(function() {
+    //     document.querySelector('form').submit();
+    // }, 1000);
+</script>
+{% endblock %}
+

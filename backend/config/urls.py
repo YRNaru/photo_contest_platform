@@ -13,6 +13,8 @@ urlpatterns = [
     path('api/auth/google/', include('allauth.socialaccount.providers.google.urls')),
     path('api/', include('contest.urls')),
     path('api/', include('accounts.urls')),
+    # カスタムプロフィールページ
+    path('accounts/', include('accounts.urls')),
     # Social account URLs (for OAuth flows)
     path('accounts/', include('allauth.urls')),
 ]

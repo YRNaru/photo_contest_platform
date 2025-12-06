@@ -129,6 +129,60 @@ exit()
 
 ## 認証設定（オプション）
 
+### Twitter OAuth 2.0
+
+ユーザーがTwitterアカウントでログインできるようにします。
+
+#### 1. Twitter Developer Portalで設定
+
+1. [Twitter Developer Portal](https://developer.twitter.com/en/portal/dashboard)にアクセス
+2. 「+ Create App」ボタンをクリック
+3. アプリ名を入力（例: `VRChat Photo Contest`）
+
+#### 2. User authentication settingsを設定
+
+1. アプリの「Settings」タブ → 「User authentication settings」の「Set up」をクリック
+2. 設定：
+   - **App permissions**: Read または Read and write
+   - **Type of App**: Web App, Automated App or Bot
+   - **Callback URI**:
+     ```
+     http://localhost:18000/accounts/twitter_oauth2/login/callback/
+     http://127.0.0.1:18000/accounts/twitter_oauth2/login/callback/
+     ```
+   - **Website URL**: `https://example.com`
+
+⚠️ **重要**: Callback URIの末尾の `/` を忘れずに！
+
+#### 3. データベースに設定
+
+```bash
+# スクリプトを使用（推奨）
+docker-compose exec backend python manage.py shell -c "
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp
+import os
+
+twitter_app, _ = SocialApp.objects.get_or_create(
+    provider='twitter_oauth2',
+    defaults={
+        'name': 'Twitter OAuth2',
+        'client_id': os.environ.get('TWITTER_OAUTH_CLIENT_ID'),
+        'secret': os.environ.get('TWITTER_OAUTH_CLIENT_SECRET'),
+    }
+)
+for site in Site.objects.all():
+    twitter_app.sites.add(site)
+print('✅ Twitter OAuth2設定完了')
+"
+```
+
+#### 4. テスト
+
+http://localhost:13000 で「ログイン」→「Twitterでログイン」をクリック
+
+✅ **詳細**: [docs/OAUTH_SETUP.md](./docs/OAUTH_SETUP.md)
+
 ### Google OAuth 2.0
 
 ユーザーがGoogleアカウントでログインできるようにします。
@@ -136,81 +190,46 @@ exit()
 #### 1. Google Cloud Consoleで設定
 
 1. [Google Cloud Console](https://console.cloud.google.com/)にアクセス
-2. プロジェクトを作成
-3. **OAuth同意画面**を設定：
-   - ユーザータイプ: 外部
-   - アプリ名: VRChat フォトコンテスト
-   - スコープ: email, profile, openid
-
+2. プロジェクトを作成または選択
+3. **OAuth同意画面**を設定（外部ユーザー）
 4. **認証情報**を作成：
    - タイプ: OAuth クライアントID
    - アプリケーションの種類: ウェブアプリケーション
-   - 承認済みのJavaScript生成元:
+   - **承認済みのリダイレクトURI**:
      ```
-     http://localhost:13000
-     ```
-   - 承認済みのリダイレクトURI:
-     ```
-     http://localhost:13000
-     http://localhost:13000/auth/callback
+     http://localhost:18000/accounts/google/login/callback/
+     http://127.0.0.1:18000/accounts/google/login/callback/
      ```
 
-5. **Client ID**と**Client Secret**をコピー
+⚠️ **重要**: リダイレクトURIの末尾の `/` を忘れずに！
 
-#### 2. 環境変数に設定
-
-`.env`ファイルを編集：
+#### 2. データベースに設定
 
 ```bash
-# Google OAuth
-GOOGLE_OAUTH_CLIENT_ID=123456789012-xxxxx.apps.googleusercontent.com
-GOOGLE_OAUTH_CLIENT_SECRET=GOCSPX-xxxxx
+docker-compose exec backend python manage.py shell -c "
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp
+import os
 
-# フロントエンド用
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=123456789012-xxxxx.apps.googleusercontent.com
+google_app, _ = SocialApp.objects.get_or_create(
+    provider='google',
+    defaults={
+        'name': 'Google OAuth2',
+        'client_id': os.environ.get('GOOGLE_OAUTH_CLIENT_ID'),
+        'secret': os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET'),
+    }
+)
+for site in Site.objects.all():
+    google_app.sites.add(site)
+print('✅ Google OAuth2設定完了')
+"
 ```
 
-#### 3. 再起動
-
-```bash
-docker-compose restart backend frontend
-```
-
-#### 4. 動作確認
+#### 3. テスト
 
 http://localhost:13000 で「ログイン」→「Googleでログイン」をクリック
 
-✅ **詳細**: [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md)
-
-### Twitter OAuth 2.0
-
-ユーザーがTwitterアカウントでログインできるようにします。
-
-#### 1. Twitter Developer Portalで設定
-
-1. [Twitter Developer Portal](https://developer.twitter.com/)にアクセス
-2. アプリを作成
-3. **User authentication settings**を設定：
-   - App permissions: Read
-   - Type: Web App
-   - Callback URI: `http://localhost:13000/auth/twitter/callback`
-   - Website URL: `http://localhost:13000`
-
-4. **Client ID**と**Client Secret**をコピー
-
-#### 2. 環境変数に設定
-
-```bash
-# Twitter OAuth
-TWITTER_OAUTH_CLIENT_ID=your-client-id
-TWITTER_OAUTH_CLIENT_SECRET=your-client-secret
-```
-
-#### 3. 再起動
-
-```bash
-docker-compose restart backend frontend
-```
+✅ **詳細**: [docs/OAUTH_SETUP.md](./docs/OAUTH_SETUP.md)
 
 ---
 
