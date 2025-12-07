@@ -113,10 +113,12 @@ class EntryListSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     vote_count = serializers.IntegerField(read_only=True)
     thumbnail = serializers.SerializerMethodField()
+    contest_slug = serializers.CharField(source='contest.slug', read_only=True)
+    contest_title = serializers.CharField(source='contest.title', read_only=True)
     
     class Meta:
         model = Entry
-        fields = ('id', 'contest', 'author', 'title', 'description', 
+        fields = ('id', 'contest', 'contest_slug', 'contest_title', 'author', 'title', 'description', 
                   'tags', 'created_at', 'vote_count', 'view_count', 
                   'thumbnail', 'approved')
         read_only_fields = ('id', 'created_at', 'vote_count', 'view_count', 'approved')
@@ -137,10 +139,12 @@ class EntryDetailSerializer(serializers.ModelSerializer):
     vote_count = serializers.SerializerMethodField()
     average_score = serializers.SerializerMethodField()
     user_voted = serializers.SerializerMethodField()
+    contest_slug = serializers.CharField(source='contest.slug', read_only=True)
+    contest_title = serializers.CharField(source='contest.title', read_only=True)
     
     class Meta:
         model = Entry
-        fields = ('id', 'contest', 'author', 'title', 'description', 
+        fields = ('id', 'contest', 'contest_slug', 'contest_title', 'author', 'title', 'description', 
                   'tags', 'created_at', 'updated_at', 'images',
                   'vote_count', 'average_score', 'user_voted', 
                   'view_count', 'approved')

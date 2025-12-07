@@ -7,7 +7,7 @@ interface Entry {
   title: string;
   author: {
     username: string;
-  };
+  } | null;
   vote_count: number;
   view_count: number;
   thumbnail?: string;
@@ -40,7 +40,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
           </h3>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 flex items-center gap-1">
             <span className="text-purple-600 dark:text-purple-400">👤</span>
-            by <span className="font-semibold truncate">{entry.author.username}</span>
+            by <span className="font-semibold truncate">{entry.author?.username || "匿名ユーザー"}</span>
           </p>
 
           <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm">

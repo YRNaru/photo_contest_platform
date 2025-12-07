@@ -48,7 +48,7 @@ class ContestAdmin(admin.ModelAdmin):
 
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'contest', 'source', 'approved', 'flagged', 'vote_count', 'created_at')
+    list_display = ('title', 'get_author_display', 'contest', 'source', 'approved', 'flagged', 'vote_count', 'created_at')
     list_filter = ('approved', 'flagged', 'source', 'contest', 'created_at')
     search_fields = ('title', 'description', 'author__username', 'author__email', 'twitter_username')
     readonly_fields = ('id', 'view_count', 'created_at', 'updated_at', 'twitter_tweet_id', 'twitter_user_id', 'twitter_url')
@@ -70,6 +70,16 @@ class EntryAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
     )
+    
+    def get_author_display(self, obj):
+        """投稿者の表示名を取得"""
+        if obj.author:
+            return obj.author.username
+        elif obj.twitter_username:
+            return f"@{obj.twitter_username} (Twitter)"
+        else:
+            return "(投稿者不明)"
+    get_author_display.short_description = '投稿者'
     
     def approve_entries(self, request, queryset):
         queryset.update(approved=True, flagged=False)

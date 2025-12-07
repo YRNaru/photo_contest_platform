@@ -26,17 +26,24 @@ export function RightSidebar() {
 
   return (
     <aside
-      className={`bg-gray-50 dark:bg-black border-l-2 border-gray-200 dark:border-gray-800 min-h-[calc(100vh-4rem)] sticky top-16 overflow-hidden transition-all duration-700 ease-in-out shadow-sm z-40 ${
+      className={`bg-gray-50 dark:bg-black border-l-2 border-gray-200 dark:border-gray-800 h-[calc(100vh-4rem)] sticky top-16 transition-all duration-700 ease-in-out shadow-sm z-40 ${
         isRightOpen ? "w-96 opacity-100" : "w-0 opacity-0"
       }`}
     >
       <div
-        className={`p-5 space-y-6 w-96 transition-all duration-700 delay-150 ${
+        className={`h-full overflow-y-auto overflow-x-hidden p-5 space-y-6 w-96 transition-all duration-700 delay-150 scrollbar-custom ${
           isRightOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
         }`}
       >
         {/* トレンディングコンテスト */}
-        <div className="animate-fadeInRight">
+        <div 
+          className="transition-all duration-500"
+          style={{ 
+            transitionDelay: isRightOpen ? '150ms' : '0ms',
+            opacity: isRightOpen ? 1 : 0,
+            transform: isRightOpen ? 'translateX(0)' : 'translateX(20px)',
+          }}
+        >
           <h2 className="text-sm font-bold bg-gradient-to-r from-orange-600 to-pink-600 dark:from-orange-300 dark:to-pink-300 bg-clip-text text-transparent mb-4 flex items-center gap-2">
             <span className="text-2xl animate-pulse-slow">🔥</span>
             人気のコンテスト
@@ -46,8 +53,14 @@ export function RightSidebar() {
               <Link
                 key={contest.id}
                 href={`/contests/${contest.id}`}
-                style={{ animationDelay: `${index * 100}ms` }}
-                className="group block p-4 rounded-xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 transition-all duration-300 hover:scale-105 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-xl transform-gpu animate-fadeInRight"
+                style={{ 
+                  transitionDelay: isRightOpen ? `${150 + (index + 1) * 80}ms` : '0ms',
+                }}
+                className={`group block p-4 rounded-xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:scale-105 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-xl transform-gpu transition-all duration-500 ${
+                  isRightOpen 
+                    ? 'translate-x-0 opacity-100' 
+                    : 'translate-x-8 opacity-0'
+                }`}
               >
                 <div className="flex items-start gap-3">
                   <span className="text-lg font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-300 dark:to-pink-300 bg-clip-text text-transparent group-hover:scale-125 transition-transform duration-300">
@@ -68,10 +81,23 @@ export function RightSidebar() {
           </div>
         </div>
 
-        <div className="border-t-2 border-gray-200 dark:border-gray-700" />
+        <div 
+          className="border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+          style={{ 
+            transitionDelay: isRightOpen ? `${150 + (trending.length + 1) * 80}ms` : '0ms',
+            opacity: isRightOpen ? 1 : 0,
+          }}
+        />
 
         {/* お知らせ */}
-        <div className="animate-fadeInRight" style={{ animationDelay: '200ms' }}>
+        <div 
+          className="transition-all duration-500"
+          style={{ 
+            transitionDelay: isRightOpen ? `${150 + (trending.length + 2) * 80}ms` : '0ms',
+            opacity: isRightOpen ? 1 : 0,
+            transform: isRightOpen ? 'translateX(0)' : 'translateX(20px)',
+          }}
+        >
           <h2 className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300 bg-clip-text text-transparent mb-4 flex items-center gap-2">
             <span className="text-2xl">📢</span>
             お知らせ
@@ -98,10 +124,23 @@ export function RightSidebar() {
           </div>
         </div>
 
-        <div className="border-t-2 border-gray-200 dark:border-gray-700" />
+        <div 
+          className="border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+          style={{ 
+            transitionDelay: isRightOpen ? `${150 + (trending.length + 3) * 80}ms` : '0ms',
+            opacity: isRightOpen ? 1 : 0,
+          }}
+        />
 
         {/* サポート情報 */}
-        <div className="animate-fadeInRight" style={{ animationDelay: '300ms' }}>
+        <div 
+          className="transition-all duration-500"
+          style={{ 
+            transitionDelay: isRightOpen ? `${150 + (trending.length + 4) * 80}ms` : '0ms',
+            opacity: isRightOpen ? 1 : 0,
+            transform: isRightOpen ? 'translateX(0)' : 'translateX(20px)',
+          }}
+        >
           <h2 className="text-sm font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-300 dark:to-pink-300 bg-clip-text text-transparent mb-4 flex items-center gap-2">
             <span className="text-2xl">ℹ️</span>
             サポート

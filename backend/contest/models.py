@@ -82,7 +82,12 @@ class Entry(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.title} - {self.author.username}"
+        if self.author:
+            return f"{self.title} - {self.author.username}"
+        elif self.twitter_username:
+            return f"{self.title} - @{self.twitter_username} (Twitter)"
+        else:
+            return f"{self.title} - (投稿者不明)"
 
     def vote_count(self):
         """投票数を返す"""
@@ -130,7 +135,9 @@ class Vote(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.username} -> {self.entry.title}"
+        user_name = self.user.username if self.user else "(ユーザー不明)"
+        entry_title = self.entry.title if self.entry else "(エントリー不明)"
+        return f"{user_name} -> {entry_title}"
 
 
 class JudgeScore(models.Model):
@@ -149,7 +156,9 @@ class JudgeScore(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.judge.username} -> {self.entry.title}: {self.score}"
+        judge_name = self.judge.username if self.judge else "(審査員不明)"
+        entry_title = self.entry.title if self.entry else "(エントリー不明)"
+        return f"{judge_name} -> {entry_title}: {self.score}"
 
 
 class Flag(models.Model):
@@ -166,5 +175,7 @@ class Flag(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.username} -> {self.entry.title}"
+        user_name = self.user.username if self.user else "(ユーザー不明)"
+        entry_title = self.entry.title if self.entry else "(エントリー不明)"
+        return f"{user_name} -> {entry_title}"
 

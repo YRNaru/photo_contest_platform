@@ -192,10 +192,10 @@ export default function EntryDetailPage() {
           {/* コンテストリンク */}
           <div className="mt-6 pt-6 border-t">
             <Link
-              href={`/contests/${entry.contest}`}
-              className="text-blue-600 hover:underline"
+              href={`/contests/${entry.contest_slug}`}
+              className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2"
             >
-              コンテストページに戻る →
+              ← {entry.contest_title || 'コンテスト'}に戻る
             </Link>
           </div>
         </div>
