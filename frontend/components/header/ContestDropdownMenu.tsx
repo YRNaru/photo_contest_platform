@@ -52,6 +52,13 @@ export function ContestDropdownMenu({ isAuthenticated }: ContestDropdownMenuProp
                 >
                   マイコンテスト
                 </Link>
+                <Link
+                  href="/judging-contests"
+                  className="block px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/50 dark:text-gray-100 transition rounded-lg mx-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  審査中のコンテスト
+                </Link>
                 <hr className="my-2 border-gray-200 dark:border-gray-700" />
                 <Link
                   href="/contests/create"

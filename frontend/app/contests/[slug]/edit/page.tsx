@@ -1,26 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { contestApi, userApi } from '@/lib/api';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { contestApi } from '@/lib/api';
 import { ContestFormInput } from '@/components/contest/ContestFormInput';
 import { DateTimeInput } from '@/components/contest/DateTimeInput';
 import { TwitterSettings } from '@/components/contest/TwitterSettings';
-import { JudgeSelector } from '@/components/contest/JudgeSelector';
+import { Contest } from '@/lib/types';
+import { useAuth } from '@/lib/auth';
 
-export default function CreateContestPage() {
+export default function EditContestPage() {
   const router = useRouter();
+  const params = useParams();
+  const slug = params.slug as string;
+  const { user, loading: authLoading } = useAuth();
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // デバッグ用: ユーザー情報を確認
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('access_token');
-    console.log('アクセストークン:', token ? '存在する' : '存在しない');
-  }
-  
   const [formData, setFormData] = useState({
-    slug: '',
     title: '',
     description: '',
     start_at: '',
@@ -35,10 +34,58 @@ export default function CreateContestPage() {
   });
   
   const [bannerImage, setBannerImage] = useState<File | null>(null);
-  const [selectedJudgeIds, setSelectedJudgeIds] = useState<string[]>([]);
-  const [creatorAsJudge, setCreatorAsJudge] = useState(false);
   const [unlimitedEntries, setUnlimitedEntries] = useState(false);
   const [unlimitedImages, setUnlimitedImages] = useState(false);
+
+  // コンテスト情報を取得
+  const { data: contest, isLoading: contestLoading } = useQuery({
+    queryKey: ['contest', slug],
+    queryFn: async () => {
+      const response = await contestApi.getContest(slug);
+      return response.data as Contest;
+    },
+  });
+
+  // コンテスト情報が取得できたらフォームに設定
+  useEffect(() => {
+    if (contest) {
+      // 権限チェック: 作成者またはスタッフのみ編集可能
+      if (!contest.is_owner && !user?.is_staff) {
+        router.push(`/contests/${slug}`);
+        return;
+      }
+
+      // ISO形式の日時を datetime-local 形式に変換
+      const formatDateTimeLocal = (isoString: string) => {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+
+      setFormData({
+        title: contest.title || '',
+        description: contest.description || '',
+        start_at: formatDateTimeLocal(contest.start_at),
+        end_at: formatDateTimeLocal(contest.end_at),
+        voting_end_at: contest.voting_end_at ? formatDateTimeLocal(contest.voting_end_at) : '',
+        is_public: contest.is_public,
+        max_entries_per_user: String(contest.max_entries_per_user || 1),
+        max_images_per_entry: String(contest.max_images_per_entry || 5),
+        twitter_hashtag: contest.twitter_hashtag || '',
+        twitter_auto_fetch: contest.twitter_auto_fetch || false,
+        twitter_auto_approve: contest.twitter_auto_approve || false,
+      });
+      
+      // 無制限フラグを設定（0の場合は無制限）
+      setUnlimitedEntries(contest.max_entries_per_user === 0);
+      setUnlimitedImages(contest.max_images_per_entry === 0);
+    }
+  }, [contest, user, slug, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +96,6 @@ export default function CreateContestPage() {
       const data = new FormData();
       
       // 必須フィールド
-      data.append('slug', formData.slug);
       data.append('title', formData.title);
       data.append('description', formData.description);
       
@@ -79,51 +125,21 @@ export default function CreateContestPage() {
       data.append('twitter_auto_fetch', formData.twitter_auto_fetch.toString());
       data.append('twitter_auto_approve', formData.twitter_auto_approve.toString());
       
-      // バナー画像
+      // バナー画像（新しい画像がアップロードされた場合のみ）
       if (bannerImage) {
         data.append('banner_image', bannerImage);
       }
 
-      const response = await contestApi.createContest(data);
-      const createdContest = response.data;
+      await contestApi.updateContest(slug, data);
       
-      console.log('作成されたコンテスト:', createdContest);
-      
-      // 審査員を追加（コンテスト作成後）
-      const slug = createdContest.slug;
-      if (slug) {
-        try {
-          // 主催者自身を審査員に追加
-          if (creatorAsJudge) {
-            const meResponse = await userApi.me();
-            const currentUser = meResponse.data;
-            await contestApi.addJudge(slug, currentUser.id);
-            console.log('主催者を審査員として追加しました');
-          }
-          
-          // 選択された審査員を追加
-          for (const judgeId of selectedJudgeIds) {
-            await contestApi.addJudge(slug, judgeId);
-            console.log(`審査員(ID: ${judgeId})を追加しました`);
-          }
-        } catch (judgeErr: any) {
-          console.error('審査員の追加中にエラーが発生:', judgeErr);
-          // 審査員追加に失敗してもコンテストは作成されているので、警告として表示
-          const judgeError = judgeErr.response?.data?.detail || '一部の審査員の追加に失敗しました。コンテスト詳細ページから手動で追加できます。';
-          setError(judgeError);
-        }
-        
-        router.push(`/contests/${slug}`);
-      } else {
-        // slugがない場合はコンテスト一覧へ
-        router.push('/contests');
-      }
+      // 更新したコンテストの詳細ページにリダイレクト
+      router.push(`/contests/${slug}`);
     } catch (err: any) {
-      console.error('コンテスト作成エラー:', err);
+      console.error('コンテスト更新エラー:', err);
       console.error('エラーレスポンス:', err.response?.data);
       
       // エラーメッセージを整形
-      let errorMessage = 'コンテストの作成に失敗しました。';
+      let errorMessage = 'コンテストの更新に失敗しました。';
       if (err.response?.data) {
         if (typeof err.response.data === 'string') {
           errorMessage = err.response.data;
@@ -144,9 +160,36 @@ export default function CreateContestPage() {
     }
   };
 
+  // ローディング中
+  if (authLoading || contestLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-1/3 mb-6" />
+          <div className="space-y-4">
+            <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // コンテストが見つからない場合
+  if (!contest) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          コンテストが見つかりません
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6">新しいコンテストを作成</h1>
+      <h1 className="text-3xl font-bold mb-6">コンテストを編集</h1>
       
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -155,14 +198,21 @@ export default function CreateContestPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <ContestFormInput
-          label="スラッグ（URL用）"
-          value={formData.slug}
-          onChange={(value) => setFormData({ ...formData, slug: value })}
-          required
-          placeholder="summer-photo-2024"
-          helperText="英数字とハイフンのみ使用可能"
-        />
+        {/* スラッグは表示のみ（編集不可） */}
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            スラッグ（URL用）
+          </label>
+          <input
+            type="text"
+            value={slug}
+            disabled
+            className="w-full px-4 py-2 border rounded-lg bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
+          />
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            スラッグは編集できません
+          </p>
+        </div>
 
         <ContestFormInput
           label="タイトル"
@@ -180,8 +230,20 @@ export default function CreateContestPage() {
           placeholder="コンテストの説明を入力してください"
         />
 
+        {/* 現在のバナー画像を表示 */}
+        {contest.banner_image && !bannerImage && (
+          <div>
+            <label className="block text-sm font-medium mb-2">現在のバナー画像</label>
+            <img
+              src={contest.banner_image}
+              alt="現在のバナー"
+              className="max-w-full h-auto rounded-lg mb-2"
+            />
+          </div>
+        )}
+
         <ContestFormInput
-          label="バナー画像"
+          label={contest.banner_image ? "新しいバナー画像（変更する場合のみ）" : "バナー画像"}
           value=""
           onChange={() => {}}
           type="file"
@@ -275,32 +337,19 @@ export default function CreateContestPage() {
           onAutoApproveChange={(value) => setFormData({ ...formData, twitter_auto_approve: value })}
         />
 
-        {/* 審査員設定 */}
-        <div className="border-t pt-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-            審査員設定
-          </h2>
-          <JudgeSelector
-            selectedJudgeIds={selectedJudgeIds}
-            onJudgesChange={setSelectedJudgeIds}
-            creatorAsJudge={creatorAsJudge}
-            onCreatorAsJudgeChange={setCreatorAsJudge}
-          />
-        </div>
-
         <div className="flex gap-4">
           <button
             type="submit"
             disabled={loading}
             className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {loading ? '作成中...' : 'コンテストを作成'}
+            {loading ? '更新中...' : 'コンテストを更新'}
           </button>
           
           <button
             type="button"
-            onClick={() => router.back()}
-            className="px-6 py-3 border rounded-lg hover:bg-gray-50"
+            onClick={() => router.push(`/contests/${slug}`)}
+            className="px-6 py-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             キャンセル
           </button>

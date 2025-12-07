@@ -115,6 +115,115 @@ class ContestViewSet(viewsets.ModelViewSet):
         
         serializer = EntryListSerializer(entries, many=True, context={'request': request})
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def judging_contests(self, request):
+        """審査中のコンテスト一覧（審査員として割り当てられているコンテスト）"""
+        contests = Contest.objects.filter(judges=request.user).order_by('-start_at')
+        
+        page = self.paginate_queryset(contests)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(contests, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def add_judge(self, request, slug=None):
+        """審査員を追加（コンテスト作成者のみ）"""
+        contest = self.get_object()
+        
+        # 作成者または管理者のみ許可
+        if contest.creator != request.user and not request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("このコンテストの審査員を管理する権限がありません。")
+        
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response(
+                {'detail': 'user_idは必須です。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        from accounts.models import User
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(
+                {'detail': 'ユーザーが見つかりません。'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # 審査員として追加
+        if contest.judges.filter(id=user_id).exists():
+            return Response(
+                {'detail': 'このユーザーは既に審査員として登録されています。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        contest.judges.add(user)
+        return Response({
+            'detail': f'{user.username}を審査員として追加しました。',
+            'judge': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email
+            }
+        }, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def remove_judge(self, request, slug=None):
+        """審査員を削除（コンテスト作成者のみ）"""
+        contest = self.get_object()
+        
+        # 作成者または管理者のみ許可
+        if contest.creator != request.user and not request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("このコンテストの審査員を管理する権限がありません。")
+        
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response(
+                {'detail': 'user_idは必須です。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        from accounts.models import User
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(
+                {'detail': 'ユーザーが見つかりません。'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # 審査員から削除
+        if not contest.judges.filter(id=user_id).exists():
+            return Response(
+                {'detail': 'このユーザーは審査員として登録されていません。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        contest.judges.remove(user)
+        return Response({
+            'detail': f'{user.username}を審査員から削除しました。'
+        }, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def judges(self, request, slug=None):
+        """審査員一覧（コンテスト作成者と審査員のみ）"""
+        contest = self.get_object()
+        
+        # 作成者、審査員、または管理者のみ許可
+        if contest.creator != request.user and not contest.judges.filter(id=request.user.id).exists() and not request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("この情報を閲覧する権限がありません。")
+        
+        from accounts.serializers import UserSerializer
+        judges = contest.judges.all()
+        serializer = UserSerializer(judges, many=True)
+        return Response(serializer.data)
 
 
 class EntryViewSet(viewsets.ModelViewSet):

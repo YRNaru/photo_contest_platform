@@ -58,12 +58,15 @@ class ContestListSerializer(serializers.ModelSerializer):
     entry_count = serializers.SerializerMethodField()
     creator_username = serializers.CharField(source='creator.username', read_only=True)
     is_owner = serializers.SerializerMethodField()
+    is_judge = serializers.SerializerMethodField()
+    judge_count = serializers.SerializerMethodField()
     
     class Meta:
         model = Contest
         fields = ('slug', 'title', 'description', 'banner_image',
                   'start_at', 'end_at', 'voting_end_at', 'is_public',
-                  'phase', 'entry_count', 'creator_username', 'is_owner', 'created_at')
+                  'phase', 'entry_count', 'creator_username', 'is_owner', 
+                  'is_judge', 'judge_count', 'created_at')
     
     def get_phase(self, obj):
         return obj.phase()
@@ -77,6 +80,17 @@ class ContestListSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.creator == request.user
         return False
+    
+    def get_is_judge(self, obj):
+        """現在のユーザーがこのコンテストの審査員かどうか"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.judges.filter(id=request.user.id).exists()
+        return False
+    
+    def get_judge_count(self, obj):
+        """審査員の数"""
+        return obj.judges.count()
 
 
 class ContestDetailSerializer(serializers.ModelSerializer):
@@ -85,13 +99,17 @@ class ContestDetailSerializer(serializers.ModelSerializer):
     entry_count = serializers.SerializerMethodField()
     creator_username = serializers.CharField(source='creator.username', read_only=True)
     is_owner = serializers.SerializerMethodField()
+    is_judge = serializers.SerializerMethodField()
+    judges = UserSerializer(many=True, read_only=True)
     
     class Meta:
         model = Contest
         fields = ('slug', 'title', 'description', 'banner_image',
                   'start_at', 'end_at', 'voting_end_at', 'is_public',
                   'max_entries_per_user', 'max_images_per_entry',
+                  'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
                   'phase', 'entry_count', 'creator_username', 'is_owner',
+                  'is_judge', 'judges',
                   'created_at', 'updated_at')
     
     def get_phase(self, obj):
@@ -105,6 +123,13 @@ class ContestDetailSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.creator == request.user
+        return False
+    
+    def get_is_judge(self, obj):
+        """現在のユーザーがこのコンテストの審査員かどうか"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.judges.filter(id=request.user.id).exists()
         return False
 
 
@@ -215,19 +240,20 @@ class EntryCreateSerializer(serializers.ModelSerializer):
             logger = logging.getLogger(__name__)
             logger.warning(f'[DEV] {error_msg}')
         
-        # 応募数制限チェック
-        user_entries = Entry.objects.filter(
-            contest=contest,
-            author=request.user
-        ).count()
-        if user_entries >= contest.max_entries_per_user:
-            raise serializers.ValidationError(
-                f'このコンテストへの応募は最大{contest.max_entries_per_user}件までです。'
-            )
+        # 応募数制限チェック（0の場合は無制限）
+        if contest.max_entries_per_user > 0:
+            user_entries = Entry.objects.filter(
+                contest=contest,
+                author=request.user
+            ).count()
+            if user_entries >= contest.max_entries_per_user:
+                raise serializers.ValidationError(
+                    f'このコンテストへの応募は最大{contest.max_entries_per_user}件までです。'
+                )
         
-        # 画像数チェック
+        # 画像数チェック（0の場合は無制限）
         images = data.get('images', [])
-        if len(images) > contest.max_images_per_entry:
+        if contest.max_images_per_entry > 0 and len(images) > contest.max_images_per_entry:
             raise serializers.ValidationError(
                 f'画像は最大{contest.max_images_per_entry}枚までアップロードできます。'
             )

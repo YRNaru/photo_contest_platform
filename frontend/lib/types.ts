@@ -37,8 +37,16 @@ export interface Contest {
   is_public: boolean;
   max_entries_per_user: number;
   max_images_per_entry: number;
+  twitter_hashtag?: string;
+  twitter_auto_fetch?: boolean;
+  twitter_auto_approve?: boolean;
   phase: "upcoming" | "submission" | "voting" | "closed";
   entry_count: number;
+  creator_username?: string;
+  is_owner?: boolean;
+  is_judge?: boolean;
+  judge_count?: number;
+  judges?: User[];
   created_at: string;
   updated_at: string;
 }

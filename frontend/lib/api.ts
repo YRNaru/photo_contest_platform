@@ -81,6 +81,9 @@ export const contestApi = {
   // 自分のコンテスト一覧
   getMyContests: () => api.get('/contests/my_contests/'),
   
+  // 審査中のコンテスト一覧
+  getJudgingContests: () => api.get('/contests/judging_contests/'),
+  
   // コンテスト詳細
   getContest: (slug: string) => api.get(`/contests/${slug}/`),
   
@@ -97,6 +100,17 @@ export const contestApi = {
   // コンテストのエントリー一覧
   getContestEntries: (slug: string, params?: any) => 
     api.get(`/contests/${slug}/entries/`, { params }),
+  
+  // 審査員を追加（作成者のみ）
+  addJudge: (slug: string, userId: string) =>
+    api.post(`/contests/${slug}/add_judge/`, { user_id: userId }),
+  
+  // 審査員を削除（作成者のみ）
+  removeJudge: (slug: string, userId: string) =>
+    api.post(`/contests/${slug}/remove_judge/`, { user_id: userId }),
+  
+  // 審査員一覧
+  getJudges: (slug: string) => api.get(`/contests/${slug}/judges/`),
 };
 
 export const entryApi = {

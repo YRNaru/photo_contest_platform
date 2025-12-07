@@ -10,6 +10,7 @@ interface ContestFormInputProps {
   onFileChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   min?: string;
   max?: string;
+  disabled?: boolean;
 }
 
 export function ContestFormInput({ 
@@ -23,7 +24,8 @@ export function ContestFormInput({
   accept,
   onFileChange,
   min,
-  max
+  max,
+  disabled = false
 }: ContestFormInputProps) {
   return (
     <div>
@@ -35,7 +37,8 @@ export function ContestFormInput({
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={disabled}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
           rows={4}
           placeholder={placeholder}
         />
@@ -44,7 +47,8 @@ export function ContestFormInput({
           type="file"
           accept={accept}
           onChange={onFileChange}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={disabled}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
         />
       ) : type === 'number' ? (
         <input
@@ -53,7 +57,8 @@ export function ContestFormInput({
           max={max}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={disabled}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
         />
       ) : (
         <input
@@ -61,7 +66,8 @@ export function ContestFormInput({
           required={required}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={disabled}
+          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
           placeholder={placeholder}
         />
       )}

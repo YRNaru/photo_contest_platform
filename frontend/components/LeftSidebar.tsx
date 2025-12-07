@@ -16,6 +16,7 @@ export function LeftSidebar() {
     ...(isAuthenticated
       ? [
           { href: "/my-contests", label: "マイコンテスト", icon: "📋" },
+          { href: "/judging-contests", label: "審査中のコンテスト", icon: "👨‍⚖️" },
           { href: "/submit", label: "写真を投稿", icon: "📸" },
           { href: "/my-entries", label: "マイ投稿", icon: "📷" },
           { href: "/profile", label: "プロフィール", icon: "👤" },

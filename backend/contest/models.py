@@ -11,6 +11,7 @@ class Contest(models.Model):
     description = models.TextField(blank=True, verbose_name='説明')
     banner_image = models.ImageField(upload_to='contests/banners/', blank=True, null=True, verbose_name='バナー画像')
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_contests', verbose_name='作成者', null=True, blank=True)
+    judges = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='judging_contests', blank=True, verbose_name='審査員')
     start_at = models.DateTimeField(verbose_name='開始日時')
     end_at = models.DateTimeField(verbose_name='終了日時')
     voting_end_at = models.DateTimeField(null=True, blank=True, verbose_name='投票終了日時')
