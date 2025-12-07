@@ -28,6 +28,7 @@ export function JudgeSelector({
       const response = await userApi.me();
       return response.data;
     },
+    staleTime: 5 * 60 * 1000, // 5分間キャッシュ
   });
 
   // ユーザー一覧を取得
@@ -37,6 +38,7 @@ export function JudgeSelector({
       const response = await userApi.getUsers();
       return response.data;
     },
+    staleTime: 2 * 60 * 1000, // 2分間キャッシュ
   });
 
   const allUsers = usersData?.results || [];

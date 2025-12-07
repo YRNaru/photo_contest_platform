@@ -23,6 +23,7 @@ class ContestCreateSerializer(serializers.ModelSerializer):
         fields = ('slug', 'title', 'description', 'banner_image',
                   'start_at', 'end_at', 'voting_end_at', 'is_public',
                   'max_entries_per_user', 'max_images_per_entry',
+                  'auto_approve_entries',
                   'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve')
     
     def validate(self, data):
@@ -107,6 +108,7 @@ class ContestDetailSerializer(serializers.ModelSerializer):
         fields = ('slug', 'title', 'description', 'banner_image',
                   'start_at', 'end_at', 'voting_end_at', 'is_public',
                   'max_entries_per_user', 'max_images_per_entry',
+                  'auto_approve_entries',
                   'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
                   'phase', 'entry_count', 'creator_username', 'is_owner',
                   'is_judge', 'judges',
@@ -276,9 +278,10 @@ class EntryCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         from django.conf import settings
         images = validated_data.pop('images')
+        contest = validated_data.get('contest')
         
-        # 開発環境では自動承認、本番環境では手動承認
-        auto_approve = settings.DEBUG
+        # コンテストの自動承認設定に従う。設定がない場合はDEBUGモードに依存
+        auto_approve = contest.auto_approve_entries if contest else settings.DEBUG
         
         entry = Entry.objects.create(
             **validated_data,

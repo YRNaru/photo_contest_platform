@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { contestApi, userApi } from '@/lib/api';
 import { ContestFormInput } from '@/components/contest/ContestFormInput';
 import { DateTimeInput } from '@/components/contest/DateTimeInput';
@@ -10,6 +11,7 @@ import { JudgeSelector } from '@/components/contest/JudgeSelector';
 
 export default function CreateContestPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -27,8 +29,9 @@ export default function CreateContestPage() {
     end_at: '',
     voting_end_at: '',
     is_public: true,
-    max_entries_per_user: '1',
-    max_images_per_entry: '5',
+    max_entries_per_user: '10',
+    max_images_per_entry: '100',
+    auto_approve_entries: false,
     twitter_hashtag: '',
     twitter_auto_fetch: false,
     twitter_auto_approve: false,
@@ -67,6 +70,7 @@ export default function CreateContestPage() {
       // 無制限の場合は0を送信
       data.append('max_entries_per_user', unlimitedEntries ? '0' : formData.max_entries_per_user);
       data.append('max_images_per_entry', unlimitedImages ? '0' : formData.max_images_per_entry);
+      data.append('auto_approve_entries', formData.auto_approve_entries.toString());
       
       // オプションフィールド
       if (formData.voting_end_at) {
@@ -113,9 +117,16 @@ export default function CreateContestPage() {
           setError(judgeError);
         }
         
+        // キャッシュをクリア
+        queryClient.invalidateQueries({ queryKey: ['contests'] });
+        queryClient.invalidateQueries({ queryKey: ['contest', slug] });
+        queryClient.removeQueries({ queryKey: ['users'] });
+        queryClient.removeQueries({ queryKey: ['current-user'] });
+        
         router.push(`/contests/${slug}`);
       } else {
         // slugがない場合はコンテスト一覧へ
+        queryClient.invalidateQueries({ queryKey: ['contests'] });
         router.push('/contests');
       }
     } catch (err: any) {
@@ -254,16 +265,29 @@ export default function CreateContestPage() {
           </div>
         </div>
 
-        <div>
+        <div className="space-y-2">
           <label className="flex items-center">
             <input
               type="checkbox"
               checked={formData.is_public}
               onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
-              className="mr-2"
+              className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
             />
-            <span className="text-sm font-medium">公開する</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">公開する</span>
           </label>
+          
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={formData.auto_approve_entries}
+              onChange={(e) => setFormData({ ...formData, auto_approve_entries: e.target.checked })}
+              className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">投稿を自動承認する</span>
+          </label>
+          <p className="text-xs text-gray-600 dark:text-gray-400 ml-6">
+            有効にすると、ユーザーが投稿した作品が自動的に承認されます
+          </p>
         </div>
 
         <TwitterSettings

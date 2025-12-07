@@ -19,6 +19,9 @@ class Contest(models.Model):
     max_entries_per_user = models.IntegerField(default=1, verbose_name='ユーザーあたり最大応募数')
     max_images_per_entry = models.IntegerField(default=5, verbose_name='エントリーあたり最大画像数')
     
+    # 承認設定
+    auto_approve_entries = models.BooleanField(default=False, verbose_name='投稿の自動承認', help_text='有効にすると、投稿が自動的に承認されます')
+    
     # Twitter自動取得設定
     twitter_hashtag = models.CharField(max_length=100, blank=True, verbose_name='Twitterハッシュタグ', help_text='例: フォトコンテスト (# は不要)')
     twitter_auto_fetch = models.BooleanField(default=False, verbose_name='Twitter自動取得')

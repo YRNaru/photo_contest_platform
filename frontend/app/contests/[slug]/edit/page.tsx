@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { contestApi } from '@/lib/api';
 import { ContestFormInput } from '@/components/contest/ContestFormInput';
 import { DateTimeInput } from '@/components/contest/DateTimeInput';
@@ -15,6 +15,7 @@ export default function EditContestPage() {
   const params = useParams();
   const slug = params.slug as string;
   const { user, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,8 +27,9 @@ export default function EditContestPage() {
     end_at: '',
     voting_end_at: '',
     is_public: true,
-    max_entries_per_user: '1',
-    max_images_per_entry: '5',
+    max_entries_per_user: '10',
+    max_images_per_entry: '100',
+    auto_approve_entries: false,
     twitter_hashtag: '',
     twitter_auto_fetch: false,
     twitter_auto_approve: false,
@@ -37,13 +39,15 @@ export default function EditContestPage() {
   const [unlimitedEntries, setUnlimitedEntries] = useState(false);
   const [unlimitedImages, setUnlimitedImages] = useState(false);
 
-  // コンテスト情報を取得
+  // コンテスト情報を取得（キャッシュを使わず常に最新データを取得）
   const { data: contest, isLoading: contestLoading } = useQuery({
-    queryKey: ['contest', slug],
+    queryKey: ['contest-edit', slug],
     queryFn: async () => {
       const response = await contestApi.getContest(slug);
       return response.data as Contest;
     },
+    staleTime: 0,
+    gcTime: 0,
   });
 
   // コンテスト情報が取得できたらフォームに設定
@@ -74,8 +78,9 @@ export default function EditContestPage() {
         end_at: formatDateTimeLocal(contest.end_at),
         voting_end_at: contest.voting_end_at ? formatDateTimeLocal(contest.voting_end_at) : '',
         is_public: contest.is_public,
-        max_entries_per_user: String(contest.max_entries_per_user || 1),
-        max_images_per_entry: String(contest.max_images_per_entry || 5),
+        max_entries_per_user: String(contest.max_entries_per_user || 10),
+        max_images_per_entry: String(contest.max_images_per_entry || 100),
+        auto_approve_entries: contest.auto_approve_entries || false,
         twitter_hashtag: contest.twitter_hashtag || '',
         twitter_auto_fetch: contest.twitter_auto_fetch || false,
         twitter_auto_approve: contest.twitter_auto_approve || false,
@@ -113,6 +118,7 @@ export default function EditContestPage() {
       // 無制限の場合は0を送信
       data.append('max_entries_per_user', unlimitedEntries ? '0' : formData.max_entries_per_user);
       data.append('max_images_per_entry', unlimitedImages ? '0' : formData.max_images_per_entry);
+      data.append('auto_approve_entries', formData.auto_approve_entries.toString());
       
       // オプションフィールド
       if (formData.voting_end_at) {
@@ -131,6 +137,12 @@ export default function EditContestPage() {
       }
 
       await contestApi.updateContest(slug, data);
+      
+      // キャッシュをクリア
+      queryClient.invalidateQueries({ queryKey: ['contests'] });
+      queryClient.invalidateQueries({ queryKey: ['contest', slug] });
+      queryClient.invalidateQueries({ queryKey: ['contest-edit', slug] });
+      queryClient.removeQueries({ queryKey: ['contest-edit', slug] });
       
       // 更新したコンテストの詳細ページにリダイレクト
       router.push(`/contests/${slug}`);
@@ -316,16 +328,29 @@ export default function EditContestPage() {
           </div>
         </div>
 
-        <div>
+        <div className="space-y-2">
           <label className="flex items-center">
             <input
               type="checkbox"
               checked={formData.is_public}
               onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
-              className="mr-2"
+              className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
             />
-            <span className="text-sm font-medium">公開する</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">公開する</span>
           </label>
+          
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={formData.auto_approve_entries}
+              onChange={(e) => setFormData({ ...formData, auto_approve_entries: e.target.checked })}
+              className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">投稿を自動承認する</span>
+          </label>
+          <p className="text-xs text-gray-600 dark:text-gray-400 ml-6">
+            有効にすると、ユーザーが投稿した作品が自動的に承認されます
+          </p>
         </div>
 
         <TwitterSettings

@@ -25,6 +25,8 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
       return response.data as User[];
     },
     enabled: isOwner,
+    staleTime: 30 * 1000, // 30秒間キャッシュ
+    refetchOnMount: true,
   });
 
   // ユーザー一覧を取得（審査員追加用）
@@ -35,6 +37,7 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
       return response.data.results as User[];
     },
     enabled: isAddingJudge,
+    staleTime: 2 * 60 * 1000, // 2分間キャッシュ
   });
 
   // 審査員を追加

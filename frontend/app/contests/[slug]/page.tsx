@@ -18,6 +18,8 @@ export default function ContestDetailPage() {
       const response = await contestApi.getContest(slug);
       return response.data;
     },
+    staleTime: 1 * 60 * 1000, // 1分間キャッシュ
+    refetchOnMount: true, // マウント時に再取得
   });
 
   if (isLoading) {
