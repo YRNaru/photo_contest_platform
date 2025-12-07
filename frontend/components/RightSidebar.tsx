@@ -3,25 +3,45 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSidebar } from "@/lib/sidebar-context";
+import { contestApi } from "@/lib/api";
 
 interface TrendingContest {
-  id: number;
+  slug: string;
   title: string;
   entry_count: number;
 }
 
 export function RightSidebar() {
   const [trending, setTrending] = useState<TrendingContest[]>([]);
+  const [loading, setLoading] = useState(true);
   const { isRightOpen } = useSidebar();
 
   useEffect(() => {
-    // ここでは仮のデータを表示しています
-    // 実際にはAPIから取得することができます
-    setTrending([
-      { id: 1, title: "春のフォトコンテスト", entry_count: 125 },
-      { id: 2, title: "ポートレート写真大会", entry_count: 98 },
-      { id: 3, title: "夜景フォトコン", entry_count: 87 },
-    ]);
+    const fetchTrendingContests = async () => {
+      try {
+        const response = await contestApi.getContests();
+        const contests = response.data.results || response.data;
+        
+        // エントリー数が多い順に並べ替えて上位5件を取得
+        const sortedContests = contests
+          .filter((c: any) => c.entry_count > 0) // エントリーがあるものだけ
+          .sort((a: any, b: any) => b.entry_count - a.entry_count)
+          .slice(0, 5)
+          .map((c: any) => ({
+            slug: c.slug,
+            title: c.title,
+            entry_count: c.entry_count,
+          }));
+        
+        setTrending(sortedContests);
+      } catch (error) {
+        console.error('Failed to fetch trending contests:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrendingContests();
   }, []);
 
   return (
@@ -49,35 +69,58 @@ export function RightSidebar() {
             人気のコンテスト
           </h2>
           <div className="space-y-3">
-            {trending.map((contest, index) => (
-              <Link
-                key={contest.id}
-                href={`/contests/${contest.id}`}
-                style={{ 
-                  transitionDelay: isRightOpen ? `${150 + (index + 1) * 80}ms` : '0ms',
-                }}
-                className={`group block p-4 rounded-xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:scale-105 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-xl transform-gpu transition-all duration-500 ${
-                  isRightOpen 
-                    ? 'translate-x-0 opacity-100' 
-                    : 'translate-x-8 opacity-0'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <span className="text-lg font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-300 dark:to-pink-300 bg-clip-text text-transparent group-hover:scale-125 transition-transform duration-300">
-                    #{index + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate group-hover:text-purple-700 dark:group-hover:text-purple-200 transition-colors">
-                      {contest.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 flex items-center gap-1">
-                      <span className="inline-block w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse-slow"></span>
-                      {contest.entry_count} 件の投稿
-                    </p>
+            {loading ? (
+              // ローディング表示
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 animate-pulse">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                ))}
+              </div>
+            ) : trending.length > 0 ? (
+              // コンテスト一覧
+              trending.map((contest, index) => (
+                <Link
+                  key={contest.slug}
+                  href={`/contests/${contest.slug}`}
+                  style={{ 
+                    transitionDelay: isRightOpen ? `${150 + (index + 1) * 80}ms` : '0ms',
+                  }}
+                  className={`group block p-4 rounded-xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:scale-105 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-xl transform-gpu transition-all duration-500 ${
+                    isRightOpen 
+                      ? 'translate-x-0 opacity-100' 
+                      : 'translate-x-8 opacity-0'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-300 dark:to-pink-300 bg-clip-text text-transparent group-hover:scale-125 transition-transform duration-300">
+                      #{index + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate group-hover:text-purple-700 dark:group-hover:text-purple-200 transition-colors">
+                        {contest.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse-slow"></span>
+                        {contest.entry_count} 件の投稿
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              // データがない場合
+              <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+                現在、人気のコンテストはありません
+              </div>
+            )}
           </div>
         </div>
 
