@@ -66,6 +66,8 @@ export interface EntryImage {
 export interface Entry {
   id: string;
   contest: string;
+  contest_slug?: string;
+  contest_title?: string;
   author: User;
   title: string;
   description: string;

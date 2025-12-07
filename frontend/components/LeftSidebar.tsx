@@ -10,6 +10,8 @@ export function LeftSidebar() {
   const { isAuthenticated } = useAuth();
   const { isLeftOpen } = useSidebar();
 
+  const { user } = useAuth();
+
   const menuItems = [
     { href: "/", label: "ホーム", icon: "🏠" },
     { href: "/contests", label: "コンテスト", icon: "🏆" },
@@ -19,6 +21,9 @@ export function LeftSidebar() {
           { href: "/judging-contests", label: "審査中のコンテスト", icon: "👨‍⚖️" },
           { href: "/submit", label: "写真を投稿", icon: "📸" },
           { href: "/my-entries", label: "マイ投稿", icon: "📷" },
+          ...(user?.is_moderator || user?.is_staff ? [
+            { href: "/pending-entries", label: "承認待ちエントリー", icon: "📋" },
+          ] : []),
           { href: "/profile", label: "プロフィール", icon: "👤" },
         ]
       : []),
