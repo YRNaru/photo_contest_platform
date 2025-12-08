@@ -26,6 +26,13 @@ export default function HomePage() {
             <span className="text-xl sm:text-2xl group-hover:scale-125 transition-transform">📸</span>
             作品を投稿
           </Link>
+          <Link
+            href="/features"
+            className="group px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 sm:hover:scale-110 transform-gpu flex items-center justify-center gap-2"
+          >
+            <span className="text-xl sm:text-2xl group-hover:scale-125 transition-transform">✨</span>
+            機能一覧
+          </Link>
         </div>
       </section>
 

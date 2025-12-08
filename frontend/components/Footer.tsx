@@ -74,6 +74,12 @@ export function Footer() {
             </h4>
             <ul className="space-y-3 text-sm">
               <li>
+                <Link href="/features" className="group flex items-center gap-2 hover:text-pink-400 dark:hover:text-pink-300 transition-all duration-300 hover:translate-x-2">
+                  <span className="w-1.5 h-1.5 bg-pink-400 dark:bg-pink-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  機能一覧
+                </Link>
+              </li>
+              <li>
                 <Link href="/help" className="group flex items-center gap-2 hover:text-pink-400 dark:hover:text-pink-300 transition-all duration-300 hover:translate-x-2">
                   <span className="w-1.5 h-1.5 bg-pink-400 dark:bg-pink-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
                   ヘルプセンター

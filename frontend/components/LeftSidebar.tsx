@@ -15,6 +15,7 @@ export function LeftSidebar() {
   const menuItems = [
     { href: "/", label: "ホーム", icon: "🏠" },
     { href: "/contests", label: "コンテスト", icon: "🏆" },
+    { href: "/features", label: "機能一覧", icon: "✨" },
     ...(isAuthenticated
       ? [
           { href: "/my-contests", label: "マイコンテスト", icon: "📋" },
