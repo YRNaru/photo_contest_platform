@@ -11,6 +11,7 @@ import { FormInput } from "@/components/submit/FormInput";
 import { ImageUploadSection } from "@/components/submit/ImageUploadSection";
 import { ErrorDisplay } from "@/components/submit/ErrorDisplay";
 import { SubmitButton } from "@/components/submit/SubmitButton";
+import { TagSelector } from "@/components/submit/TagSelector";
 
 export default function SubmitPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function SubmitPage() {
   const [selectedContest, setSelectedContest] = useState(contestSlug || "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const [error, setError] = useState("");
 
@@ -146,7 +147,7 @@ export default function SubmitPage() {
     formData.append("contest", selectedContest);
     formData.append("title", title);
     formData.append("description", description);
-    formData.append("tags", tags);
+    formData.append("tags", selectedTags.join(", "));
     images.forEach((image) => {
       formData.append("images", image);
     });
@@ -222,13 +223,16 @@ export default function SubmitPage() {
           multiline
         />
 
-        <FormInput
-          label="タグ（カンマ区切り）"
-          icon="🏷️"
-          value={tags}
-          onChange={setTags}
-          placeholder="VRChat, しなの, ツーショット"
-        />
+        {/* タグ選択 */}
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-purple-500/10 p-6 border border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-2xl">🏷️</span>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              タグ
+            </h2>
+          </div>
+          <TagSelector selectedTags={selectedTags} onTagsChange={setSelectedTags} />
+        </div>
 
         <ImageUploadSection
           images={images}
