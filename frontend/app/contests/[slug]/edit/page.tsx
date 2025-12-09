@@ -7,7 +7,9 @@ import { contestApi } from '@/lib/api';
 import { ContestFormInput } from '@/components/contest/ContestFormInput';
 import { DateTimeInput } from '@/components/contest/DateTimeInput';
 import { TwitterSettings } from '@/components/contest/TwitterSettings';
+import { JudgingTypeSelector } from '@/components/contest/JudgingTypeSelector';
 import { Contest } from '@/lib/types';
+import { JudgingType } from '@/types/judging';
 import { useAuth } from '@/lib/auth';
 
 export default function EditContestPage() {
@@ -29,6 +31,8 @@ export default function EditContestPage() {
     is_public: true,
     max_entries_per_user: '10',
     max_images_per_entry: '100',
+    judging_type: 'vote' as JudgingType,
+    max_votes_per_judge: 3,
     auto_approve_entries: false,
     twitter_hashtag: '',
     twitter_auto_fetch: false,
@@ -81,6 +85,8 @@ export default function EditContestPage() {
         is_public: contest.is_public,
         max_entries_per_user: String(contest.max_entries_per_user || 10),
         max_images_per_entry: String(contest.max_images_per_entry || 100),
+        judging_type: (contest.judging_type || 'vote') as JudgingType,
+        max_votes_per_judge: contest.max_votes_per_judge || 3,
         auto_approve_entries: contest.auto_approve_entries || false,
         twitter_hashtag: contest.twitter_hashtag || '',
         twitter_auto_fetch: contest.twitter_auto_fetch || false,
@@ -121,6 +127,8 @@ export default function EditContestPage() {
       data.append('max_entries_per_user', unlimitedEntries ? '0' : formData.max_entries_per_user);
       data.append('max_images_per_entry', unlimitedImages ? '0' : formData.max_images_per_entry);
       data.append('auto_approve_entries', formData.auto_approve_entries.toString());
+      data.append('judging_type', formData.judging_type);
+      data.append('max_votes_per_judge', formData.max_votes_per_judge.toString());
       
       // オプションフィールド
       if (formData.voting_end_at) {
@@ -288,6 +296,19 @@ export default function EditContestPage() {
           onChange={(value) => setFormData({ ...formData, voting_end_at: value })}
           helperText="未設定の場合、投票機能は無効になります"
         />
+
+        {/* 審査方式選択 */}
+        <div className="border-t pt-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+            審査方式
+          </h2>
+          <JudgingTypeSelector
+            judgingType={formData.judging_type}
+            onJudgingTypeChange={(type) => setFormData({ ...formData, judging_type: type })}
+            maxVotesPerJudge={formData.max_votes_per_judge}
+            onMaxVotesChange={(value) => setFormData({ ...formData, max_votes_per_judge: value })}
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* ユーザーあたり最大応募数 */}
