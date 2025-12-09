@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Category, Vote } from '@/types/judging';
 import { categoryApi, voteApi } from '@/lib/api';
-import { CheckIcon } from '@heroicons/react/24/solid';
-import Image from 'next/image';
+import { VotingStatusDisplay } from './VotingStatusDisplay';
+import { VotingEntryCard } from './VotingEntryCard';
 
 interface VotingPanelProps {
   contestSlug: string;
@@ -140,26 +140,10 @@ export function VotingPanel({
   return (
     <div className="space-y-6">
       {/* 投票状況 */}
-      <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-              投票状況
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {selectedCategory ? categories.find(c => c.id === selectedCategory)?.name : '全体'}
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              {remainingVotes}
-            </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              残り投票数
-            </div>
-          </div>
-        </div>
-      </div>
+      <VotingStatusDisplay
+        remainingVotes={remainingVotes}
+        selectedCategoryName={selectedCategory ? categories.find(c => c.id === selectedCategory)?.name : '全体'}
+      />
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -169,67 +153,17 @@ export function VotingPanel({
 
       {/* エントリー一覧 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {entries.map((entry) => {
-          const voted = hasVoted(entry.id);
-          const isVoting = votingEntry === entry.id;
-          
-          return (
-            <div
-              key={entry.id}
-              className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden border-2 transition-all ${
-                voted
-                  ? 'border-purple-600 shadow-lg'
-                  : 'border-gray-200 dark:border-gray-700'
-              }`}
-            >
-              {/* サムネイル */}
-              {entry.thumbnail && (
-                <div className="relative h-48 bg-gray-100 dark:bg-gray-900">
-                  <Image
-                    src={entry.thumbnail}
-                    alt={entry.title}
-                    fill
-                    className="object-cover"
-                  />
-                  {voted && (
-                    <div className="absolute top-2 right-2 bg-purple-600 text-white p-2 rounded-full">
-                      <CheckIcon className="w-6 h-6" />
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  {entry.title}
-                </h3>
-                {entry.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                    {entry.description}
-                  </p>
-                )}
-
-                {voted ? (
-                  <button
-                    onClick={() => handleUnvote(entry.id)}
-                    disabled={isVoting}
-                    className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
-                  >
-                    {isVoting ? '処理中...' : '投票を取り消す'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleVote(entry.id)}
-                    disabled={remainingVotes <= 0 || isVoting}
-                    className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isVoting ? '投票中...' : '投票する'}
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        {entries.map((entry) => (
+          <VotingEntryCard
+            key={entry.id}
+            entry={entry}
+            voted={hasVoted(entry.id)}
+            isVoting={votingEntry === entry.id}
+            remainingVotes={remainingVotes}
+            onVote={() => handleVote(entry.id)}
+            onUnvote={() => handleUnvote(entry.id)}
+          />
+        ))}
       </div>
 
       {entries.length === 0 && (

@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { contestApi } from '@/lib/api';
-import { ContestFormInput } from '@/components/contest/ContestFormInput';
-import { DateTimeInput } from '@/components/contest/DateTimeInput';
+import { ContestBasicInfoForm } from '@/components/contest/ContestBasicInfoForm';
+import { ContestDatesForm } from '@/components/contest/ContestDatesForm';
+import { ContestLimitsForm } from '@/components/contest/ContestLimitsForm';
+import { ContestSettingsForm } from '@/components/contest/ContestSettingsForm';
 import { TwitterSettings } from '@/components/contest/TwitterSettings';
 import { JudgingTypeSelector } from '@/components/contest/JudgingTypeSelector';
 import { Contest } from '@/lib/types';
@@ -221,80 +223,26 @@ export default function EditContestPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* スラッグは表示のみ（編集不可） */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            スラッグ（URL用）
-          </label>
-          <input
-            type="text"
-            value={slug}
-            disabled
-            className="w-full px-4 py-2 border rounded-lg bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
-          />
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            スラッグは編集できません
-          </p>
-        </div>
-
-        <ContestFormInput
-          label="タイトル"
-          value={formData.title}
-          onChange={(value) => setFormData({ ...formData, title: value })}
-          required
-          placeholder="夏のフォトコンテスト2024"
+        {/* 基本情報 */}
+        <ContestBasicInfoForm
+          title={formData.title}
+          description={formData.description}
+          slug={slug}
+          bannerImage={bannerImage}
+          currentBannerImage={contest.banner_image}
+          onTitleChange={(value) => setFormData({ ...formData, title: value })}
+          onDescriptionChange={(value) => setFormData({ ...formData, description: value })}
+          onBannerImageChange={setBannerImage}
         />
 
-        <ContestFormInput
-          label="説明"
-          value={formData.description}
-          onChange={(value) => setFormData({ ...formData, description: value })}
-          type="textarea"
-          placeholder="コンテストの説明を入力してください"
-        />
-
-        {/* 現在のバナー画像を表示 */}
-        {contest.banner_image && !bannerImage && (
-          <div>
-            <label className="block text-sm font-medium mb-2">現在のバナー画像</label>
-            <img
-              src={contest.banner_image}
-              alt="現在のバナー"
-              className="max-w-full h-auto rounded-lg mb-2"
-            />
-          </div>
-        )}
-
-        <ContestFormInput
-          label={contest.banner_image ? "新しいバナー画像（変更する場合のみ）" : "バナー画像"}
-          value=""
-          onChange={() => {}}
-          type="file"
-          accept="image/*"
-          onFileChange={(e) => setBannerImage(e.target.files?.[0] || null)}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DateTimeInput
-            label="開始日時"
-            value={formData.start_at}
-            onChange={(value) => setFormData({ ...formData, start_at: value })}
-            required
-          />
-
-          <DateTimeInput
-            label="終了日時"
-            value={formData.end_at}
-            onChange={(value) => setFormData({ ...formData, end_at: value })}
-            required
-          />
-        </div>
-
-        <DateTimeInput
-          label="投票終了日時（任意）"
-          value={formData.voting_end_at}
-          onChange={(value) => setFormData({ ...formData, voting_end_at: value })}
-          helperText="未設定の場合、投票機能は無効になります"
+        {/* 日時設定 */}
+        <ContestDatesForm
+          startAt={formData.start_at}
+          endAt={formData.end_at}
+          votingEndAt={formData.voting_end_at}
+          onStartAtChange={(value) => setFormData({ ...formData, start_at: value })}
+          onEndAtChange={(value) => setFormData({ ...formData, end_at: value })}
+          onVotingEndAtChange={(value) => setFormData({ ...formData, voting_end_at: value })}
         />
 
         {/* 審査方式選択 */}
@@ -310,73 +258,27 @@ export default function EditContestPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* ユーザーあたり最大応募数 */}
-          <div>
-            <ContestFormInput
-              label="ユーザーあたり最大応募数"
-              value={formData.max_entries_per_user}
-              onChange={(value) => setFormData({ ...formData, max_entries_per_user: value })}
-              type="number"
-              disabled={unlimitedEntries}
-            />
-            <label className="flex items-center mt-2">
-              <input
-                type="checkbox"
-                checked={unlimitedEntries}
-                onChange={(e) => setUnlimitedEntries(e.target.checked)}
-                className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-              />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">無制限</span>
-            </label>
-          </div>
+        {/* 制限設定 */}
+        <ContestLimitsForm
+          maxEntriesPerUser={formData.max_entries_per_user}
+          maxImagesPerEntry={formData.max_images_per_entry}
+          unlimitedEntries={unlimitedEntries}
+          unlimitedImages={unlimitedImages}
+          onMaxEntriesChange={(value) => setFormData({ ...formData, max_entries_per_user: value })}
+          onMaxImagesChange={(value) => setFormData({ ...formData, max_images_per_entry: value })}
+          onUnlimitedEntriesChange={setUnlimitedEntries}
+          onUnlimitedImagesChange={setUnlimitedImages}
+        />
 
-          {/* エントリーあたり最大画像数 */}
-          <div>
-            <ContestFormInput
-              label="エントリーあたり最大画像数"
-              value={formData.max_images_per_entry}
-              onChange={(value) => setFormData({ ...formData, max_images_per_entry: value })}
-              type="number"
-              disabled={unlimitedImages}
-            />
-            <label className="flex items-center mt-2">
-              <input
-                type="checkbox"
-                checked={unlimitedImages}
-                onChange={(e) => setUnlimitedImages(e.target.checked)}
-                className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-              />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">無制限</span>
-            </label>
-          </div>
-        </div>
+        {/* その他設定 */}
+        <ContestSettingsForm
+          isPublic={formData.is_public}
+          autoApproveEntries={formData.auto_approve_entries}
+          onIsPublicChange={(value) => setFormData({ ...formData, is_public: value })}
+          onAutoApproveChange={(value) => setFormData({ ...formData, auto_approve_entries: value })}
+        />
 
-        <div className="space-y-2">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.is_public}
-              onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
-              className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-            />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">公開する</span>
-          </label>
-          
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={formData.auto_approve_entries}
-              onChange={(e) => setFormData({ ...formData, auto_approve_entries: e.target.checked })}
-              className="mr-2 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-            />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">投稿を自動承認する</span>
-          </label>
-          <p className="text-xs text-gray-600 dark:text-gray-400 ml-6">
-            有効にすると、ユーザーが投稿した作品が自動的に承認されます
-          </p>
-        </div>
-
+        {/* Twitter設定 */}
         <TwitterSettings
           hashtag={formData.twitter_hashtag}
           autoFetch={formData.twitter_auto_fetch}
