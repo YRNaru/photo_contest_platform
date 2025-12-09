@@ -66,6 +66,14 @@ export default function ContestDetailPage() {
             </div>
             {/* バナー上のアクションボタン */}
             <div className="absolute top-4 right-4 flex gap-2">
+              {contest.is_judge && (
+                <Link
+                  href={`/contests/${slug}/judge`}
+                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600/90 hover:bg-purple-600 backdrop-blur-sm text-white font-bold text-xs sm:text-sm rounded-lg shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  ⚖️ 審査する
+                </Link>
+              )}
               {contest.is_owner && (
                 <Link
                   href={`/contests/${slug}/edit`}
@@ -77,7 +85,7 @@ export default function ContestDetailPage() {
               {contest.phase === "submission" && (
                 <Link
                   href={`/submit?contest=${slug}`}
-                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600/90 hover:bg-purple-600 backdrop-blur-sm text-white font-bold text-xs sm:text-sm rounded-lg shadow-lg transition-all duration-300 hover:scale-105"
+                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600/90 hover:bg-blue-600 backdrop-blur-sm text-white font-bold text-xs sm:text-sm rounded-lg shadow-lg transition-all duration-300 hover:scale-105"
                 >
                   ✨ 作品を投稿
                 </Link>
@@ -95,6 +103,14 @@ export default function ContestDetailPage() {
                 {getPhaseLabel(contest.phase)}
               </span>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {contest.is_judge && (
+                  <Link
+                    href={`/contests/${slug}/judge`}
+                    className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform-gpu text-center"
+                  >
+                    ⚖️ 審査する
+                  </Link>
+                )}
                 {contest.is_owner && (
                   <Link
                     href={`/contests/${slug}/edit`}
@@ -106,7 +122,7 @@ export default function ContestDetailPage() {
                 {contest.phase === "submission" && (
                   <Link
                     href={`/submit?contest=${slug}`}
-                    className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform-gpu text-center"
+                    className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform-gpu text-center"
                   >
                     ✨ 作品を投稿
                   </Link>
