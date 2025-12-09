@@ -48,13 +48,14 @@ export default function ProfilePage() {
         // ユーザー情報を取得
         const response = await userApi.me()
         setUser(response.data)
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const error = err as { message?: string; response?: { status?: number } }
         console.error('プロフィール取得エラー:', err)
 
         // ネットワークエラーの場合
-        if (err.message === 'Network Error') {
+        if (error.message === 'Network Error') {
           setError('バックエンドに接続できません。サーバーが起動しているか確認してください。')
-        } else if (err.response?.status === 401) {
+        } else if (error.response?.status === 401) {
           // 未認証の場合はトークンを削除してホームにリダイレクト
           localStorage.removeItem('access_token')
           localStorage.removeItem('refresh_token')
@@ -119,7 +120,7 @@ export default function ProfilePage() {
 
       // 成功メッセージを3秒後に消す
       setTimeout(() => setUploadSuccess(false), 3000)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('アバターアップロードエラー:', err)
       alert('アイコンのアップロードに失敗しました')
       setAvatarPreview(null)
@@ -144,7 +145,7 @@ export default function ProfilePage() {
 
       // 成功メッセージを3秒後に消す
       setTimeout(() => setUploadSuccess(false), 3000)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Twitterアイコン設定エラー:', err)
       alert('Twitterアイコンの設定に失敗しました')
     } finally {

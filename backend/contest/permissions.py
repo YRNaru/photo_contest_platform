@@ -4,7 +4,7 @@ from rest_framework import permissions
 class IsJudge(permissions.BasePermission):
     """審査員権限"""
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _view):
         return request.user and request.user.is_authenticated and (
             request.user.is_judge or request.user.is_staff
         )
@@ -13,7 +13,7 @@ class IsJudge(permissions.BasePermission):
 class IsModerator(permissions.BasePermission):
     """モデレーター権限"""
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _view):
         return request.user and request.user.is_authenticated and (
             request.user.is_moderator or request.user.is_staff
         )
@@ -22,7 +22,7 @@ class IsModerator(permissions.BasePermission):
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """オーナーまたは読み取り専用"""
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, _view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
 

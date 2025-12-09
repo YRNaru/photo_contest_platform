@@ -1,42 +1,38 @@
 {
-  "reportMissingImports": "none",
-  "reportMissingTypeStubs": "none",
-  "reportMissingModuleSource": "none",
-  "reportGeneralTypeIssues": "none",
-  "reportOptionalMemberAccess": "none",
-  "reportFunctionMemberAccess": "none",
-  "reportAttributeAccessIssue": "none",
-  "reportArgumentType": "none",
-  "reportIncompatibleMethodOverride": "none",
+  "include": [
+    "accounts",
+    "contest",
+    "config"
+  ],
+  "exclude": [
+    "**/migrations",
+    "**/__pycache__",
+    "**/test_*.py",
+    "**/*_test.py",
+    "**/tests.py",
+    ".pytest_cache",
+    "htmlcov"
+  ],
+  "reportUnannotatedClassAttribute": "none",
+  "reportImplicitOverride": "none",
+  "reportUninitializedInstanceVariable": "none",
+  "reportPrivateLocalImportUsage": "none",
   "reportUnknownMemberType": "none",
-  "reportUnknownParameterType": "none",
   "reportUnknownVariableType": "none",
+  "reportUnknownParameterType": "none",
+  "reportUnknownLambdaType": "none",
   "reportUnknownArgumentType": "none",
-  "reportMissingParameterType": "none",
-  "reportUntypedFunctionDecorator": "none",
-  "reportAny": "none",
-  "reportUnusedVariable": "warning",
-  "reportCallIssue": "none",
-  "reportConstantRedefinition": "none",
-  "reportUntypedBaseClass": "none",
-  "reportUnusedCallResult": "none",
-  "reportImplicitRelativeImport": "none",
-  "reportImplicitStringConcatenation": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportOperatorIssue": "none",
+  "reportIncompatibleVariableOverride": "none",
+  "reportAssignmentType": "none",
+  "reportUnusedParameter": "none",
+  "reportUnusedImport": "warning",
+  "reportUnreachable": "none",
+  "reportUnnecessaryComparison": "warning",
+  "typeCheckingMode": "basic",
   "pythonVersion": "3.11",
   "pythonPlatform": "Linux",
-  "venvPath": ".",
-  "venv": "",
-  "extraPaths": [
-    "/usr/local/lib/python3.11/site-packages"
-  ],
-  "executionEnvironments": [
-    {
-      "root": ".",
-      "pythonVersion": "3.11",
-      "extraPaths": [
-        "/usr/local/lib/python3.11/site-packages"
-      ]
-    }
-  ]
+  "stubPath": "",
+  "useLibraryCodeForTypes": false
 }
-

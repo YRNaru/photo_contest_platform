@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Category, JudgeScore, Vote } from '@/types/judging'
 import { categoryApi, judgeScoreApi, voteApi } from '@/lib/api'
 import { TrophyIcon } from '@heroicons/react/24/solid'
@@ -37,7 +37,7 @@ export function ResultsDisplay({
   contestId,
   judgingType,
   entries,
-  isOwner,
+  isOwner: _isOwner,
 }: ResultsDisplayProps) {
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
@@ -45,37 +45,7 @@ export function ResultsDisplay({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadData()
-  }, [contestId, selectedCategory, judgingType])
-
-  const loadData = async () => {
-    try {
-      setLoading(true)
-
-      // 賞を読み込み
-      const categoriesRes = await categoryApi.getCategories(contestId)
-      // ページネーション対応: results配列がある場合はそれを使用、なければdata自体を使用
-      const categoriesData = Array.isArray(categoriesRes.data) ? categoriesRes.data : categoriesRes.data.results || []
-      setCategories(categoriesData)
-
-      // 結果を計算
-      if (judgingType === 'vote') {
-        await calculateVoteResults()
-      } else {
-        await calculateScoreResults()
-      }
-
-      setError(null)
-    } catch (err: any) {
-      setError('結果の読み込みに失敗しました')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const calculateVoteResults = async () => {
+  const calculateVoteResults = useCallback(async () => {
     try {
       const votesRes = await voteApi.getVotes()
       // ページネーション対応
@@ -116,9 +86,9 @@ export function ResultsDisplay({
     } catch (err) {
       console.error('投票結果の計算エラー:', err)
     }
-  }
+  }, [entries, selectedCategory])
 
-  const calculateScoreResults = async () => {
+  const calculateScoreResults = useCallback(async () => {
     try {
       const scoresRes = await judgeScoreApi.getScores()
       // ページネーション対応
@@ -167,7 +137,37 @@ export function ResultsDisplay({
     } catch (err) {
       console.error('スコア結果の計算エラー:', err)
     }
-  }
+  }, [entries, selectedCategory])
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true)
+
+      // 賞を読み込み
+      const categoriesRes = await categoryApi.getCategories(contestId)
+      // ページネーション対応: results配列がある場合はそれを使用、なければdata自体を使用
+      const categoriesData = Array.isArray(categoriesRes.data) ? categoriesRes.data : categoriesRes.data.results || []
+      setCategories(categoriesData)
+
+      // 結果を計算
+      if (judgingType === 'vote') {
+        await calculateVoteResults()
+      } else {
+        await calculateScoreResults()
+      }
+
+      setError(null)
+    } catch (err: unknown) {
+      setError('結果の読み込みに失敗しました')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [contestId, judgingType, calculateVoteResults, calculateScoreResults])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const getRankColor = (rank: number) => {
     if (rank === 1) return 'text-yellow-600 dark:text-yellow-400'

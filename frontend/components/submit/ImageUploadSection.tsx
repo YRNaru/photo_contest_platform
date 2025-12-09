@@ -1,5 +1,6 @@
 import { useDropzone } from 'react-dropzone'
 import { FaUpload, FaTimes } from 'react-icons/fa'
+import Image from 'next/image'
 
 interface ImageUploadSectionProps {
   images: File[]
@@ -52,12 +53,13 @@ export function ImageUploadSection({
           {images.map((file, index) => (
             <div
               key={index}
-              className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu"
+              className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu h-48"
             >
-              <img
+              <Image
                 src={URL.createObjectURL(file)}
                 alt={`Preview ${index + 1}`}
-                className="w-full h-48 object-cover"
+                fill
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button

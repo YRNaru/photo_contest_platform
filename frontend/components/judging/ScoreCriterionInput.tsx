@@ -12,7 +12,7 @@ interface ScoreCriterionInputProps {
 }
 
 export function ScoreCriterionInput({
-  criterionId,
+  criterionId: _criterionId,
   criterionName,
   criterionDescription,
   maxScore,

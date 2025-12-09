@@ -3,8 +3,6 @@
 """
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
 from .models import Contest, Entry, Category, JudgeScore, DetailedScore, JudgingCriteria
 from django.utils import timezone
 from datetime import timedelta
@@ -47,13 +45,13 @@ class ModelCoverageTest(TestCase):
         """カテゴリーの最大投票数がコンテスト設定から取得される"""
         self.contest.max_votes_per_judge = 5
         self.contest.save()
-        
+
         category = Category.objects.create(
             contest=self.contest,
             name='風景賞',
             # max_votes_per_judgeを設定しない
         )
-        
+
         # コンテストの設定が使用される
         self.assertEqual(category.get_max_votes(), 5)
 
@@ -65,20 +63,20 @@ class ModelCoverageTest(TestCase):
             title='Test Entry',
             approved=True
         )
-        
+
         judge = User.objects.create_user(
             username='judge',
             email='judge@example.com',
             password='pass',
             is_judge=True
         )
-        
+
         judge_score = JudgeScore.objects.create(
             entry=entry,
             judge=judge,
             total_score=0
         )
-        
+
         # 詳細スコアを追加
         criteria1 = JudgingCriteria.objects.create(
             contest=self.contest,
@@ -86,26 +84,26 @@ class ModelCoverageTest(TestCase):
             max_score=30,
             order=1
         )
-        
+
         criteria2 = JudgingCriteria.objects.create(
             contest=self.contest,
             name='色彩',
             max_score=30,
             order=2
         )
-        
+
         DetailedScore.objects.create(
             judge_score=judge_score,
             criteria=criteria1,
             score=25
         )
-        
+
         DetailedScore.objects.create(
             judge_score=judge_score,
             criteria=criteria2,
             score=28
         )
-        
+
         # 総合点が自動計算される
         judge_score.refresh_from_db()
         self.assertEqual(judge_score.total_score, 53)
@@ -118,27 +116,27 @@ class ModelCoverageTest(TestCase):
             title='Test Entry',
             approved=True
         )
-        
+
         judge = User.objects.create_user(
             username='judge2',
             email='judge2@example.com',
             password='pass',
             is_judge=True
         )
-        
+
         judge_score = JudgeScore.objects.create(
             entry=entry,
             judge=judge,
             total_score=0
         )
-        
+
         criteria = JudgingCriteria.objects.create(
             contest=self.contest,
             name='技術',
             max_score=20,
             order=1
         )
-        
+
         # 最大スコアを超える
         with self.assertRaises(ValueError):
             detailed = DetailedScore(
@@ -147,7 +145,7 @@ class ModelCoverageTest(TestCase):
                 score=25  # 最大20を超える
             )
             detailed.save()
-        
+
         # 負のスコア
         with self.assertRaises(ValueError):
             detailed = DetailedScore(
@@ -163,7 +161,7 @@ class ModelCoverageTest(TestCase):
             contest=self.contest,
             name='風景賞'
         )
-        
+
         criteria = JudgingCriteria.objects.create(
             contest=self.contest,
             category=category,
@@ -171,7 +169,7 @@ class ModelCoverageTest(TestCase):
             max_score=30,
             order=1
         )
-        
+
         str_repr = str(criteria)
         self.assertIn('Test Contest', str_repr)
         self.assertIn('風景賞', str_repr)
@@ -183,14 +181,14 @@ class ModelCoverageTest(TestCase):
             contest=self.contest,
             name='風景賞'
         )
-        
+
         entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         # カテゴリーとエントリーが正常に関連付けられることを確認
         self.assertEqual(entry.contest, self.contest)
         self.assertEqual(category.contest, self.contest)
@@ -219,18 +217,18 @@ class AdminCoverageTest(TestCase):
         """ContestAdmin fetch_twitter_nowアクション"""
         from django.contrib import admin
         from contest.admin import ContestAdmin
-        from unittest.mock import Mock, MagicMock
-        
+        from unittest.mock import Mock
+
         site = admin.AdminSite()
         contest_admin = ContestAdmin(Contest, site)
-        
+
         # モックリクエスト
         request = Mock()
-        
+
         # fetch_twitter_nowアクションを実行
         queryset = Contest.objects.filter(id=self.contest.id)
         contest_admin.fetch_twitter_now(request, queryset)
-        
+
         # エラーが発生しないことを確認
         self.assertTrue(True)
 
@@ -261,7 +259,7 @@ class EntryWithoutAuthorTest(TestCase):
             title='Twitter Entry',
             approved=True
         )
-        
+
         str_repr = str(entry)
         self.assertIn('@twitteruser', str_repr)
         self.assertIn('(Twitter)', str_repr)
@@ -274,7 +272,7 @@ class EntryWithoutAuthorTest(TestCase):
             title='Unknown Entry',
             approved=True
         )
-        
+
         str_repr = str(entry)
         self.assertIn('(投稿者不明)', str_repr)
 
@@ -291,4 +289,3 @@ class ConfigCoverageTest(TestCase):
         """URLsがインポートできることを確認"""
         from config import urls
         self.assertIsNotNone(urls.urlpatterns)
-

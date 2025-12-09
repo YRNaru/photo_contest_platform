@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Calendar, momentLocalizer, View } from 'react-big-calendar'
+import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { Contest } from '@/lib/types'
@@ -24,7 +24,10 @@ interface ContestEvent {
   end: Date
   contest: Contest
   eventType: 'start' | 'end' | 'voting_end'
-  resource?: any
+  resource?: {
+    type: string
+    color: string
+  }
 }
 
 interface ContestCalendarProps {

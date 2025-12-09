@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { contestApi } from '@/lib/api'
+import { Entry } from '@/lib/types'
 import { EntryCard } from './EntryCard'
 import { useState } from 'react'
 
@@ -74,7 +75,7 @@ export function EntryGrid({ contestSlug }: EntryGridProps) {
 
       {/* グリッド */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-        {data.map((entry: any) => (
+        {data.map((entry: Entry) => (
           <EntryCard key={entry.id} entry={entry} />
         ))}
       </div>

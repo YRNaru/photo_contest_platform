@@ -83,11 +83,12 @@ export const useAuth = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           })
-        } catch (error: any) {
-          console.error('Failed to load user:', error.message || error)
+        } catch (error: unknown) {
+          const err = error as { message?: string; response?: { status?: number } }
+          console.error('Failed to load user:', err.message || error)
 
           // ネットワークエラーやトークンエラーの場合はトークンを削除
-          if (error.message === 'Network Error' || error.response?.status === 401) {
+          if (err.message === 'Network Error' || err.response?.status === 401) {
             if (typeof window !== 'undefined') {
               localStorage.removeItem('access_token')
               localStorage.removeItem('refresh_token')

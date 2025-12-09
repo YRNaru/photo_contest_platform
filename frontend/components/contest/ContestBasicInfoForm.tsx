@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 interface ContestBasicInfoFormProps {
   title: string
   description: string
@@ -64,11 +66,14 @@ export function ContestBasicInfoForm({
       {currentBannerImage && !bannerImage && (
         <div>
           <label className="block text-sm font-medium mb-2">現在のバナー画像</label>
-          <img
-            src={currentBannerImage}
-            alt="現在のバナー"
-            className="max-w-full h-auto rounded-lg mb-2"
-          />
+          <div className="relative w-full max-w-2xl h-64">
+            <Image
+              src={currentBannerImage}
+              alt="現在のバナー"
+              fill
+              className="object-cover rounded-lg mb-2"
+            />
+          </div>
         </div>
       )}
 

@@ -103,11 +103,11 @@ class EntryAdmin(admin.ModelAdmin):
             return "(投稿者不明)"
     get_author_display.short_description = '投稿者'  # type: ignore
 
-    def approve_entries(self, request, queryset):
+    def approve_entries(self, _request, queryset):  # type: ignore
         queryset.update(approved=True, flagged=False)
     approve_entries.short_description = '選択したエントリーを承認'  # type: ignore
 
-    def reject_entries(self, request, queryset):
+    def reject_entries(self, _request, queryset):  # type: ignore
         queryset.update(approved=False)
     reject_entries.short_description = '選択したエントリーを非承認'  # type: ignore
 
@@ -144,7 +144,7 @@ class FlagAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
     actions = ['mark_resolved']
 
-    def mark_resolved(self, request, queryset):
+    def mark_resolved(self, _request, queryset):
         queryset.update(resolved=True)
     mark_resolved.short_description = '選択した通報を解決済みにする'  # type: ignore
 

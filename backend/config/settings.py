@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    
+
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.twitter_oauth2',
-    
+
     # Local apps
     'contest',
     'accounts',
@@ -150,11 +151,14 @@ if DEBUG:
     SESSION_COOKIE_SECURE = False  # 開発環境ではFalse
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_DOMAIN = None
-    
+
     CSRF_COOKIE_SAMESITE = 'Lax'
     CSRF_COOKIE_SECURE = False
     CSRF_COOKIE_HTTPONLY = False
-    CSRF_TRUSTED_ORIGINS = ['http://localhost:13000', 'http://127.0.0.1:13000', 'http://localhost:18000', 'http://127.0.0.1:18000']
+    CSRF_TRUSTED_ORIGINS = [
+        'http://localhost:13000', 'http://127.0.0.1:13000',
+        'http://localhost:18000', 'http://127.0.0.1:18000'
+    ]
 
 # Django REST Framework
 REST_FRAMEWORK = {
@@ -265,8 +269,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # Celery Beat Schedule（定期タスク）
-from celery.schedules import crontab
-
 CELERY_BEAT_SCHEDULE = {
     'fetch-twitter-entries': {
         'task': 'contest.tasks.fetch_twitter_entries',
@@ -286,11 +288,10 @@ AUTH_USER_MODEL = 'accounts.User'
 if os.environ.get('SENTRY_DSN'):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
-    
+
     sentry_sdk.init(
         dsn=os.environ.get('SENTRY_DSN'),
         integrations=[DjangoIntegration()],
         traces_sample_rate=0.1,
         send_default_pii=True
     )
-

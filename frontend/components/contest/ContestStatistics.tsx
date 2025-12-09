@@ -15,7 +15,6 @@ import {
   Filler,
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
-import { formatDate } from '@/lib/utils'
 
 // Chart.jsの登録
 ChartJS.register(
@@ -121,8 +120,8 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
           size: 13,
         },
         callbacks: {
-          label: function (context: any) {
-            return `応募数: ${context.parsed.y}件`
+          label: function (context: { parsed: { y: number | null } }) {
+            return `応募数: ${context.parsed.y ?? 0}件`
           },
         },
       },

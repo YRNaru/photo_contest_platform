@@ -6,7 +6,6 @@ from .models import Contest, Entry, Vote, EntryImage, JudgeScore, Flag
 from django.utils import timezone
 from datetime import timedelta
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db import IntegrityError
 from io import BytesIO
 from PIL import Image
 
@@ -308,9 +307,9 @@ class VoteTest(TestCase):
     def test_duplicate_vote_prevented(self):
         """重複投票が防止される - unique_togetherの制約確認"""
         # 最初の投票
-        vote1 = Vote.objects.create(entry=self.entry, user=self.user2)
+        Vote.objects.create(entry=self.entry, user=self.user2)
         self.assertEqual(Vote.objects.filter(entry=self.entry, user=self.user2).count(), 1)
-        
+
         # 同じユーザーと同じエントリーで2つ目の投票は作成できない
         # unique_together制約があることを確認
         self.assertIn(('entry', 'user', 'category'), Vote._meta.unique_together)

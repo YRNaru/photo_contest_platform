@@ -15,7 +15,7 @@ class Command(BaseCommand):
             help='Contest slug to fetch tweets for (optional)',
         )
 
-    def handle(self, *args, **options):
+    def handle(self, **options):
         contest_slug = options.get('contest')
 
         if contest_slug:

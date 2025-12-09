@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Category, Vote } from '@/types/judging'
 import { categoryApi, voteApi } from '@/lib/api'
 import { VotingStatusDisplay } from './VotingStatusDisplay'
@@ -16,7 +16,7 @@ interface VotingPanelProps {
 }
 
 export function VotingPanel({
-  contestSlug,
+  contestSlug: _contestSlug,
   contestId,
   entries,
   maxVotesPerJudge,
@@ -30,11 +30,7 @@ export function VotingPanel({
   const [error, setError] = useState<string | null>(null)
   const [votingEntry, setVotingEntry] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadData()
-  }, [contestId])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const [votesRes, categoriesRes] = await Promise.all([
@@ -52,12 +48,16 @@ export function VotingPanel({
       setCategories(categoriesData)
       
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('投票データの読み込みエラー:', err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [contestId])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const getRemainingVotes = () => {
     const categoryVotes = myVotes.filter(
@@ -99,8 +99,9 @@ export function VotingPanel({
 
       await loadData()
       onVoteChange?.()
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '投票に失敗しました'
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      const errorMsg = error.response?.data?.detail || '投票に失敗しました'
       setError(errorMsg)
       console.error(err)
     } finally {
@@ -125,8 +126,9 @@ export function VotingPanel({
 
       await loadData()
       onVoteChange?.()
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '投票取り消しに失敗しました'
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      const errorMsg = error.response?.data?.detail || '投票取り消しに失敗しました'
       setError(errorMsg)
       console.error(err)
     } finally {

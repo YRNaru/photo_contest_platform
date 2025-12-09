@@ -127,7 +127,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 @api_view(['GET'])
 @perm_classes([permissions.AllowAny])
-def twitter_login(request):
+def twitter_login(_request):
     """Twitter OAuth2ログインを開始"""
     # allauthのTwitter OAuth2ログインページにリダイレクト
     return redirect('/accounts/twitter_oauth2/login/')

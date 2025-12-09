@@ -13,12 +13,12 @@ class UserAdmin(BaseUserAdmin):
         'is_judge', 'is_moderator', 'is_staff', 'is_superuser',
         'is_active'
     )
-    fieldsets = BaseUserAdmin.fieldsets + (
+    fieldsets = (BaseUserAdmin.fieldsets or ()) + (
         ('カスタムフィールド', {
             'fields': ('avatar_url', 'is_judge', 'is_moderator'),
         }),
     )
-    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+    add_fieldsets = (BaseUserAdmin.add_fieldsets or ()) + (
         ('カスタムフィールド', {
             'fields': ('email', 'avatar_url', 'is_judge', 'is_moderator'),
         }),

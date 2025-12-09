@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { JudgingCriteria, JudgeScore, CreateJudgeScoreRequest } from '@/types/judging'
 import { judgingCriteriaApi, judgeScoreApi } from '@/lib/api'
 import { ScoreCriterionInput } from './ScoreCriterionInput'
@@ -33,11 +33,7 @@ export function ScoringPanel({
   }>({})
   const [generalComment, setGeneralComment] = useState('')
 
-  useEffect(() => {
-    loadData()
-  }, [contestId, categoryId, entry.id])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const criteriaRes = await judgingCriteriaApi.getCriteria(contestId, categoryId || undefined)
@@ -49,9 +45,9 @@ export function ScoringPanel({
       try {
         const scoresRes = await judgeScoreApi.getMyScores()
         // ページネーション対応
-        const scoresData = Array.isArray(scoresRes.data) ? scoresRes.data : scoresRes.data.results || []
+        const scoresData = (Array.isArray(scoresRes.data) ? scoresRes.data : scoresRes.data.results || []) as JudgeScore[]
         const existingScore = scoresData.find(
-          (s: JudgeScore) => s.entry === entry.id && s.category === categoryId
+          (s) => s.entry === entry.id && s.category === categoryId
         )
 
         if (existingScore) {
@@ -60,7 +56,7 @@ export function ScoringPanel({
 
           // 詳細スコアを設定
           const scoreMap: { [key: number]: { score: number; comment: string } } = {}
-          existingScore.detailed_scores.forEach((ds: any) => {
+          existingScore.detailed_scores.forEach((ds) => {
             scoreMap[ds.criteria] = {
               score: Number(ds.score),
               comment: ds.comment,
@@ -74,13 +70,17 @@ export function ScoringPanel({
       }
 
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError('審査基準の読み込みに失敗しました')
       console.error(err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [contestId, categoryId, entry.id])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleScoreChange = (criteriaId: number, score: number) => {
     setScores({
@@ -145,14 +145,15 @@ export function ScoringPanel({
       }
 
       if (existingScore) {
-        await judgeScoreApi.updateScore(existingScore.id, data)
+        await judgeScoreApi.updateScore(existingScore.id, data as unknown as Record<string, unknown>)
       } else {
         await judgeScoreApi.createScore(data)
       }
 
       onScoreSubmit?.()
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || 'スコアの登録に失敗しました'
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      const errorMsg = error.response?.data?.detail || 'スコアの登録に失敗しました'
       setError(errorMsg)
       console.error(err)
     } finally {

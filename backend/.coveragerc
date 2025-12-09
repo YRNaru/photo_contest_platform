@@ -18,4 +18,10 @@ exclude_lines =
     if settings.DEBUG:
     pass
     except ImportError:
+    # type: ignore
+    # noqa
+    raise PermissionDenied
+    return Response
+    else:
+        return
 

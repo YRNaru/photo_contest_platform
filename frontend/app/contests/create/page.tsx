@@ -118,11 +118,12 @@ export default function CreateContestPage() {
             await contestApi.addJudge(slug, judgeId)
             console.log(`審査員(ID: ${judgeId})を追加しました`)
           }
-        } catch (judgeErr: any) {
+        } catch (judgeErr: unknown) {
           console.error('審査員の追加中にエラーが発生:', judgeErr)
           // 審査員追加に失敗してもコンテストは作成されているので、警告として表示
+          const error = judgeErr as { response?: { data?: { detail?: string } } }
           const judgeError =
-            judgeErr.response?.data?.detail ||
+            error.response?.data?.detail ||
             '一部の審査員の追加に失敗しました。コンテスト詳細ページから手動で追加できます。'
           setError(judgeError)
         }
@@ -139,26 +140,28 @@ export default function CreateContestPage() {
         queryClient.invalidateQueries({ queryKey: ['contests'] })
         router.push('/contests')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: unknown } }
       console.error('コンテスト作成エラー:', err)
-      console.error('エラーレスポンス:', err.response?.data)
+      console.error('エラーレスポンス:', error.response?.data)
 
       // エラーメッセージを整形
       let errorMessage = 'コンテストの作成に失敗しました。'
-      if (err.response?.data) {
-        if (typeof err.response.data === 'string') {
-          errorMessage = err.response.data
-        } else if (err.response.data.detail) {
-          errorMessage = err.response.data.detail
+      if (error.response?.data) {
+        const data = error.response.data as { detail?: string } | string
+        if (typeof data === 'string') {
+          errorMessage = data
+        } else if (data.detail) {
+          errorMessage = data.detail
         } else {
           // フィールドごとのエラーを表示
-          const errors = Object.entries(err.response.data)
-            .map(([field, messages]: [string, any]) => {
+          const errors = Object.entries(data as Record<string, unknown>)
+            .map(([field, messages]: [string, unknown]) => {
               const fieldName = field === 'non_field_errors' ? '' : `${field}: `
-              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`
+              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : String(messages)}`
             })
             .join('\n')
-          errorMessage = errors || JSON.stringify(err.response.data)
+          errorMessage = errors || JSON.stringify(data)
         }
       }
       setError(errorMessage)

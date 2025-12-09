@@ -6,6 +6,7 @@ import { entryApi } from '@/lib/api'
 import { Entry } from '@/lib/types'
 import { FaImage, FaHeart, FaEye } from 'react-icons/fa'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function MyEntriesPage() {
   const router = useRouter()
@@ -40,12 +41,13 @@ export default function MyEntriesPage() {
         // ユーザーIDでエントリーをフィルタリング
         const response = await entryApi.getEntries({ author: userData.id })
         setEntries(response.data.results || response.data)
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const error = err as { message?: string; response?: { status?: number } }
         console.error('投稿取得エラー:', err)
 
-        if (err.message === 'Network Error') {
+        if (error.message === 'Network Error') {
           setError('バックエンドに接続できません。サーバーが起動しているか確認してください。')
-        } else if (err.response?.status === 401) {
+        } else if (error.response?.status === 401) {
           localStorage.removeItem('access_token')
           localStorage.removeItem('refresh_token')
           router.push('/')
@@ -142,11 +144,15 @@ export default function MyEntriesPage() {
                     {/* サムネイル */}
                     <div className="relative w-full aspect-square bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 overflow-hidden">
                       {entry.thumbnail ? (
-                        <img
-                          src={entry.thumbnail}
-                          alt={entry.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
+                        <div className="relative w-full h-48">
+                          <Image
+                            src={entry.thumbnail}
+                            fill
+                            alt={entry.title}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <FaImage className="text-6xl text-gray-400 dark:text-gray-600" />

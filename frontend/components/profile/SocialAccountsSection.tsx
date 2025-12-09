@@ -1,4 +1,5 @@
 import { SocialAccount } from '@/lib/types'
+import Image from 'next/image'
 
 interface SocialAccountsSectionProps {
   twitterAccount?: SocialAccount
@@ -19,11 +20,14 @@ export function SocialAccountsSection({
         <div className="bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/30 dark:to-sky-900/30 border-2 border-blue-400 dark:border-blue-600 rounded-2xl p-4 sm:p-6 mb-4 hover:scale-[1.02] transition-all duration-300 hover:shadow-lg">
           <div className="flex items-center mb-4">
             {twitterAccount.profile_image_url ? (
-              <img
-                src={twitterAccount.profile_image_url}
-                alt="Twitter"
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mr-4 border-2 border-blue-400 shadow-lg"
-              />
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full mr-4 border-2 border-blue-400 shadow-lg overflow-hidden">
+                <Image
+                  src={twitterAccount.profile_image_url}
+                  alt="Twitter"
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-2xl mr-4 shadow-lg">
                 𝕏
@@ -54,11 +58,14 @@ export function SocialAccountsSection({
         <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 border-2 border-red-400 dark:border-red-600 rounded-2xl p-4 sm:p-6 mb-4 hover:scale-[1.02] transition-all duration-300 hover:shadow-lg">
           <div className="flex items-center mb-4">
             {googleAccount.picture ? (
-              <img
-                src={googleAccount.picture}
-                alt="Google"
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full mr-4 border-2 border-red-400 shadow-lg"
-              />
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full mr-4 border-2 border-red-400 shadow-lg overflow-hidden">
+                <Image
+                  src={googleAccount.picture}
+                  alt="Google"
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-2xl mr-4 shadow-lg">
                 G

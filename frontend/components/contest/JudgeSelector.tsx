@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { userApi } from '@/lib/api'
 import { User } from '@/lib/types'
+import Image from 'next/image'
 
 interface JudgeSelectorProps {
   selectedJudgeIds: string[]
@@ -41,10 +42,9 @@ export function JudgeSelector({
     staleTime: 2 * 60 * 1000, // 2分間キャッシュ
   })
 
-  const allUsers = usersData?.results || []
-
   // 主催者（現在のユーザー）を除外し、検索フィルタを適用
   const filteredUsers = useMemo(() => {
+    const allUsers = usersData?.results || []
     let users = allUsers.filter((user: User) => user.id !== currentUser?.id)
 
     if (searchQuery.trim()) {
@@ -56,7 +56,7 @@ export function JudgeSelector({
     }
 
     return users
-  }, [allUsers, currentUser, searchQuery])
+  }, [usersData?.results, currentUser, searchQuery])
 
   const handleAddJudge = (userId: string) => {
     if (!selectedJudgeIds.includes(userId)) {
@@ -149,11 +149,14 @@ export function JudgeSelector({
                       >
                         <div className="flex items-center gap-3 flex-1">
                           {user.avatar_url ? (
-                            <img
-                              src={user.avatar_url}
-                              alt={user.username}
-                              className="w-10 h-10 rounded-full"
-                            />
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                              <Image
+                                src={user.avatar_url}
+                                alt={user.username}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
                           ) : (
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
                               {user.username.charAt(0).toUpperCase()}
@@ -210,6 +213,7 @@ export function JudgeSelector({
           </h4>
           <div className="flex flex-wrap gap-2">
             {selectedJudgeIds.map(judgeId => {
+              const allUsers = usersData?.results || []
               const judge = allUsers.find((u: User) => u.id === judgeId)
               if (!judge) return null
               return (

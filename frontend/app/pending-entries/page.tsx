@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function PendingEntriesPage() {
   const { user, isLoading: loading } = useAuth()
@@ -44,7 +45,7 @@ export default function PendingEntriesPage() {
       setErrorMessage(null)
       setTimeout(() => setSuccessMessage(null), 3000)
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { detail?: string } } }) => {
       const message = error.response?.data?.detail || '承認に失敗しました'
       setErrorMessage(message)
       setSuccessMessage(null)
@@ -63,7 +64,7 @@ export default function PendingEntriesPage() {
       setErrorMessage(null)
       setTimeout(() => setSuccessMessage(null), 3000)
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { detail?: string } } }) => {
       const message = error.response?.data?.detail || '非承認に失敗しました'
       setErrorMessage(message)
       setSuccessMessage(null)
@@ -127,10 +128,12 @@ export default function PendingEntriesPage() {
                 {/* サムネイル */}
                 {entry.thumbnail && (
                   <div className="relative h-48 overflow-hidden">
-                    <img
+                    <Image
                       src={entry.thumbnail}
                       alt={entry.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
                     />
                   </div>
                 )}

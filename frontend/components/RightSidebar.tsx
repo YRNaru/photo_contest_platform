@@ -24,10 +24,10 @@ export function RightSidebar() {
 
         // エントリー数が多い順に並べ替えて上位5件を取得
         const sortedContests = contests
-          .filter((c: any) => c.entry_count > 0) // エントリーがあるものだけ
-          .sort((a: any, b: any) => b.entry_count - a.entry_count)
+          .filter((c: { entry_count?: number }) => (c.entry_count || 0) > 0) // エントリーがあるものだけ
+          .sort((a: { entry_count?: number }, b: { entry_count?: number }) => (b.entry_count || 0) - (a.entry_count || 0))
           .slice(0, 5)
-          .map((c: any) => ({
+          .map((c: { slug: string; title: string; entry_count?: number }) => ({
             slug: c.slug,
             title: c.title,
             entry_count: c.entry_count,

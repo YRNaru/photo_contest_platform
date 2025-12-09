@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query'
 import { contestApi } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { ContestCard } from '@/components/ContestCard'
+import { Contest } from '@/lib/types'
 import Link from 'next/link'
 
 export default function MyContestsPage() {
-  const { user, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
 
   const {
     data: contests,
@@ -101,7 +102,7 @@ export default function MyContestsPage() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 animate-fadeInUp"
           style={{ animationDelay: '100ms' }}
         >
-          {contests.map((contest: any) => (
+          {contests.map((contest: Contest) => (
             <div key={contest.slug} className="relative group">
               <ContestCard contest={contest} />
               {/* 編集ボタン */}

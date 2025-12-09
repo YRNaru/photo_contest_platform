@@ -6,13 +6,14 @@ import { entryApi } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
+import Image from 'next/image'
 import { FaHeart, FaRegHeart, FaEye, FaCalendar, FaUser } from 'react-icons/fa'
 import { useState } from 'react'
 
 export default function EntryDetailPage() {
   const params = useParams()
   const id = params.id as string
-  const { user, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
   const queryClient = useQueryClient()
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
@@ -80,20 +81,29 @@ export default function EntryDetailPage() {
         {/* 左側: 画像 */}
         <div>
           {/* メイン画像 */}
-          {currentImage && (
-            <div className="mb-4">
-              <img
+          {currentImage ? (
+            <div className="mb-4 relative w-full" style={{ minHeight: '400px' }}>
+              <Image
                 src={currentImage.image}
                 alt={entry.title}
+                width={800}
+                height={600}
+                priority
+                loading="eager"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
                 className="w-full h-auto rounded-lg shadow-lg"
               />
+            </div>
+          ) : (
+            <div className="mb-4 relative w-full bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center" style={{ minHeight: '400px' }}>
+              <div className="animate-pulse text-gray-400">読み込み中...</div>
             </div>
           )}
 
           {/* サムネイル一覧 */}
           {entry.images && entry.images.length > 1 && (
             <div className="grid grid-cols-5 gap-2">
-              {entry.images.map((image: any, index: number) => (
+              {entry.images.map((image: { id: number; image: string; thumbnail?: string }, index: number) => (
                 <button
                   key={image.id}
                   onClick={() => setSelectedImageIndex(index)}
@@ -103,10 +113,11 @@ export default function EntryDetailPage() {
                       : 'opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img
+                  <Image
                     src={image.thumbnail || image.image}
                     alt={`${entry.title} - ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 </button>
               ))}

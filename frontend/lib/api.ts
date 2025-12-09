@@ -97,7 +97,7 @@ export const contestApi = {
   deleteContest: (slug: string) => api.delete(`/contests/${slug}/`),
 
   // コンテストのエントリー一覧
-  getContestEntries: (slug: string, params?: any) =>
+  getContestEntries: (slug: string, params?: Record<string, unknown>) =>
     api.get(`/contests/${slug}/entries/`, { params }),
 
   // 審査員を追加（作成者のみ）
@@ -117,7 +117,7 @@ export const contestApi = {
 
 export const entryApi = {
   // エントリー一覧
-  getEntries: (params?: any) => api.get('/entries/', { params }),
+  getEntries: (params?: Record<string, unknown>) => api.get('/entries/', { params }),
 
   // エントリー詳細
   getEntry: (id: string) => api.get(`/entries/${id}/`),
@@ -186,10 +186,10 @@ export const categoryApi = {
   getCategory: (id: number) => api.get(`/categories/${id}/`),
 
   // 部門作成
-  createCategory: (data: any) => api.post('/categories/', data),
+  createCategory: (data: Record<string, unknown>) => api.post('/categories/', data),
 
   // 部門更新
-  updateCategory: (id: number, data: any) => api.patch(`/categories/${id}/`, data),
+  updateCategory: (id: number, data: Record<string, unknown>) => api.patch(`/categories/${id}/`, data),
 
   // 部門削除
   deleteCategory: (id: number) => api.delete(`/categories/${id}/`),
@@ -207,10 +207,10 @@ export const judgingCriteriaApi = {
   getCriterion: (id: number) => api.get(`/judging-criteria/${id}/`),
 
   // 審査基準作成
-  createCriterion: (data: any) => api.post('/judging-criteria/', data),
+  createCriterion: (data: Record<string, unknown>) => api.post('/judging-criteria/', data),
 
   // 審査基準更新
-  updateCriterion: (id: number, data: any) => api.patch(`/judging-criteria/${id}/`, data),
+  updateCriterion: (id: number, data: Record<string, unknown>) => api.patch(`/judging-criteria/${id}/`, data),
 
   // 審査基準削除
   deleteCriterion: (id: number) => api.delete(`/judging-criteria/${id}/`),
@@ -219,7 +219,7 @@ export const judgingCriteriaApi = {
 // 投票API
 export const voteApi = {
   // 投票一覧
-  getVotes: (params?: any) => api.get('/votes/', { params }),
+  getVotes: (params?: Record<string, unknown>) => api.get('/votes/', { params }),
 
   // 自分の投票一覧
   getMyVotes: () => api.get('/votes/my_votes/'),
@@ -234,7 +234,7 @@ export const voteApi = {
 // 審査員スコアAPI
 export const judgeScoreApi = {
   // スコア一覧
-  getScores: (params?: any) => api.get('/judge-scores/', { params }),
+  getScores: (params?: Record<string, unknown>) => api.get('/judge-scores/', { params }),
 
   // 自分のスコア一覧
   getMyScores: () => api.get('/judge-scores/my_scores/'),
@@ -255,7 +255,7 @@ export const judgeScoreApi = {
   }) => api.post('/judge-scores/', data),
 
   // スコア更新
-  updateScore: (id: number, data: any) => api.patch(`/judge-scores/${id}/`, data),
+  updateScore: (id: number, data: Record<string, unknown>) => api.patch(`/judge-scores/${id}/`, data),
 
   // スコア削除
   deleteScore: (id: number) => api.delete(`/judge-scores/${id}/`),

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { contestApi, entryApi } from '@/lib/api'
@@ -13,7 +13,7 @@ import { ErrorDisplay } from '@/components/submit/ErrorDisplay'
 import { SubmitButton } from '@/components/submit/SubmitButton'
 import { TagSelector } from '@/components/submit/TagSelector'
 
-export default function SubmitPage() {
+function SubmitPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const contestSlug = searchParams.get('contest')
@@ -78,40 +78,44 @@ export default function SubmitPage() {
     onSuccess: data => {
       router.push(`/entries/${data.id}`)
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: unknown; status?: number; headers?: unknown } }) => {
       console.error('投稿エラー:', error)
       console.error('エラーレスポンス:', error.response?.data)
       console.error('エラーステータス:', error.response?.status)
       console.error('エラーヘッダー:', error.response?.headers)
 
-      // non_field_errorsの中身を詳細に表示
-      if (error.response?.data?.non_field_errors) {
-        console.error('non_field_errors 詳細:', error.response.data.non_field_errors)
-        error.response.data.non_field_errors.forEach((err: any, index: number) => {
-          console.error(`  [${index}]:`, err)
-        })
-      }
-
       // エラーメッセージを整形
       let errorMessage = '投稿に失敗しました。'
       if (error.response?.data) {
-        if (typeof error.response.data === 'string') {
-          errorMessage = error.response.data
-        } else if (error.response.data.detail) {
-          errorMessage = error.response.data.detail
-        } else if (error.response.data.non_field_errors) {
-          errorMessage = Array.isArray(error.response.data.non_field_errors)
-            ? error.response.data.non_field_errors.join('\n')
-            : error.response.data.non_field_errors
+        const data = error.response.data as Record<string, unknown>
+        
+        // non_field_errorsの中身を詳細に表示
+        if (data.non_field_errors) {
+          console.error('non_field_errors 詳細:', data.non_field_errors)
+          if (Array.isArray(data.non_field_errors)) {
+            data.non_field_errors.forEach((err: unknown, index: number) => {
+              console.error(`  [${index}]:`, err)
+            })
+          }
+        }
+
+        if (typeof data === 'string') {
+          errorMessage = data
+        } else if (data.detail && typeof data.detail === 'string') {
+          errorMessage = data.detail
+        } else if (data.non_field_errors) {
+          errorMessage = Array.isArray(data.non_field_errors)
+            ? data.non_field_errors.map(String).join('\n')
+            : String(data.non_field_errors)
         } else {
           // フィールドごとのエラーを表示
-          const errors = Object.entries(error.response.data)
-            .map(([field, messages]: [string, any]) => {
+          const errors = Object.entries(data)
+            .map(([field, messages]: [string, unknown]) => {
               const fieldName = field === 'non_field_errors' ? '' : `${field}: `
-              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`
+              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : String(messages)}`
             })
             .join('\n')
-          errorMessage = errors || JSON.stringify(error.response.data)
+          errorMessage = errors || JSON.stringify(data)
         }
       }
       setError(errorMessage)
@@ -248,5 +252,13 @@ export default function SubmitPage() {
         <SubmitButton isSubmitting={submitMutation.isPending} />
       </form>
     </div>
+  )
+}
+
+export default function SubmitPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8">読み込み中...</div>}>
+      <SubmitPageContent />
+    </Suspense>
   )
 }

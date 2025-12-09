@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { contestApi, userApi } from '@/lib/api'
 import { User } from '@/lib/types'
+import Image from 'next/image'
 
 interface JudgeManagerProps {
   contestSlug: string
@@ -54,7 +55,7 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
       setSelectedUserId('')
       setTimeout(() => setSuccessMessage(null), 3000)
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { detail?: string } } }) => {
       const message = error.response?.data?.detail || '審査員の追加に失敗しました'
       setErrorMessage(message)
       setSuccessMessage(null)
@@ -74,7 +75,7 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
       setErrorMessage(null)
       setTimeout(() => setSuccessMessage(null), 3000)
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { detail?: string } } }) => {
       const message = error.response?.data?.detail || '審査員の削除に失敗しました'
       setErrorMessage(message)
       setSuccessMessage(null)
@@ -178,11 +179,14 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
             >
               <div className="flex items-center gap-3">
                 {judge.avatar_url ? (
-                  <img
-                    src={judge.avatar_url}
-                    alt={judge.username}
-                    className="w-10 h-10 rounded-full"
-                  />
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                    <Image
+                      src={judge.avatar_url}
+                      alt={judge.username}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
                     {judge.username.charAt(0).toUpperCase()}

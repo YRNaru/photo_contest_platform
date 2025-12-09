@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Category, CreateCategoryRequest } from '@/types/judging'
 import { categoryApi } from '@/lib/api'
 import { PlusIcon } from '@heroicons/react/24/outline'
@@ -13,7 +13,7 @@ interface CategoryManagerProps {
   isOwner: boolean
 }
 
-export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryManagerProps) {
+export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner }: CategoryManagerProps) {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -27,11 +27,7 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
     max_votes_per_judge: '',
   })
 
-  useEffect(() => {
-    loadCategories()
-  }, [contestId])
-
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       setLoading(true)
       const response = await categoryApi.getCategories(contestId)
@@ -39,13 +35,17 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
       const categoriesData = Array.isArray(response.data) ? response.data : response.data.results || []
       setCategories(categoriesData)
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError('賞の読み込みに失敗しました')
       console.error(err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [contestId])
+
+  useEffect(() => {
+    loadCategories()
+  }, [loadCategories])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,25 +62,27 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
       }
 
       if (editingCategory) {
-        await categoryApi.updateCategory(editingCategory.id, data)
+        await categoryApi.updateCategory(editingCategory.id, data as unknown as Record<string, unknown>)
       } else {
-        await categoryApi.createCategory(data)
+        await categoryApi.createCategory(data as unknown as Record<string, unknown>)
       }
 
       await loadCategories()
       resetForm()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: Record<string, unknown> } }
       console.error('賞作成エラー:', err)
-      console.error('エラーレスポンス:', err.response?.data)
+      console.error('エラーレスポンス:', error.response?.data)
       
       // エラーメッセージを取得
       let errorMsg = '賞の保存に失敗しました'
-      if (err.response?.data) {
-        if (err.response.data.detail) {
-          errorMsg = err.response.data.detail
-        } else if (typeof err.response.data === 'object') {
+      if (error.response?.data) {
+        const data = error.response.data as Record<string, unknown>
+        if (data.detail && typeof data.detail === 'string') {
+          errorMsg = data.detail
+        } else if (typeof data === 'object') {
           // フィールドごとのエラーを表示
-          const errors = Object.entries(err.response.data)
+          const errors = Object.entries(data)
             .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
             .join('\n')
           errorMsg = errors
@@ -96,13 +98,14 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
     try {
       await categoryApi.deleteCategory(id)
       await loadCategories()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
       console.error('賞削除エラー:', err)
-      console.error('エラーレスポンス:', err.response?.data)
+      console.error('エラーレスポンス:', error.response?.data)
       
       let errorMsg = '賞の削除に失敗しました'
-      if (err.response?.data?.detail) {
-        errorMsg = err.response.data.detail
+      if (error.response?.data?.detail) {
+        errorMsg = error.response.data.detail
       }
       setError(errorMsg)
     }

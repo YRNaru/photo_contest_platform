@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { contestApi, entryApi, categoryApi } from '@/lib/api'
+import { contestApi, categoryApi } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
+import Image from 'next/image'
 import { VotingPanel } from '@/components/judging/VotingPanel'
 import { ScoringPanel } from '@/components/judging/ScoringPanel'
 import { CategoryManager } from '@/components/judging/CategoryManager'
@@ -15,11 +16,11 @@ export default function JudgingPage() {
   const params = useParams()
   const router = useRouter()
   const slug = params.slug as string
-  const { user, isLoading: authLoading } = useAuth()
+  const { isLoading: authLoading } = useAuth()
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<'judge' | 'manage'>('judge')
-  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
+  const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null)
 
   // コンテスト情報を取得
   const { data: contest, isLoading: contestLoading } = useQuery({
@@ -186,7 +187,7 @@ export default function JudgingPage() {
                     審査する作品を選択してください
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {entries.map((entry: any) => (
+                    {entries.map((entry: { id: number; title: string; thumbnail?: string; author?: { username: string } }) => (
                       <button
                         key={entry.id}
                         onClick={() => setSelectedEntryId(entry.id)}
@@ -194,10 +195,12 @@ export default function JudgingPage() {
                       >
                         {entry.thumbnail && (
                           <div className="relative h-48 bg-gray-100 dark:bg-gray-900">
-                            <img
+                            <Image
                               src={entry.thumbnail}
                               alt={entry.title}
-                              className="w-full h-full object-cover"
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              className="object-cover"
                             />
                           </div>
                         )}
@@ -224,7 +227,7 @@ export default function JudgingPage() {
                     ← 作品一覧に戻る
                   </button>
                   <ScoringPanel
-                    entry={entries.find((e: any) => e.id === selectedEntryId)}
+                    entry={entries.find((e: { id: number }) => e.id === selectedEntryId)}
                     contestId={contest.id}
                     categoryId={selectedCategory}
                     isJudge={contest.is_judge || false}

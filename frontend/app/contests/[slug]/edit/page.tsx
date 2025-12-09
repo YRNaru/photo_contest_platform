@@ -159,26 +159,28 @@ export default function EditContestPage() {
 
       // 更新したコンテストの詳細ページにリダイレクト
       router.push(`/contests/${slug}`)
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: unknown } }
       console.error('コンテスト更新エラー:', err)
-      console.error('エラーレスポンス:', err.response?.data)
+      console.error('エラーレスポンス:', error.response?.data)
 
       // エラーメッセージを整形
       let errorMessage = 'コンテストの更新に失敗しました。'
-      if (err.response?.data) {
-        if (typeof err.response.data === 'string') {
-          errorMessage = err.response.data
-        } else if (err.response.data.detail) {
-          errorMessage = err.response.data.detail
+      if (error.response?.data) {
+        const data = error.response.data as { detail?: string } | string
+        if (typeof data === 'string') {
+          errorMessage = data
+        } else if (data.detail) {
+          errorMessage = data.detail
         } else {
           // フィールドごとのエラーを表示
-          const errors = Object.entries(err.response.data)
-            .map(([field, messages]: [string, any]) => {
+          const errors = Object.entries(data as Record<string, unknown>)
+            .map(([field, messages]: [string, unknown]) => {
               const fieldName = field === 'non_field_errors' ? '' : `${field}: `
-              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`
+              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : String(messages)}`
             })
             .join('\n')
-          errorMessage = errors || JSON.stringify(err.response.data)
+          errorMessage = errors || JSON.stringify(data)
         }
       }
       setError(errorMessage)

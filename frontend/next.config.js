@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
   images: {
+    unoptimized: process.env.NODE_ENV === 'development', // 開発環境では画像最適化を無効化
     remotePatterns: [
       {
         protocol: 'http',

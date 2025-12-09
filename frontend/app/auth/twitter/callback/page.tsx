@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 
-export default function TwitterCallbackPage() {
+function TwitterCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { loadUser } = useAuth()
@@ -40,5 +40,18 @@ export default function TwitterCallbackPage() {
       <h1 className="text-2xl font-bold mb-4">ログイン中...</h1>
       <p className="text-muted-foreground">しばらくお待ちください</p>
     </div>
+  )
+}
+
+export default function TwitterCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">読み込み中...</h1>
+        <p className="text-muted-foreground">しばらくお待ちください</p>
+      </div>
+    }>
+      <TwitterCallbackContent />
+    </Suspense>
   )
 }

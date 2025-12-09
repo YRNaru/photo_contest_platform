@@ -8,12 +8,13 @@ import { EntryGrid } from '@/components/EntryGrid'
 import JudgeManager from '@/components/contest/JudgeManager'
 import { ContestStatistics } from '@/components/contest/ContestStatistics'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/lib/auth'
 
 export default function ContestDetailPage() {
   const params = useParams()
   const slug = params.slug as string
-  const { user } = useAuth()
+  useAuth()
 
   const { data: contest, isLoading } = useQuery({
     queryKey: ['contest', slug],
@@ -52,10 +53,13 @@ export default function ContestDetailPage() {
         {/* バナー画像 */}
         {contest.banner_image && (
           <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96 overflow-hidden">
-            <img
+            <Image
               src={contest.banner_image}
               alt={contest.title}
-              className="w-full h-full object-cover"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             {/* バナー上のフェーズバッジ */}

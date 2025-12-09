@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { JudgingCriteria, Category, CreateJudgingCriteriaRequest } from '@/types/judging'
 import { judgingCriteriaApi, categoryApi } from '@/lib/api'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { JudgingCriteriaForm } from './JudgingCriteriaForm'
 import { JudgingCriteriaItem } from './JudgingCriteriaItem'
 import { CategoryFilter } from './CategoryFilter'
-import { ScoreTotalDisplay } from './ScoreTotalDisplay'
 
 interface JudgingCriteriaManagerProps {
   contestId: number
@@ -31,11 +30,7 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
     category_id: '',
   })
 
-  useEffect(() => {
-    loadData()
-  }, [contestId, selectedCategoryFilter])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const [criteriaRes, categoriesRes] = await Promise.all([
@@ -48,13 +43,17 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
       setCriteria(criteriaData)
       setCategories(categoriesData)
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError('審査基準の読み込みに失敗しました')
       console.error(err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [contestId, selectedCategoryFilter])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -70,15 +69,16 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
       }
 
       if (editingCriterion) {
-        await judgingCriteriaApi.updateCriterion(editingCriterion.id, data)
+        await judgingCriteriaApi.updateCriterion(editingCriterion.id, data as unknown as Record<string, unknown>)
       } else {
-        await judgingCriteriaApi.createCriterion(data)
+        await judgingCriteriaApi.createCriterion(data as unknown as Record<string, unknown>)
       }
 
       await loadData()
       resetForm()
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '審査基準の保存に失敗しました'
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      const errorMsg = error.response?.data?.detail || '審査基準の保存に失敗しました'
       setError(errorMsg)
       console.error(err)
     }
@@ -90,8 +90,9 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
     try {
       await judgingCriteriaApi.deleteCriterion(id)
       await loadData()
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '審査基準の削除に失敗しました'
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      const errorMsg = error.response?.data?.detail || '審査基準の削除に失敗しました'
       setError(errorMsg)
       console.error(err)
     }
