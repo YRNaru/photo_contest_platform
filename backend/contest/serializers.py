@@ -18,6 +18,38 @@ class EntryImageSerializer(serializers.ModelSerializer):
                            'is_thumbnail_ready', 'created_at')
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    """部門シリアライザー"""
+    entry_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Category
+        fields = (
+            'id', 'contest', 'name', 'description', 'order',
+            'max_votes_per_judge', 'entry_count', 'created_at'
+        )
+        read_only_fields = ('id', 'created_at')
+    
+    def get_entry_count(self, obj):
+        """この部門のエントリー数"""
+        return obj.entry_assignments.count()
+
+
+class JudgingCriteriaSerializer(serializers.ModelSerializer):
+    """審査基準シリアライザー"""
+    category_name = serializers.CharField(
+        source='category.name', read_only=True, allow_null=True
+    )
+    
+    class Meta:
+        model = JudgingCriteria
+        fields = (
+            'id', 'contest', 'category', 'category_name', 'name',
+            'description', 'max_score', 'order', 'created_at'
+        )
+        read_only_fields = ('id', 'created_at')
+
+
 class ContestCreateSerializer(serializers.ModelSerializer):
     """コンテスト作成シリアライザー"""
     
@@ -104,55 +136,6 @@ class ContestListSerializer(serializers.ModelSerializer):
     def get_judge_count(self, obj):
         """審査員の数"""
         return obj.judges.count()
-
-
-class ContestDetailSerializer(serializers.ModelSerializer):
-    """コンテスト詳細シリアライザー"""
-    phase = serializers.SerializerMethodField()
-    entry_count = serializers.SerializerMethodField()
-    creator_username = serializers.CharField(
-        source='creator.username', read_only=True
-    )
-    is_owner = serializers.SerializerMethodField()
-    is_judge = serializers.SerializerMethodField()
-    judges = UserSerializer(many=True, read_only=True)
-    categories = CategorySerializer(many=True, read_only=True)
-    judging_criteria = JudgingCriteriaSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = Contest
-        fields = (
-            'slug', 'title', 'description', 'banner_image',
-            'start_at', 'end_at', 'voting_end_at', 'is_public',
-            'max_entries_per_user', 'max_images_per_entry',
-            'judging_type', 'max_votes_per_judge',
-            'auto_approve_entries',
-            'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
-            'require_twitter_account',
-            'phase', 'entry_count', 'creator_username', 'is_owner',
-            'is_judge', 'judges', 'categories', 'judging_criteria',
-            'created_at', 'updated_at'
-        )
-    
-    def get_phase(self, obj):
-        return obj.phase()
-    
-    def get_entry_count(self, obj):
-        return obj.entries.filter(approved=True).count()
-    
-    def get_is_owner(self, obj):
-        """現在のユーザーがこのコンテストの作成者かどうか"""
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return obj.creator == request.user
-        return False
-    
-    def get_is_judge(self, obj):
-        """現在のユーザーがこのコンテストの審査員かどうか"""
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return obj.judges.filter(id=request.user.id).exists()
-        return False
 
 
 class EntryListSerializer(serializers.ModelSerializer):
@@ -420,23 +403,6 @@ class FlagSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'user', 'resolved', 'created_at')
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    """部門シリアライザー"""
-    entry_count = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Category
-        fields = (
-            'id', 'contest', 'name', 'description', 'order',
-            'max_votes_per_judge', 'entry_count', 'created_at'
-        )
-        read_only_fields = ('id', 'created_at')
-    
-    def get_entry_count(self, obj):
-        """この部門のエントリー数"""
-        return obj.entry_assignments.count()
-
-
 class EntryCategoryAssignmentSerializer(serializers.ModelSerializer):
     """エントリー部門紐付けシリアライザー"""
     category_name = serializers.CharField(
@@ -446,21 +412,6 @@ class EntryCategoryAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = EntryCategoryAssignment
         fields = ('id', 'entry', 'category', 'category_name', 'created_at')
-        read_only_fields = ('id', 'created_at')
-
-
-class JudgingCriteriaSerializer(serializers.ModelSerializer):
-    """審査基準シリアライザー"""
-    category_name = serializers.CharField(
-        source='category.name', read_only=True, allow_null=True
-    )
-    
-    class Meta:
-        model = JudgingCriteria
-        fields = (
-            'id', 'contest', 'category', 'category_name', 'name',
-            'description', 'max_score', 'order', 'created_at'
-        )
         read_only_fields = ('id', 'created_at')
 
 
@@ -579,4 +530,52 @@ class JudgeScoreCreateSerializer(serializers.ModelSerializer):
         
         return instance
 
+
+class ContestDetailSerializer(serializers.ModelSerializer):
+    """コンテスト詳細シリアライザー"""
+    phase = serializers.SerializerMethodField()
+    entry_count = serializers.SerializerMethodField()
+    creator_username = serializers.CharField(
+        source='creator.username', read_only=True
+    )
+    is_owner = serializers.SerializerMethodField()
+    is_judge = serializers.SerializerMethodField()
+    judges = UserSerializer(many=True, read_only=True)
+    categories = CategorySerializer(many=True, read_only=True)
+    judging_criteria = JudgingCriteriaSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Contest
+        fields = (
+            'slug', 'title', 'description', 'banner_image',
+            'start_at', 'end_at', 'voting_end_at', 'is_public',
+            'max_entries_per_user', 'max_images_per_entry',
+            'judging_type', 'max_votes_per_judge',
+            'auto_approve_entries',
+            'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
+            'require_twitter_account',
+            'phase', 'entry_count', 'creator_username', 'is_owner',
+            'is_judge', 'judges', 'categories', 'judging_criteria',
+            'created_at', 'updated_at'
+        )
+    
+    def get_phase(self, obj):
+        return obj.phase()
+    
+    def get_entry_count(self, obj):
+        return obj.entries.filter(approved=True).count()
+    
+    def get_is_owner(self, obj):
+        """現在のユーザーがこのコンテストの作成者かどうか"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.creator == request.user
+        return False
+    
+    def get_is_judge(self, obj):
+        """現在のユーザーがこのコンテストの審査員かどうか"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.judges.filter(id=request.user.id).exists()
+        return False
 
