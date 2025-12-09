@@ -41,12 +41,16 @@ export function ScoringPanel({
     try {
       setLoading(true)
       const criteriaRes = await judgingCriteriaApi.getCriteria(contestId, categoryId || undefined)
-      setCriteria(criteriaRes.data)
+      // ページネーション対応
+      const criteriaData = Array.isArray(criteriaRes.data) ? criteriaRes.data : criteriaRes.data.results || []
+      setCriteria(criteriaData)
 
       // 既存のスコアをロード
       try {
         const scoresRes = await judgeScoreApi.getMyScores()
-        const existingScore = scoresRes.data.find(
+        // ページネーション対応
+        const scoresData = Array.isArray(scoresRes.data) ? scoresRes.data : scoresRes.data.results || []
+        const existingScore = scoresData.find(
           (s: JudgeScore) => s.entry === entry.id && s.category === categoryId
         )
 
@@ -147,7 +151,6 @@ export function ScoringPanel({
       }
 
       onScoreSubmit?.()
-      alert('スコアを登録しました')
     } catch (err: any) {
       const errorMsg = err.response?.data?.detail || 'スコアの登録に失敗しました'
       setError(errorMsg)

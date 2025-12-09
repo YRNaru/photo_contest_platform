@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Contest, Entry, EntryImage, Vote, JudgeScore, Flag,
-    Category, EntryCategoryAssignment, JudgingCriteria, DetailedScore
+    Category, JudgingCriteria, DetailedScore
 )
 from accounts.serializers import UserSerializer
 import hashlib
@@ -19,20 +19,15 @@ class EntryImageSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    """部門シリアライザー"""
-    entry_count = serializers.SerializerMethodField()
+    """賞シリアライザー（エントリーは賞に紐づかず、審査時に各賞ごとに投票）"""
 
     class Meta:
         model = Category
         fields = (
             'id', 'contest', 'name', 'description', 'order',
-            'max_votes_per_judge', 'entry_count', 'created_at'
+            'max_votes_per_judge', 'created_at'
         )
         read_only_fields = ('id', 'created_at')
-
-    def get_entry_count(self, obj):
-        """この部門のエントリー数"""
-        return obj.entry_assignments.count()
 
 
 class JudgingCriteriaSerializer(serializers.ModelSerializer):
@@ -110,7 +105,7 @@ class ContestListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contest
         fields = (
-            'slug', 'title', 'description', 'banner_image',
+            'id', 'slug', 'title', 'description', 'banner_image',
             'start_at', 'end_at', 'voting_end_at', 'is_public',
             'judging_type', 'max_votes_per_judge',
             'phase', 'entry_count', 'creator_username', 'is_owner',
@@ -439,18 +434,6 @@ class FlagSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'user', 'resolved', 'created_at')
 
 
-class EntryCategoryAssignmentSerializer(serializers.ModelSerializer):
-    """エントリー部門紐付けシリアライザー"""
-    category_name = serializers.CharField(
-        source='category.name', read_only=True
-    )
-
-    class Meta:
-        model = EntryCategoryAssignment
-        fields = ('id', 'entry', 'category', 'category_name', 'created_at')
-        read_only_fields = ('id', 'created_at')
-
-
 class DetailedScoreSerializer(serializers.ModelSerializer):
     """詳細スコアシリアライザー"""
     criteria_name = serializers.CharField(
@@ -468,6 +451,32 @@ class DetailedScoreSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         )
         read_only_fields = ('id', 'created_at', 'updated_at')
+
+    def validate(self, data):
+        """スコアの妥当性チェック"""
+        criteria = data.get('criteria')
+        score = data.get('score')
+
+        if criteria and score is not None:
+            if score > criteria.max_score:
+                raise serializers.ValidationError(
+                    f'スコアは最大{criteria.max_score}点を超えることはできません'
+                )
+            if score < 0:
+                raise serializers.ValidationError(
+                    'スコアは0点未満にはできません'
+                )
+
+        return data
+
+
+class DetailedScoreCreateSerializer(serializers.Serializer):
+    """詳細スコア作成用シリアライザー（judge_scoreなし）"""
+    criteria = serializers.PrimaryKeyRelatedField(
+        queryset=JudgingCriteria.objects.all()
+    )
+    score = serializers.DecimalField(max_digits=5, decimal_places=2)
+    comment = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, data):
         """スコアの妥当性チェック"""
@@ -509,7 +518,7 @@ class JudgeScoreDetailSerializer(serializers.ModelSerializer):
 
 class JudgeScoreCreateSerializer(serializers.ModelSerializer):
     """審査員スコア作成シリアライザー"""
-    detailed_scores = DetailedScoreSerializer(many=True, required=False)
+    detailed_scores = DetailedScoreCreateSerializer(many=True, required=False)
 
     class Meta:
         model = JudgeScore
@@ -614,7 +623,7 @@ class ContestDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contest
         fields = (
-            'slug', 'title', 'description', 'banner_image',
+            'id', 'slug', 'title', 'description', 'banner_image',
             'start_at', 'end_at', 'voting_end_at', 'is_public',
             'max_entries_per_user', 'max_images_per_entry',
             'judging_type', 'max_votes_per_judge',

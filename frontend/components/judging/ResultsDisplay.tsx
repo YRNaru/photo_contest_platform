@@ -53,9 +53,11 @@ export function ResultsDisplay({
     try {
       setLoading(true)
 
-      // 部門を読み込み
+      // 賞を読み込み
       const categoriesRes = await categoryApi.getCategories(contestId)
-      setCategories(categoriesRes.data)
+      // ページネーション対応: results配列がある場合はそれを使用、なければdata自体を使用
+      const categoriesData = Array.isArray(categoriesRes.data) ? categoriesRes.data : categoriesRes.data.results || []
+      setCategories(categoriesData)
 
       // 結果を計算
       if (judgingType === 'vote') {
@@ -76,7 +78,9 @@ export function ResultsDisplay({
   const calculateVoteResults = async () => {
     try {
       const votesRes = await voteApi.getVotes()
-      const votes: Vote[] = votesRes.data
+      // ページネーション対応
+      const votesData = Array.isArray(votesRes.data) ? votesRes.data : votesRes.data.results || []
+      const votes: Vote[] = votesData
 
       // カテゴリーでフィルター
       const filteredVotes = votes.filter(
@@ -117,7 +121,9 @@ export function ResultsDisplay({
   const calculateScoreResults = async () => {
     try {
       const scoresRes = await judgeScoreApi.getScores()
-      const scores: JudgeScore[] = scoresRes.data
+      // ページネーション対応
+      const scoresData = Array.isArray(scoresRes.data) ? scoresRes.data : scoresRes.data.results || []
+      const scores: JudgeScore[] = scoresData
 
       // カテゴリーでフィルター
       const filteredScores = scores.filter(
@@ -188,11 +194,11 @@ export function ResultsDisplay({
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">結果発表</h2>
       </div>
 
-      {/* 部門選択 */}
+      {/* 賞選択 */}
       {categories.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            部門で絞り込み
+            賞で絞り込み
           </label>
           <select
             value={selectedCategory || ''}
@@ -252,6 +258,7 @@ export function ResultsDisplay({
                           alt={entry.title}
                           fill
                           className="object-cover"
+                          unoptimized
                         />
                       </div>
                     )}

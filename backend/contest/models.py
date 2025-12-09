@@ -225,7 +225,7 @@ class Entry(models.Model):
 
 
 class Category(models.Model):
-    """部門モデル - コンテストの部門（賞）を管理"""
+    """賞モデル - コンテストの賞を管理（エントリーは賞に紐づかず、審査時に各賞ごとに投票）"""
     contest = models.ForeignKey(
         Contest,
         on_delete=models.CASCADE,
@@ -234,8 +234,8 @@ class Category(models.Model):
     )
     name = models.CharField(
         max_length=100,
-        verbose_name='部門名',
-        help_text='例: 風景部門、人物部門、グランプリ'
+        verbose_name='賞名',
+        help_text='例: グランプリ、風景賞、人物賞、技術賞'
     )
     description = models.TextField(blank=True, verbose_name='説明')
     order = models.IntegerField(default=0, verbose_name='表示順')
@@ -244,7 +244,7 @@ class Category(models.Model):
         blank=True,
         verbose_name='審査員あたり最大投票数',
         help_text=(
-            'この部門での審査員の最大投票数。'
+            'この賞での審査員の最大投票数。'
             '未設定の場合はコンテストの設定を使用'
         )
     )
@@ -252,8 +252,8 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = '部門'
-        verbose_name_plural = '部門'
+        verbose_name = '賞'
+        verbose_name_plural = '賞'
         ordering = ['order', 'created_at']
         unique_together = ('contest', 'name')
 
@@ -261,38 +261,12 @@ class Category(models.Model):
         return f"{self.contest.title} - {self.name}"
 
     def get_max_votes(self):
-        """この部門の最大投票数を取得（未設定の場合はコンテストの設定）"""
+        """この賞の最大投票数を取得（未設定の場合はコンテストの設定）"""
         return (
             self.max_votes_per_judge
             if self.max_votes_per_judge is not None
             else self.contest.max_votes_per_judge
         )
-
-
-class EntryCategoryAssignment(models.Model):
-    """エントリーと部門の紐付けモデル"""
-    entry = models.ForeignKey(
-        Entry,
-        on_delete=models.CASCADE,
-        related_name="category_assignments",
-        verbose_name='エントリー'
-    )
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-        related_name="entry_assignments",
-        verbose_name='部門'
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = 'エントリー部門紐付け'
-        verbose_name_plural = 'エントリー部門紐付け'
-        unique_together = ('entry', 'category')
-        ordering = ['category__order']
-
-    def __str__(self):
-        return f"{self.entry.title} → {self.category.name}"
 
 
 class EntryImage(models.Model):

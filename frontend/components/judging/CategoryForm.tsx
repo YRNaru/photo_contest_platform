@@ -31,7 +31,7 @@ export function CategoryForm({
     >
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {isEditing ? '部門を編集' : '新しい部門を追加'}
+          {isEditing ? '賞を編集' : '新しい賞を追加'}
         </h3>
         <button
           type="button"
@@ -44,14 +44,14 @@ export function CategoryForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          部門名 <span className="text-red-500">*</span>
+          賞の名前 <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           value={formData.name}
           onChange={e => onChange({ name: e.target.value })}
           required
-          placeholder="例: 風景部門、人物部門、グランプリ"
+          placeholder="例: グランプリ、風景賞、人物賞、技術賞"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
         />
       </div>
@@ -64,7 +64,7 @@ export function CategoryForm({
           value={formData.description}
           onChange={e => onChange({ description: e.target.value })}
           rows={3}
-          placeholder="部門の説明（任意）"
+          placeholder="賞の説明（任意）"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
         />
       </div>

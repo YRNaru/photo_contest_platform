@@ -8,6 +8,7 @@ import { VotingEntryCard } from './VotingEntryCard'
 
 interface VotingPanelProps {
   contestSlug: string
+  contestId: number
   entries: any[]
   maxVotesPerJudge: number
   isJudge: boolean
@@ -16,6 +17,7 @@ interface VotingPanelProps {
 
 export function VotingPanel({
   contestSlug,
+  contestId,
   entries,
   maxVotesPerJudge,
   isJudge,
@@ -30,13 +32,25 @@ export function VotingPanel({
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [contestId])
 
   const loadData = async () => {
     try {
       setLoading(true)
-      const [votesRes] = await Promise.all([voteApi.getMyVotes()])
-      setMyVotes(votesRes.data)
+      const [votesRes, categoriesRes] = await Promise.all([
+        voteApi.getMyVotes(),
+        categoryApi.getCategories(contestId),
+      ])
+      
+      // ページネーション対応: results配列がある場合はそれを使用、なければdata自体を使用
+      const votesData = Array.isArray(votesRes.data) ? votesRes.data : votesRes.data.results || []
+      setMyVotes(votesData)
+      
+      const categoriesData = Array.isArray(categoriesRes.data) 
+        ? categoriesRes.data 
+        : categoriesRes.data.results || []
+      setCategories(categoriesData)
+      
       setError(null)
     } catch (err: any) {
       console.error('投票データの読み込みエラー:', err)
@@ -136,6 +150,30 @@ export function VotingPanel({
 
   return (
     <div className="space-y-6">
+      {/* 賞選択 */}
+      {categories.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            投票する賞を選択
+          </label>
+          <select
+            value={selectedCategory || ''}
+            onChange={e => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">全体</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            賞を選択すると、その賞への投票として記録されます
+          </p>
+        </div>
+      )}
+
       {/* 投票状況 */}
       <VotingStatusDisplay
         remainingVotes={remainingVotes}

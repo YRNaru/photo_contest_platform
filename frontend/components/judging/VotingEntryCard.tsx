@@ -29,7 +29,13 @@ export function VotingEntryCard({
       {/* サムネイル */}
       {entry.thumbnail && (
         <div className="relative h-48 bg-gray-100 dark:bg-gray-900">
-          <Image src={entry.thumbnail} alt={entry.title} fill className="object-cover" />
+          <Image
+            src={entry.thumbnail}
+            alt={entry.title}
+            fill
+            className="object-cover"
+            unoptimized
+          />
           {voted && (
             <div className="absolute top-2 right-2 bg-purple-600 text-white p-2 rounded-full">
               <CheckIcon className="w-6 h-6" />

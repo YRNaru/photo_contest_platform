@@ -64,6 +64,7 @@ export interface JudgeScore {
 }
 
 export interface Contest {
+  id: number
   slug: string
   title: string
   description: string

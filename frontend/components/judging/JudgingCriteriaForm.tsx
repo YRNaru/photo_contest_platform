@@ -102,14 +102,14 @@ export function JudgingCriteriaForm({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            部門
+            賞
           </label>
           <select
             value={formData.category_id}
             onChange={e => onChange({ category_id: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            <option value="">全部門共通</option>
+            <option value="">全賞共通</option>
             {categories.map(cat => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}

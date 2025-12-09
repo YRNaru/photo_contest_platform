@@ -564,7 +564,8 @@ class JudgeScoreViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """スコア作成時にユーザーを自動設定"""
-        serializer.save(judge=self.request.user)
+        # シリアライザーのcreateメソッドで処理されるため、ここでは何もしない
+        serializer.save()
 
     @action(detail=False, methods=['get'])
     def my_scores(self, request):

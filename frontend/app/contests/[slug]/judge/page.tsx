@@ -40,13 +40,15 @@ export default function JudgingPage() {
     enabled: !!contest,
   })
 
-  // 部門一覧を取得
+  // 賞一覧を取得
   const { data: categories } = useQuery({
-    queryKey: ['categories', contest?.slug],
+    queryKey: ['categories', contest?.id],
     queryFn: async () => {
-      if (!contest) return []
-      const response = await categoryApi.getCategories(parseInt(contest.slug))
-      return response.data as Category[]
+      if (!contest || !contest.id) return []
+      const response = await categoryApi.getCategories(contest.id)
+      // ページネーション対応
+      const categoriesData = Array.isArray(response.data) ? response.data : response.data.results || []
+      return categoriesData as Category[]
     },
     enabled: !!contest,
   })
@@ -140,11 +142,23 @@ export default function JudgingPage() {
       {/* コンテンツ */}
       {activeTab === 'judge' ? (
         <div>
-          {/* 部門選択 */}
-          {categories && categories.length > 0 && (
+          {/* 投票方式 */}
+          {judgingType === 'vote' && (
+            <VotingPanel
+              contestSlug={slug}
+              contestId={contest.id}
+              entries={entries}
+              maxVotesPerJudge={contest.max_votes_per_judge || 3}
+              isJudge={contest.is_judge || false}
+              onVoteChange={() => refetchEntries()}
+            />
+          )}
+
+          {/* 賞選択（点数方式のみ） */}
+          {judgingType === 'score' && categories && categories.length > 0 && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                部門を選択
+                賞を選択
               </label>
               <select
                 value={selectedCategory || ''}
@@ -161,17 +175,6 @@ export default function JudgingPage() {
                 ))}
               </select>
             </div>
-          )}
-
-          {/* 投票方式 */}
-          {judgingType === 'vote' && (
-            <VotingPanel
-              contestSlug={slug}
-              entries={entries}
-              maxVotesPerJudge={contest.max_votes_per_judge || 3}
-              isJudge={contest.is_judge || false}
-              onVoteChange={() => refetchEntries()}
-            />
           )}
 
           {/* 点数方式 */}
@@ -222,7 +225,7 @@ export default function JudgingPage() {
                   </button>
                   <ScoringPanel
                     entry={entries.find((e: any) => e.id === selectedEntryId)}
-                    contestId={parseInt(slug)}
+                    contestId={contest.id}
                     categoryId={selectedCategory}
                     isJudge={contest.is_judge || false}
                     onScoreSubmit={() => {
@@ -237,9 +240,9 @@ export default function JudgingPage() {
         </div>
       ) : (
         <div className="space-y-8">
-          {/* 部門管理 */}
+          {/* 賞の管理 */}
           <CategoryManager
-            contestId={parseInt(slug)}
+            contestId={contest.id}
             contestSlug={slug}
             isOwner={contest.is_owner || false}
           />
@@ -248,7 +251,7 @@ export default function JudgingPage() {
           {judgingType === 'score' && (
             <div className="mt-8">
               <JudgingCriteriaManager
-                contestId={parseInt(slug)}
+                contestId={contest.id}
                 isOwner={contest.is_owner || false}
               />
             </div>

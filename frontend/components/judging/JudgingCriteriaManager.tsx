@@ -42,8 +42,11 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
         judgingCriteriaApi.getCriteria(contestId, selectedCategoryFilter || undefined),
         categoryApi.getCategories(contestId),
       ])
-      setCriteria(criteriaRes.data)
-      setCategories(categoriesRes.data)
+      // ページネーション対応
+      const criteriaData = Array.isArray(criteriaRes.data) ? criteriaRes.data : criteriaRes.data.results || []
+      const categoriesData = Array.isArray(categoriesRes.data) ? categoriesRes.data : categoriesRes.data.results || []
+      setCriteria(criteriaData)
+      setCategories(categoriesData)
       setError(null)
     } catch (err: any) {
       setError('審査基準の読み込みに失敗しました')
@@ -148,7 +151,7 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
         )}
       </div>
 
-      {/* 部門フィルター */}
+      {/* 賞フィルター */}
       <CategoryFilter
         categories={categories}
         selectedCategory={selectedCategoryFilter}

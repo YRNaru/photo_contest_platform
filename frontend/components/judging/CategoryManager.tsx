@@ -35,10 +35,12 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
     try {
       setLoading(true)
       const response = await categoryApi.getCategories(contestId)
-      setCategories(response.data)
+      // ページネーション対応: results配列がある場合はそれを使用、なければdata自体を使用
+      const categoriesData = Array.isArray(response.data) ? response.data : response.data.results || []
+      setCategories(categoriesData)
       setError(null)
     } catch (err: any) {
-      setError('部門の読み込みに失敗しました')
+      setError('賞の読み込みに失敗しました')
       console.error(err)
     } finally {
       setLoading(false)
@@ -68,22 +70,41 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
       await loadCategories()
       resetForm()
     } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '部門の保存に失敗しました'
+      console.error('賞作成エラー:', err)
+      console.error('エラーレスポンス:', err.response?.data)
+      
+      // エラーメッセージを取得
+      let errorMsg = '賞の保存に失敗しました'
+      if (err.response?.data) {
+        if (err.response.data.detail) {
+          errorMsg = err.response.data.detail
+        } else if (typeof err.response.data === 'object') {
+          // フィールドごとのエラーを表示
+          const errors = Object.entries(err.response.data)
+            .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+            .join('\n')
+          errorMsg = errors
+        }
+      }
       setError(errorMsg)
-      console.error(err)
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('この部門を削除しますか？')) return
+    if (!confirm('この賞を削除しますか？')) return
 
     try {
       await categoryApi.deleteCategory(id)
       await loadCategories()
     } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '部門の削除に失敗しました'
+      console.error('賞削除エラー:', err)
+      console.error('エラーレスポンス:', err.response?.data)
+      
+      let errorMsg = '賞の削除に失敗しました'
+      if (err.response?.data?.detail) {
+        errorMsg = err.response.data.detail
+      }
       setError(errorMsg)
-      console.error(err)
     }
   }
 
@@ -116,14 +137,14 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">部門管理</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">賞の管理</h2>
         {isOwner && !isAddingCategory && (
           <button
             onClick={() => setIsAddingCategory(true)}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
           >
             <PlusIcon className="w-5 h-5" />
-            部門を追加
+            賞を追加
           </button>
         )}
       </div>
@@ -134,7 +155,7 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
         </div>
       )}
 
-      {/* 部門追加/編集フォーム */}
+      {/* 賞の追加/編集フォーム */}
       {isAddingCategory && isOwner && (
         <CategoryForm
           formData={formData}
@@ -145,12 +166,12 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
         />
       )}
 
-      {/* 部門一覧 */}
+      {/* 賞一覧 */}
       {categories.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <p>部門がまだ作成されていません</p>
+          <p>賞がまだ作成されていません</p>
           {isOwner && (
-            <p className="text-sm mt-2">「部門を追加」ボタンから部門を作成してください</p>
+            <p className="text-sm mt-2">「賞を追加」ボタンから賞を作成してください</p>
           )}
         </div>
       ) : (

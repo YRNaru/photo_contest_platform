@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Contest, Entry, EntryImage, Vote, JudgeScore, Flag,
-    Category, EntryCategoryAssignment, JudgingCriteria, DetailedScore
+    Category, JudgingCriteria, DetailedScore
 )
 
 
@@ -158,13 +158,6 @@ class CategoryAdmin(admin.ModelAdmin):
     list_filter = ('contest', 'created_at')
     search_fields = ('name', 'description', 'contest__title')
     ordering = ('contest', 'order')
-
-
-@admin.register(EntryCategoryAssignment)
-class EntryCategoryAssignmentAdmin(admin.ModelAdmin):
-    list_display = ('entry', 'category', 'created_at')
-    list_filter = ('category', 'created_at')
-    search_fields = ('entry__title', 'category__name')
 
 
 @admin.register(JudgingCriteria)
