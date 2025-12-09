@@ -370,9 +370,9 @@ class VoteSerializer(serializers.ModelSerializer):
                 'このコンテストは投票方式ではありません'
             )
         
-        # 投票期間チェック
+        # 投票期間チェック（応募期間中も投票可能）
         phase = contest.phase()
-        if phase != 'voting':
+        if phase not in ['submission', 'voting']:
             raise serializers.ValidationError(
                 f'現在は投票期間ではありません（現在: {phase}）'
             )
@@ -481,6 +481,37 @@ class JudgeScoreCreateSerializer(serializers.ModelSerializer):
             'id', 'entry', 'category', 'comment', 'detailed_scores'
         )
         read_only_fields = ('id',)
+    
+    def validate(self, data):
+        """スコアのバリデーション"""
+        entry = data.get('entry')
+        request = self.context.get('request')
+        
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError('ログインが必要です')
+        
+        contest = entry.contest
+        
+        # 審査員チェック
+        if not contest.judges.filter(id=request.user.id).exists():
+            raise serializers.ValidationError(
+                'このスコア付けは審査員のみ実行できます'
+            )
+        
+        # 点数方式チェック
+        if contest.judging_type != 'score':
+            raise serializers.ValidationError(
+                'このコンテストは点数方式ではありません'
+            )
+        
+        # 審査期間チェック（応募期間中も審査可能）
+        phase = contest.phase()
+        if phase not in ['submission', 'voting']:
+            raise serializers.ValidationError(
+                f'現在は審査期間ではありません（現在: {phase}）'
+            )
+        
+        return data
     
     def create(self, validated_data):
         """詳細スコアと共に作成"""

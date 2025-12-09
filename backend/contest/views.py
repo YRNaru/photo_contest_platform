@@ -362,8 +362,16 @@ class EntryViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], permission_classes=[IsJudge])
     def judge_score(self, request, pk=None):
-        """審査員スコア"""
+        """審査員スコア（旧形式 - 互換性のため残存）"""
         entry = self.get_object()
+        
+        # コンテストのフェーズチェック（応募期間中も審査可能）
+        if entry.contest.phase() not in ['submission', 'voting']:
+            return Response(
+                {'detail': '現在は審査期間ではありません。'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         score = request.data.get('score')
         comment = request.data.get('comment', '')
         
@@ -376,10 +384,11 @@ class EntryViewSet(viewsets.ModelViewSet):
         judge_score, created = JudgeScore.objects.update_or_create(
             entry=entry,
             judge=request.user,
-            defaults={'score': score, 'comment': comment}
+            defaults={'total_score': score, 'comment': comment}
         )
         
-        serializer = JudgeScoreSerializer(judge_score)
+        from .serializers import JudgeScoreDetailSerializer
+        serializer = JudgeScoreDetailSerializer(judge_score)
         return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
     
     @action(detail=True, methods=['post'], permission_classes=[IsModerator])
