@@ -111,6 +111,9 @@ export const contestApi = {
   
   // 審査員一覧
   getJudges: (slug: string) => api.get(`/contests/${slug}/judges/`),
+  
+  // コンテスト統計
+  getContestStatistics: (slug: string) => api.get(`/contests/${slug}/statistics/`),
 };
 
 export const entryApi = {

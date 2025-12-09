@@ -41,6 +41,7 @@ export interface Contest {
   twitter_hashtag?: string;
   twitter_auto_fetch?: boolean;
   twitter_auto_approve?: boolean;
+  require_twitter_account?: boolean;
   phase: "upcoming" | "submission" | "voting" | "closed";
   entry_count: number;
   creator_username?: string;

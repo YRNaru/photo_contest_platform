@@ -6,11 +6,14 @@ import { useParams } from "next/navigation";
 import { formatDate, getPhaseLabel, getPhaseColor } from "@/lib/utils";
 import { EntryGrid } from "@/components/EntryGrid";
 import JudgeManager from "@/components/contest/JudgeManager";
+import { ContestStatistics } from "@/components/contest/ContestStatistics";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth";
 
 export default function ContestDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const { user } = useAuth();
 
   const { data: contest, isLoading } = useQuery({
     queryKey: ["contest", slug],
@@ -135,12 +138,34 @@ export default function ContestDetailPage() {
               <span className="text-2xl font-black text-gray-700 dark:text-gray-100">{contest.entry_count} <span className="text-sm font-normal">件</span></span>
             </div>
           </div>
+
+          {/* Twitter連携必須の表示 */}
+          {contest.require_twitter_account && (
+            <div className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">𝕏</span>
+                <div>
+                  <span className="font-bold text-blue-900 dark:text-blue-300 block mb-1">X (Twitter) アカウント連携が必須</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    このコンテストに投稿するには、X (Twitter) アカウントとの連携が必要です。
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* 審査員管理 */}
       {contest.is_owner && (
         <JudgeManager contestSlug={slug} isOwner={contest.is_owner} />
+      )}
+
+      {/* 統計情報（コンテスト作成者のみ表示） */}
+      {contest.is_owner && (
+        <div className="mb-8 animate-fadeInUp" style={{ animationDelay: '50ms' }}>
+          <ContestStatistics contestSlug={slug} />
+        </div>
       )}
 
       {/* エントリー一覧 */}

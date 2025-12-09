@@ -23,18 +23,22 @@ interface TwitterSettingsProps {
   hashtag: string;
   autoFetch: boolean;
   autoApprove: boolean;
+  requireTwitterAccount?: boolean;
   onHashtagChange: (value: string) => void;
   onAutoFetchChange: (value: boolean) => void;
   onAutoApproveChange: (value: boolean) => void;
+  onRequireTwitterAccountChange?: (value: boolean) => void;
 }
 
 export function TwitterSettings({
   hashtag,
   autoFetch,
   autoApprove,
+  requireTwitterAccount = false,
   onHashtagChange,
   onAutoFetchChange,
-  onAutoApproveChange
+  onAutoApproveChange,
+  onRequireTwitterAccountChange
 }: TwitterSettingsProps) {
   const [tweetUrl, setTweetUrl] = useState("");
   const [showPreview, setShowPreview] = useState(false);
@@ -249,6 +253,22 @@ export function TwitterSettings({
             </p>
           </div>
         )}
+      </div>
+
+      {/* Twitter連携必須設定 */}
+      <div className="mt-6">
+        <label className="flex items-center">
+          <input
+            type="checkbox"
+            checked={requireTwitterAccount}
+            onChange={(e) => onRequireTwitterAccountChange?.(e.target.checked)}
+            className="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+          />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">投稿にX (Twitter) アカウント連携を必須にする</span>
+        </label>
+        <p className="text-xs text-gray-600 dark:text-gray-400 ml-6 mt-1">
+          有効にすると、ユーザーはX (Twitter) アカウントと連携していないと投稿できなくなります
+        </p>
       </div>
 
 

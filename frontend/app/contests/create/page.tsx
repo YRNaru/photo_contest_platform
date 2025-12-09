@@ -35,6 +35,7 @@ export default function CreateContestPage() {
     twitter_hashtag: '',
     twitter_auto_fetch: false,
     twitter_auto_approve: false,
+    require_twitter_account: false,
   });
   
   const [bannerImage, setBannerImage] = useState<File | null>(null);
@@ -82,6 +83,7 @@ export default function CreateContestPage() {
       }
       data.append('twitter_auto_fetch', formData.twitter_auto_fetch.toString());
       data.append('twitter_auto_approve', formData.twitter_auto_approve.toString());
+      data.append('require_twitter_account', formData.require_twitter_account.toString());
       
       // バナー画像
       if (bannerImage) {
@@ -294,9 +296,11 @@ export default function CreateContestPage() {
           hashtag={formData.twitter_hashtag}
           autoFetch={formData.twitter_auto_fetch}
           autoApprove={formData.twitter_auto_approve}
+          requireTwitterAccount={formData.require_twitter_account}
           onHashtagChange={(value) => setFormData({ ...formData, twitter_hashtag: value })}
           onAutoFetchChange={(value) => setFormData({ ...formData, twitter_auto_fetch: value })}
           onAutoApproveChange={(value) => setFormData({ ...formData, twitter_auto_approve: value })}
+          onRequireTwitterAccountChange={(value) => setFormData({ ...formData, require_twitter_account: value })}
         />
 
         {/* 審査員設定 */}

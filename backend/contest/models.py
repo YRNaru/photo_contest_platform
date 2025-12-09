@@ -28,6 +28,9 @@ class Contest(models.Model):
     twitter_auto_approve = models.BooleanField(default=False, verbose_name='Twitter投稿の自動承認')
     twitter_last_fetch = models.DateTimeField(null=True, blank=True, verbose_name='最終取得日時')
     
+    # Twitter連携必須設定
+    require_twitter_account = models.BooleanField(default=False, verbose_name='Twitter連携必須', help_text='有効にすると、投稿にはTwitterアカウント連携が必須になります')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

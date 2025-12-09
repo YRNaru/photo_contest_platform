@@ -24,7 +24,8 @@ class ContestCreateSerializer(serializers.ModelSerializer):
                   'start_at', 'end_at', 'voting_end_at', 'is_public',
                   'max_entries_per_user', 'max_images_per_entry',
                   'auto_approve_entries',
-                  'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve')
+                  'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
+                  'require_twitter_account')
     
     def validate(self, data):
         # 開始日時と終了日時のチェック（両方が存在する場合のみ）
@@ -110,6 +111,7 @@ class ContestDetailSerializer(serializers.ModelSerializer):
                   'max_entries_per_user', 'max_images_per_entry',
                   'auto_approve_entries',
                   'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
+                  'require_twitter_account',
                   'phase', 'entry_count', 'creator_username', 'is_owner',
                   'is_judge', 'judges',
                   'created_at', 'updated_at')
@@ -223,6 +225,7 @@ class EntryCreateSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         from django.conf import settings
+        from allauth.socialaccount.models import SocialAccount
         contest = data.get('contest')
         request = self.context['request']
         
@@ -241,6 +244,17 @@ class EntryCreateSerializer(serializers.ModelSerializer):
             import logging
             logger = logging.getLogger(__name__)
             logger.warning(f'[DEV] {error_msg}')
+        
+        # Twitter連携必須チェック
+        if contest.require_twitter_account:
+            has_twitter = SocialAccount.objects.filter(
+                user=request.user,
+                provider='twitter_oauth2'
+            ).exists()
+            if not has_twitter:
+                raise serializers.ValidationError(
+                    'このコンテストに投稿するには、Twitterアカウントとの連携が必要です。'
+                )
         
         # 応募数制限チェック（0の場合は無制限）
         if contest.max_entries_per_user > 0:

@@ -224,6 +224,45 @@ class ContestViewSet(viewsets.ModelViewSet):
         judges = contest.judges.all()
         serializer = UserSerializer(judges, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'])
+    def statistics(self, request, slug=None):
+        """コンテストの統計情報（日別応募数など）"""
+        contest = self.get_object()
+        
+        from django.db.models.functions import TruncDate
+        from django.utils import timezone
+        
+        # 日別応募数を集計
+        daily_entries = Entry.objects.filter(
+            contest=contest
+        ).annotate(
+            date=TruncDate('created_at')
+        ).values('date').annotate(
+            count=Count('id')
+        ).order_by('date')
+        
+        # 統計情報
+        total_entries = Entry.objects.filter(contest=contest, approved=True).count()
+        pending_entries = Entry.objects.filter(contest=contest, approved=False).count()
+        total_votes = Vote.objects.filter(entry__contest=contest).count()
+        unique_voters = Vote.objects.filter(entry__contest=contest).values('user').distinct().count()
+        
+        # 日別データをフォーマット
+        daily_data = []
+        for item in daily_entries:
+            daily_data.append({
+                'date': item['date'].isoformat(),
+                'count': item['count']
+            })
+        
+        return Response({
+            'daily_entries': daily_data,
+            'total_entries': total_entries,
+            'pending_entries': pending_entries,
+            'total_votes': total_votes,
+            'unique_voters': unique_voters,
+        })
 
 
 class EntryViewSet(viewsets.ModelViewSet):
