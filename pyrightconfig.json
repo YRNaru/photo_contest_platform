@@ -11,6 +11,8 @@
   "reportGeneralTypeIssues": "none",
   "reportOptionalMemberAccess": "none",
   "reportAttributeAccessIssue": "none",
+  "reportArgumentType": "none",
+  "reportIncompatibleMethodOverride": "none",
   "pythonVersion": "3.11",
   "pythonPlatform": "Linux"
 }

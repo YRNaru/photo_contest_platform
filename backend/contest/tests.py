@@ -30,7 +30,7 @@ class ContestModelTest(TestCase):
             email='test@example.com',
             password='testpass123'
         )
-        self.contest = Contest.objects.create(
+        self.contest = private_contest = Contest.objects.create(
             slug='test-contest',
             title='Test Contest',
             description='Test Description',
@@ -110,7 +110,7 @@ class EntryModelTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        self.entry = Entry.objects.create(
+        self.entry = entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -132,7 +132,7 @@ class EntryModelTest(TestCase):
     def test_entry_vote_count(self):
         """投票数のカウント"""
         self.assertEqual(self.entry.vote_count(), 0)
-        
+
         Vote.objects.create(entry=self.entry, user=self.user)
         self.assertEqual(self.entry.vote_count(), 1)
 
@@ -152,10 +152,10 @@ class EntryModelTest(TestCase):
             email='judge2@example.com',
             is_judge=True
         )
-        
+
         JudgeScore.objects.create(entry=self.entry, judge=judge1, score=80)
         JudgeScore.objects.create(entry=self.entry, judge=judge2, score=90)
-        
+
         self.assertEqual(self.entry.average_score(), 85.0)
 
     def test_entry_default_source(self):
@@ -205,7 +205,7 @@ class EntryImageModelTest(TestCase):
             image=create_test_image(),
             order=0
         )
-        
+
         self.assertEqual(image.entry, self.entry)
         self.assertEqual(image.order, 0)
         self.assertFalse(image.is_thumbnail_ready)
@@ -217,7 +217,7 @@ class EntryImageModelTest(TestCase):
             image=create_test_image(),
             order=1
         )
-        
+
         self.assertEqual(str(image), 'Test Entry - 画像 1')
 
 
@@ -250,7 +250,7 @@ class FlagModelTest(TestCase):
             user=self.user,
             reason='Inappropriate content'
         )
-        
+
         self.assertEqual(flag.entry, self.entry)
         self.assertEqual(flag.user, self.user)
         self.assertFalse(flag.resolved)
@@ -262,7 +262,7 @@ class FlagModelTest(TestCase):
             user=self.user,
             reason='Spam'
         )
-        
+
         self.assertEqual(str(flag), 'testuser -> Test Entry')
 
 
@@ -313,14 +313,14 @@ class VoteTest(TestCase):
     def test_multiple_users_can_vote(self):
         """複数のユーザーが投票できる"""
         Vote.objects.create(entry=self.entry, user=self.user2)
-        
+
         user3 = User.objects.create_user(
             username='testuser3',
             email='test3@example.com',
             password='testpass123'
         )
         Vote.objects.create(entry=self.entry, user=user3)
-        
+
         self.assertEqual(self.entry.vote_count(), 2)
 
 
@@ -377,7 +377,7 @@ class JudgeScoreTest(TestCase):
     def test_entry_average_score(self):
         """エントリーの平均スコア"""
         JudgeScore.objects.create(entry=self.entry, judge=self.judge, score=80)
-        
+
         judge2 = User.objects.create_user(
             username='judge2',
             email='judge2@example.com',
@@ -385,7 +385,7 @@ class JudgeScoreTest(TestCase):
             is_judge=True
         )
         JudgeScore.objects.create(entry=self.entry, judge=judge2, score=90)
-        
+
         self.assertEqual(self.entry.average_score(), 85.0)
 
 
@@ -447,7 +447,7 @@ class ContestAPITest(APITestCase):
     def test_create_contest_with_invalid_dates(self):
         """無効な日付でコンテストを作成"""
         self.client.force_authenticate(user=self.user)
-        
+
         # 終了日が開始日より前
         data = {
             'slug': 'invalid-contest',
@@ -461,7 +461,7 @@ class ContestAPITest(APITestCase):
     def test_create_contest_with_invalid_voting_end(self):
         """無効な投票終了日でコンテストを作成"""
         self.client.force_authenticate(user=self.user)
-        
+
         # 投票終了日が応募終了日より前
         data = {
             'slug': 'invalid-voting-contest',
@@ -481,7 +481,7 @@ class ContestAPITest(APITestCase):
             password='testpass123'
         )
         self.client.force_authenticate(user=other_user)
-        
+
         data = {'title': 'Updated Title'}
         response = self.client.patch(f'/api/contests/{self.contest.slug}/', data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -494,7 +494,7 @@ class ContestAPITest(APITestCase):
             password='testpass123'
         )
         self.client.force_authenticate(user=admin)
-        
+
         data = {'title': 'Admin Updated Title'}
         response = self.client.patch(f'/api/contests/{self.contest.slug}/', data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -519,7 +519,7 @@ class ContestAPITest(APITestCase):
     def test_get_my_contests(self):
         """自分が作成したコンテスト一覧を取得"""
         self.client.force_authenticate(user=self.user)
-        
+
         # 別のユーザーのコンテストを作成
         other_user = User.objects.create_user(
             username='otheruser',
@@ -533,7 +533,7 @@ class ContestAPITest(APITestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         response = self.client.get('/api/contests/my_contests/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # レスポンスがpagination付きの可能性があるため、resultsをチェック
@@ -552,7 +552,9 @@ class ContestAPITest(APITestCase):
     def test_get_contest_entries_with_ordering(self):
         """コンテストのエントリー一覧をソート順で取得"""
         # エントリーを作成
-        entry1 = Entry.objects.create(
+        # entry1 =  # unused
+
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Entry 1',
@@ -564,7 +566,7 @@ class ContestAPITest(APITestCase):
             title='Entry 2',
             approved=True
         )
-        
+
         # 投票を追加
         voter = User.objects.create_user(
             username='voter',
@@ -572,11 +574,11 @@ class ContestAPITest(APITestCase):
             password='testpass123'
         )
         Vote.objects.create(entry=entry2, user=voter)
-        
+
         # 投票数順で取得
         response = self.client.get(f'/api/contests/{self.contest.slug}/entries/?ordering=-vote_count')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         # 作成日順で取得
         response = self.client.get(f'/api/contests/{self.contest.slug}/entries/?ordering=-created_at')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -589,7 +591,7 @@ class ContestAPITest(APITestCase):
             title='Test Entry',
             approved=True
         )
-        
+
         # 無効なorderingパラメータ（デフォルトソートが使用される）
         response = self.client.get(f'/api/contests/{self.contest.slug}/entries/?ordering=invalid_field')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -598,17 +600,17 @@ class ContestAPITest(APITestCase):
         """EntryViewSetのシリアライザークラス選択"""
         from contest.views import EntryViewSet
         from contest.serializers import EntryCreateSerializer, EntryDetailSerializer, EntryListSerializer
-        
+
         viewset = EntryViewSet()
-        
+
         # createアクション
         viewset.action = 'create'
         self.assertEqual(viewset.get_serializer_class(), EntryCreateSerializer)
-        
+
         # retrieveアクション
         viewset.action = 'retrieve'
         self.assertEqual(viewset.get_serializer_class(), EntryDetailSerializer)
-        
+
         # その他のアクション
         viewset.action = 'list'
         self.assertEqual(viewset.get_serializer_class(), EntryListSerializer)
@@ -622,14 +624,14 @@ class ContestAPITest(APITestCase):
             title='Test Entry',
             approved=True
         )
-        
+
         response = self.client.get(f'/api/contests/{self.contest.slug}/entries/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.data), 1)
 
     def test_get_private_contest_as_creator(self):
         """非公開コンテストを作成者として取得"""
-        private_contest = Contest.objects.create(
+        Contest.objects.create(
             slug='private-contest',
             title='Private Contest',
             creator=self.user,
@@ -637,7 +639,7 @@ class ContestAPITest(APITestCase):
             end_at=timezone.now() + timedelta(days=30),
             is_public=False
         )
-        
+
         self.client.force_authenticate(user=self.user)
         response = self.client.get(f'/api/contests/{private_contest.slug}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -668,37 +670,37 @@ class EntryAPITest(APITestCase):
 
     def test_get_entry_detail(self):
         """エントリー詳細を取得して閲覧数が増加"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True,
             view_count=0
         )
-        
+
         initial_count = entry.view_count
         response = self.client.get(f'/api/entries/{entry.id}/')
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         entry.refresh_from_db()
         self.assertEqual(entry.view_count, initial_count + 1)
 
     def test_vote_api_authenticated(self):
         """認証済みユーザーが投票"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         other_user = User.objects.create_user(
             username='voter',
             email='voter@example.com',
             password='testpass123'
         )
         self.client.force_authenticate(user=other_user)
-        
+
         response = self.client.post(f'/api/entries/{entry.id}/vote/')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -710,138 +712,138 @@ class EntryAPITest(APITestCase):
             start_at=timezone.now() - timedelta(days=60),
             end_at=timezone.now() - timedelta(days=30),
         )
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=closed_contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         voter = User.objects.create_user(
             username='voter',
             email='voter@example.com',
             password='testpass123'
         )
         self.client.force_authenticate(user=voter)
-        
+
         response = self.client.post(f'/api/entries/{entry.id}/vote/')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_duplicate_vote_api(self):
         """重複投票のAPIテスト"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         voter = User.objects.create_user(
             username='voter',
             email='voter@example.com',
             password='testpass123'
         )
         self.client.force_authenticate(user=voter)
-        
+
         # 1回目の投票
         self.client.post(f'/api/entries/{entry.id}/vote/')
-        
+
         # 2回目の投票（重複）
         response = self.client.post(f'/api/entries/{entry.id}/vote/')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_unvote_api(self):
         """投票取消のAPIテスト"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         voter = User.objects.create_user(
             username='voter',
             email='voter@example.com',
             password='testpass123'
         )
         self.client.force_authenticate(user=voter)
-        
+
         # 投票
         self.client.post(f'/api/entries/{entry.id}/vote/')
-        
+
         # 投票取消
         response = self.client.delete(f'/api/entries/{entry.id}/unvote/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_unvote_not_voted(self):
         """投票していないエントリーの投票取消"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         voter = User.objects.create_user(
             username='voter',
             email='voter@example.com',
             password='testpass123'
         )
         self.client.force_authenticate(user=voter)
-        
+
         # 投票せずに取消
         response = self.client.delete(f'/api/entries/{entry.id}/unvote/')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_flag_entry(self):
         """エントリーの通報"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         flagger = User.objects.create_user(
             username='flagger',
             email='flagger@example.com',
             password='testpass123'
         )
         self.client.force_authenticate(user=flagger)
-        
+
         data = {'reason': 'Inappropriate content'}
         response = self.client.post(f'/api/entries/{entry.id}/flag/', data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_flag_entry_without_reason(self):
         """理由なしでエントリーを通報"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         flagger = User.objects.create_user(
             username='flagger',
             email='flagger@example.com',
             password='testpass123'
         )
         self.client.force_authenticate(user=flagger)
-        
+
         data = {'reason': ''}
         response = self.client.post(f'/api/entries/{entry.id}/flag/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_judge_score_invalid_score(self):
         """無効なスコアの審査"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         judge = User.objects.create_user(
             username='judge',
             email='judge@example.com',
@@ -849,7 +851,7 @@ class EntryAPITest(APITestCase):
             is_judge=True
         )
         self.client.force_authenticate(user=judge)
-        
+
         # 範囲外のスコア
         data = {'score': 150, 'comment': 'Too high'}
         response = self.client.post(f'/api/entries/{entry.id}/judge_score/', data)
@@ -857,13 +859,13 @@ class EntryAPITest(APITestCase):
 
     def test_judge_score_update_existing(self):
         """既存のスコアを更新"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         judge = User.objects.create_user(
             username='judge',
             email='judge@example.com',
@@ -871,17 +873,17 @@ class EntryAPITest(APITestCase):
             is_judge=True
         )
         self.client.force_authenticate(user=judge)
-        
+
         # 最初のスコア
         data = {'score': 80, 'comment': 'Good'}
         response = self.client.post(f'/api/entries/{entry.id}/judge_score/', data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+
         # 同じ審査員が更新
         data = {'score': 90, 'comment': 'Great'}
         response = self.client.post(f'/api/entries/{entry.id}/judge_score/', data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         # スコアが更新されていることを確認
         score = JudgeScore.objects.get(entry=entry, judge=judge)
         self.assertEqual(score.score, 90)
@@ -889,13 +891,13 @@ class EntryAPITest(APITestCase):
 
     def test_moderator_reject_entry(self):
         """モデレーターがエントリーを非承認"""
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         moderator = User.objects.create_user(
             username='moderator',
             email='moderator@example.com',
@@ -903,10 +905,10 @@ class EntryAPITest(APITestCase):
             is_moderator=True
         )
         self.client.force_authenticate(user=moderator)
-        
+
         response = self.client.post(f'/api/entries/{entry.id}/reject/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         entry.refresh_from_db()
         self.assertFalse(entry.approved)
 
@@ -919,7 +921,7 @@ class EntryAPITest(APITestCase):
             title='Approved Entry',
             approved=True
         )
-        
+
         # 未承認エントリー
         Entry.objects.create(
             contest=self.contest,
@@ -927,7 +929,7 @@ class EntryAPITest(APITestCase):
             title='Pending Entry',
             approved=False
         )
-        
+
         moderator = User.objects.create_user(
             username='moderator',
             email='moderator@example.com',
@@ -935,32 +937,32 @@ class EntryAPITest(APITestCase):
             is_moderator=True
         )
         self.client.force_authenticate(user=moderator)
-        
+
         response = self.client.get('/api/entries/pending/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         # 未承認のみが返される
         if 'results' in response.data:
             entries = response.data['results']
         else:
             entries = response.data
-        
+
         self.assertGreaterEqual(len(entries), 1)
         if isinstance(entries, list):
             for entry_data in entries:
-                entry = Entry.objects.get(id=entry_data['id'])
+                Entry.objects.get(id=entry_data['id'])
                 self.assertFalse(entry.approved)
 
     def test_moderator_view_unapproved_entries(self):
         """モデレーターは未承認エントリーも閲覧可能"""
         # 未承認エントリー
-        entry = Entry.objects.create(
+        Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Pending Entry',
             approved=False
         )
-        
+
         moderator = User.objects.create_user(
             username='moderator',
             email='moderator@example.com',
@@ -968,20 +970,20 @@ class EntryAPITest(APITestCase):
             is_moderator=True
         )
         self.client.force_authenticate(user=moderator)
-        
+
         response = self.client.get('/api/entries/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_staff_can_view_private_contests(self):
         """スタッフは非公開コンテストも閲覧可能"""
-        private_contest = Contest.objects.create(
+        Contest.objects.create(
             slug='private-contest',
             title='Private Contest',
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
             is_public=False
         )
-        
+
         staff = User.objects.create_user(
             username='staff',
             email='staff@example.com',
@@ -989,7 +991,7 @@ class EntryAPITest(APITestCase):
             is_staff=True
         )
         self.client.force_authenticate(user=staff)
-        
+
         response = self.client.get('/api/contests/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -1028,7 +1030,7 @@ class ModeratorPermissionsTest(APITestCase):
         self.client.force_authenticate(user=self.moderator)
         response = self.client.post(f'/api/entries/{self.entry.id}/approve/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         self.entry.refresh_from_db()
         self.assertTrue(self.entry.approved)
 
@@ -1113,26 +1115,25 @@ class PermissionsDetailTest(TestCase):
         from contest.permissions import IsOwnerOrReadOnly
         from rest_framework.test import APIRequestFactory
         from unittest.mock import Mock
-        
+
         permission = IsOwnerOrReadOnly()
         factory = APIRequestFactory()
-        
+
         # 読み取り専用メソッド（GET）は誰でもOK
         request = factory.get('/api/entries/')
         request.user = User.objects.create_user(username='user1', email='user1@example.com')
-        
+
         mock_entry = Mock()
         mock_entry.author = User.objects.create_user(username='author', email='author@example.com')
-        
+
         self.assertTrue(permission.has_object_permission(request, None, mock_entry))
-        
+
         # オーナーは更新可能
         request = factory.patch('/api/entries/1/')
         request.user = mock_entry.author
         self.assertTrue(permission.has_object_permission(request, None, mock_entry))
-        
+
         # オーナー以外は更新不可
         request = factory.patch('/api/entries/1/')
         request.user = User.objects.create_user(username='user2', email='user2@example.com')
         self.assertFalse(permission.has_object_permission(request, None, mock_entry))
-

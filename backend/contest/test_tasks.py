@@ -6,9 +6,9 @@ from datetime import timedelta
 from unittest.mock import patch, Mock, MagicMock
 from .models import Contest, Entry, EntryImage
 from .tasks import (
-    process_entry_images, 
-    generate_thumbnail, 
-    moderate_image, 
+    process_entry_images,
+    generate_thumbnail,
+    moderate_image,
     cleanup_old_thumbnails,
     fetch_twitter_entries
 )
@@ -52,7 +52,7 @@ class ProcessEntryImagesTaskTest(TestCase):
             title='Test Entry',
             approved=True
         )
-        
+
         # 画像を追加
         EntryImage.objects.create(
             entry=entry,
@@ -64,10 +64,10 @@ class ProcessEntryImagesTaskTest(TestCase):
             image=create_test_image(),
             order=1
         )
-        
+
         # タスクを実行
         process_entry_images(str(entry.id))
-        
+
         # generate_thumbnailが各画像に対して呼ばれたことを確認
         self.assertEqual(mock_generate.call_count, 2)
 
@@ -108,16 +108,16 @@ class GenerateThumbnailTaskTest(TestCase):
             image=create_test_image(),
             order=0
         )
-        
+
         # タスクを実行
         generate_thumbnail(entry_image.id)
-        
+
         # サムネイルが生成されたことを確認
         entry_image.refresh_from_db()
         self.assertTrue(entry_image.is_thumbnail_ready)
         self.assertIsNotNone(entry_image.width)
         self.assertIsNotNone(entry_image.height)
-        
+
         # moderate_imageが呼ばれたことを確認
         mock_moderate.assert_called_once_with(entry_image.id)
 
@@ -136,13 +136,13 @@ class GenerateThumbnailTaskTest(TestCase):
             image=create_test_image(),
             order=0
         )
-        
+
         # 画像を削除してエラーを発生させる
         entry_image.image.delete()
-        
+
         # タスクを実行（エラーが発生するがキャッチされる）
         generate_thumbnail(entry_image.id)
-        
+
         # エラーログが出るが例外は発生しない
         self.assertTrue(True)
 
@@ -175,10 +175,10 @@ class ModerateImageTaskTest(TestCase):
             image=create_test_image(),
             order=0
         )
-        
+
         # タスクを実行
         moderate_image(entry_image.id)
-        
+
         # エラーが発生しないことを確認
         self.assertTrue(True)
 
@@ -196,13 +196,13 @@ class ModerateImageTaskTest(TestCase):
             image=create_test_image(),
             order=0
         )
-        
+
         # 画像を削除してエラーを発生させる
         entry_image.image.delete()
-        
+
         # タスクを実行
         moderate_image(entry_image.id)
-        
+
         # 例外がキャッチされることを確認
         self.assertTrue(True)
 
@@ -214,9 +214,9 @@ class FetchTwitterEntriesTaskTest(TestCase):
     def test_fetch_twitter_entries_success(self, mock_fetch):
         """Twitter取得の成功ケース"""
         mock_fetch.return_value = {'fetched': 10, 'created': 5}
-        
+
         result = fetch_twitter_entries()
-        
+
         self.assertEqual(result, {'fetched': 10, 'created': 5})
         mock_fetch.assert_called_once()
 
@@ -224,9 +224,9 @@ class FetchTwitterEntriesTaskTest(TestCase):
     def test_fetch_twitter_entries_error(self, mock_fetch):
         """Twitter取得のエラーケース"""
         mock_fetch.side_effect = Exception('API Error')
-        
+
         result = fetch_twitter_entries()
-        
+
         # エラーが発生しても空辞書が返る
         self.assertEqual(result, {})
 
@@ -238,7 +238,6 @@ class CleanupOldThumbnailsTaskTest(TestCase):
         """古いサムネイルクリーンアップタスク"""
         # タスクを実行（現在は未実装なのでpassのみ）
         result = cleanup_old_thumbnails()
-        
+
         # Noneが返ることを確認
         self.assertIsNone(result)
-

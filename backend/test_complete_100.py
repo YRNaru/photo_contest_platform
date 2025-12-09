@@ -32,7 +32,7 @@ class Complete100PercentTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         serializer = ContestCreateSerializer(
             instance=contest,
             data={'voting_end_at': timezone.now() + timedelta(days=45)},
@@ -51,18 +51,18 @@ class Complete100PercentTest(TestCase):
         entry = Entry.objects.create(
             contest=contest, author=user, title='E', approved=True
         )
-        
+
         file = BytesIO()
         img = PILImage.new('RGB', (10, 10))
         img.save(file, 'PNG')
         file.seek(0)
-        
+
         ei = EntryImage.objects.create(
             entry=entry,
             image=SimpleUploadedFile('t.png', file.read()),
             order=0
         )
-        
+
         ei.image.delete()
         moderate_image(ei.id)
         self.assertTrue(True)
@@ -80,7 +80,7 @@ class Complete100PercentTest(TestCase):
             contest=contest, author=user, title='E', approved=True
         )
         Vote.objects.create(entry=entry, user=user)
-        
+
         if hasattr(admin, 'vote_count'):
             self.assertEqual(admin.vote_count(entry), 1)
 
@@ -97,15 +97,15 @@ class Complete100PercentTest(TestCase):
         Entry.objects.create(
             contest=contest, author=user, title='P', approved=False
         )
-        
+
         client = Client()
         client.force_login(user)
-        
+
         with self.settings(REST_FRAMEWORK={}):
             # 行543
             r1 = client.get('/api/contests/my_contests/')
             self.assertEqual(r1.status_code, 200)
-            
+
             # 行946
             r2 = client.get('/api/entries/pending/')
             self.assertEqual(r2.status_code, 200)
@@ -121,15 +121,15 @@ class Complete100PercentTest(TestCase):
             twitter_hashtag='t5',
             twitter_auto_fetch=True,
         )
-        
+
         mock_client = Mock()
         mock_response = Mock()
         mock_response.data = []
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         result = fetch_all_active_contests()
-        
+
         # 行246-248が実行される
         self.assertIsInstance(result, dict)
 
@@ -144,16 +144,15 @@ class Complete100PercentTest(TestCase):
             twitter_hashtag='t6',
             twitter_auto_fetch=True,
         )
-        
+
         mock_client = Mock()
         mock_client.search_recent_tweets.side_effect = Exception('API Error')
         mock_client_class.return_value = mock_client
-        
+
         result = fetch_all_active_contests()
-        
+
         # 例外がキャッチされ、0が設定される（行247-248）
         self.assertIsInstance(result, dict)
         for slug, count in result.items():
             # エラーの場合は0になる
             self.assertIsInstance(count, int)
-

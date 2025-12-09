@@ -39,7 +39,7 @@ class ContestSerializerTest(TestCase):
             'end_at': timezone.now() + timedelta(days=30),
             'voting_end_at': timezone.now() + timedelta(days=45),
         }
-        
+
         serializer = ContestCreateSerializer(data=data)
         self.assertTrue(serializer.is_valid())
 
@@ -51,7 +51,7 @@ class ContestSerializerTest(TestCase):
             'start_at': timezone.now() + timedelta(days=30),
             'end_at': timezone.now(),
         }
-        
+
         serializer = ContestCreateSerializer(data=data)
         self.assertFalse(serializer.is_valid())
 
@@ -64,7 +64,7 @@ class ContestSerializerTest(TestCase):
             'end_at': timezone.now() + timedelta(days=30),
             'voting_end_at': timezone.now() + timedelta(days=20),
         }
-        
+
         serializer = ContestCreateSerializer(data=data)
         self.assertFalse(serializer.is_valid())
 
@@ -74,7 +74,7 @@ class ContestSerializerTest(TestCase):
             username='testuser',
             email='test@example.com'
         )
-        
+
         contest = Contest.objects.create(
             slug='test-contest',
             title='Test Contest',
@@ -82,7 +82,7 @@ class ContestSerializerTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         # タイトルのみ更新
         serializer = ContestCreateSerializer(
             instance=contest,
@@ -97,7 +97,7 @@ class ContestSerializerTest(TestCase):
             username='testuser',
             email='test@example.com'
         )
-        
+
         contest = Contest.objects.create(
             slug='test-contest',
             title='Test Contest',
@@ -105,7 +105,7 @@ class ContestSerializerTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         # 投票終了日を応募終了日より前に設定（エラー）
         serializer = ContestCreateSerializer(
             instance=contest,
@@ -120,7 +120,7 @@ class ContestSerializerTest(TestCase):
             username='testuser',
             email='test@example.com'
         )
-        
+
         contest = Contest.objects.create(
             slug='test-contest',
             title='Test Contest',
@@ -128,7 +128,7 @@ class ContestSerializerTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         # voting_end_atのみを更新（既存のend_atが使用される）
         serializer = ContestCreateSerializer(
             instance=contest,
@@ -144,7 +144,7 @@ class ContestSerializerTest(TestCase):
             username='testuser',
             email='test@example.com'
         )
-        
+
         contest = Contest.objects.create(
             slug='test-contest',
             title='Test Contest',
@@ -152,11 +152,11 @@ class ContestSerializerTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         factory = APIRequestFactory()
         request = factory.get('/api/contests/')
         request.user = user
-        
+
         serializer = ContestListSerializer(contest, context={'request': request})
         self.assertTrue(serializer.data['is_owner'])
 
@@ -166,14 +166,14 @@ class ContestSerializerTest(TestCase):
             username='testuser',
             email='test@example.com'
         )
-        
+
         contest = Contest.objects.create(
             slug='test-contest',
             title='Test Contest',
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         # 承認済みエントリー
         Entry.objects.create(
             contest=contest,
@@ -181,7 +181,7 @@ class ContestSerializerTest(TestCase):
             title='Approved Entry',
             approved=True
         )
-        
+
         # 未承認エントリー（カウントされない）
         Entry.objects.create(
             contest=contest,
@@ -189,7 +189,7 @@ class ContestSerializerTest(TestCase):
             title='Pending Entry',
             approved=False
         )
-        
+
         serializer = ContestDetailSerializer(contest)
         self.assertEqual(serializer.data['entry_count'], 1)
 
@@ -217,7 +217,7 @@ class EntrySerializerTest(TestCase):
         """エントリー作成の成功ケース"""
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         data = {
             'contest': self.contest.slug,
             'title': 'Test Entry',
@@ -225,7 +225,7 @@ class EntrySerializerTest(TestCase):
             'tags': 'test,photo',
             'images': [create_test_image('image1.png')],
         }
-        
+
         serializer = EntryCreateSerializer(data=data, context={'request': request})
         self.assertTrue(serializer.is_valid())
 
@@ -233,7 +233,7 @@ class EntrySerializerTest(TestCase):
         """最大応募数を超過"""
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         # すでに1件エントリー済み
         Entry.objects.create(
             contest=self.contest,
@@ -241,13 +241,13 @@ class EntrySerializerTest(TestCase):
             title='Existing Entry',
             approved=True
         )
-        
+
         data = {
             'contest': self.contest.slug,
             'title': 'Second Entry',
             'images': [create_test_image('image1.png')],
         }
-        
+
         serializer = EntryCreateSerializer(data=data, context={'request': request})
         self.assertFalse(serializer.is_valid())
         self.assertIn('最大', str(serializer.errors))
@@ -256,13 +256,13 @@ class EntrySerializerTest(TestCase):
         """最大画像数を超過"""
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         data = {
             'contest': self.contest.slug,
             'title': 'Test Entry',
             'images': [create_test_image(f'image{i}.png') for i in range(10)],
         }
-        
+
         serializer = EntryCreateSerializer(data=data, context={'request': request})
         self.assertFalse(serializer.is_valid())
 
@@ -270,7 +270,7 @@ class EntrySerializerTest(TestCase):
         """重複画像の検出"""
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         # 同じ画像で既存のエントリーを作成
         existing_entry = Entry.objects.create(
             contest=self.contest,
@@ -278,7 +278,7 @@ class EntrySerializerTest(TestCase):
             title='Existing Entry',
             approved=True
         )
-        
+
         # 画像のハッシュを計算して保存
         test_image = create_test_image('duplicate.png')
         sha256 = hashlib.sha256()
@@ -287,23 +287,23 @@ class EntrySerializerTest(TestCase):
             sha256.update(chunk)
         test_image.seek(0)
         image_hash = sha256.hexdigest()
-        
+
         EntryImage.objects.create(
             entry=existing_entry,
             image=test_image,
             image_hash=image_hash
         )
-        
+
         # 同じ画像で新規エントリーを試みる
         data = {
             'contest': self.contest.slug,
             'title': 'New Entry',
             'images': [create_test_image('duplicate.png')],
         }
-        
+
         serializer = EntryCreateSerializer(data=data, context={'request': request})
         # ハッシュ計算の実装によっては異なる可能性があるため、バリデーションをチェック
-        is_valid = serializer.is_valid()
+        serializer.is_valid()  # is_valid unused
         # テストの目的は重複検出ロジックの存在確認
         # 実際の画像が完全に同一でない可能性があるため、エラーの有無のみチェック
 
@@ -315,16 +315,16 @@ class EntrySerializerTest(TestCase):
             start_at=timezone.now() - timedelta(days=60),
             end_at=timezone.now() - timedelta(days=30),
         )
-        
+
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         data = {
             'contest': closed_contest.slug,
             'title': 'Late Entry',
             'images': [create_test_image('image1.png')],
         }
-        
+
         serializer = EntryCreateSerializer(data=data, context={'request': request})
         # DEBUGモードでは警告のみなので、バリデーションは通る可能性がある
         serializer.is_valid()
@@ -333,7 +333,7 @@ class EntrySerializerTest(TestCase):
         """エントリー作成後のレスポンス形式"""
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         data = {
             'contest': self.contest.slug,
             'title': 'Test Entry',
@@ -341,12 +341,12 @@ class EntrySerializerTest(TestCase):
             'tags': 'test,photo',
             'images': [create_test_image('image1.png')],
         }
-        
+
         serializer = EntryCreateSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             instance = serializer.save()
             representation = serializer.to_representation(instance)
-            
+
             self.assertIn('id', representation)
             self.assertIn('title', representation)
             self.assertIn('contest', representation)
@@ -355,83 +355,83 @@ class EntrySerializerTest(TestCase):
     def test_entry_list_serializer_thumbnail_with_thumbnail(self):
         """サムネイルがある場合のエントリー一覧"""
         from .serializers import EntryListSerializer
-        
+
         entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         # サムネイル付き画像を作成
-        image = EntryImage.objects.create(
+        EntryImage.objects.create(
             entry=entry,
             image=create_test_image('image.png'),
             thumbnail=create_test_image('thumb.png'),
             order=0
         )
-        
+
         request = self.factory.get('/api/entries/')
         request.user = self.user
-        
+
         serializer = EntryListSerializer(entry, context={'request': request})
         data = serializer.data
-        
+
         self.assertIsNotNone(data['thumbnail'])
 
     def test_entry_list_serializer_thumbnail_without_thumbnail(self):
         """サムネイルがない場合のエントリー一覧"""
         from .serializers import EntryListSerializer
-        
+
         entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         # サムネイルなし画像を作成
-        image = EntryImage.objects.create(
+        # image = Entry  # unusedImage.objects.create(
             entry=entry,
             image=create_test_image('image.png'),
             order=0
         )
-        
+
         request = self.factory.get('/api/entries/')
         request.user = self.user
-        
+
         serializer = EntryListSerializer(entry, context={'request': request})
         data = serializer.data
-        
+
         self.assertIsNotNone(data['thumbnail'])
 
     def test_entry_detail_serializer_user_voted(self):
         """ユーザーの投票状態を確認"""
         from .serializers import EntryDetailSerializer
         from .models import Vote
-        
+
         entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
             approved=True
         )
-        
+
         voter = User.objects.create_user(
             username='voter',
             email='voter@example.com'
         )
-        
+
         # 投票前
         request = self.factory.get(f'/api/entries/{entry.id}/')
         request.user = voter
-        
+
         serializer = EntryDetailSerializer(entry, context={'request': request})
         self.assertFalse(serializer.data['user_voted'])
-        
+
         # 投票後
         Vote.objects.create(entry=entry, user=voter)
-        
+
         serializer = EntryDetailSerializer(entry, context={'request': request})
         self.assertTrue(serializer.data['user_voted'])
 
@@ -439,14 +439,14 @@ class EntrySerializerTest(TestCase):
         """画像ハッシュの計算"""
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         # 異なる画像で2つのエントリーを作成
         data1 = {
             'contest': self.contest.slug,
             'title': 'Entry 1',
             'images': [create_test_image('unique1.png')],
         }
-        
+
         serializer1 = EntryCreateSerializer(data=data1, context={'request': request})
         if serializer1.is_valid():
             entry1 = serializer1.save()
@@ -459,7 +459,7 @@ class EntrySerializerTest(TestCase):
         """本番モード（DEBUG=False）でのバリデーション"""
         from django.conf import settings
         from unittest.mock import patch
-        
+
         # 終了したコンテスト
         closed_contest = Contest.objects.create(
             slug='closed',
@@ -467,16 +467,16 @@ class EntrySerializerTest(TestCase):
             start_at=timezone.now() - timedelta(days=60),
             end_at=timezone.now() - timedelta(days=30),
         )
-        
+
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         data = {
             'contest': closed_contest.slug,
             'title': 'Late Entry',
             'images': [create_test_image('late.png')],
         }
-        
+
         # DEBUG=Falseの場合はエラーになる
         with patch.object(settings, 'DEBUG', False):
             serializer = EntryCreateSerializer(data=data, context={'request': request})
@@ -487,7 +487,7 @@ class EntrySerializerTest(TestCase):
         from django.conf import settings
         from unittest.mock import patch
         import logging
-        
+
         # 終了したコンテスト
         closed_contest = Contest.objects.create(
             slug='closed',
@@ -495,23 +495,21 @@ class EntrySerializerTest(TestCase):
             start_at=timezone.now() - timedelta(days=60),
             end_at=timezone.now() - timedelta(days=30),
         )
-        
+
         request = self.factory.post('/api/entries/')
         request.user = self.user
-        
+
         data = {
             'contest': closed_contest.slug,
             'title': 'Late Entry',
             'images': [create_test_image('late.png')],
         }
-        
+
         # DEBUG=Trueの場合は警告のみで続行
         with patch.object(settings, 'DEBUG', True):
             with self.assertLogs('contest.serializers', level='WARNING') as cm:
                 serializer = EntryCreateSerializer(data=data, context={'request': request})
                 # バリデーションは通るが警告が出る
-                is_valid = serializer.is_valid()
+                serializer.is_valid()  # is_valid unused
                 # ログが出力されることを確認
                 self.assertTrue(any('[DEV]' in log for log in cm.output))
-
-

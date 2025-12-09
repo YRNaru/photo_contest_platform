@@ -93,9 +93,9 @@ class EntryAdminTest(TestCase):
         """エントリー承認アクション"""
         request = MockRequest()
         queryset = Entry.objects.filter(id=self.entry.id)
-        
+
         self.admin.approve_entries(request, queryset)
-        
+
         self.entry.refresh_from_db()
         self.assertTrue(self.entry.approved)
 
@@ -103,30 +103,30 @@ class EntryAdminTest(TestCase):
         """エントリー非承認アクション"""
         self.entry.approved = True
         self.entry.save()
-        
+
         request = MockRequest()
         queryset = Entry.objects.filter(id=self.entry.id)
-        
+
         self.admin.reject_entries(request, queryset)
-        
+
         self.entry.refresh_from_db()
         self.assertFalse(self.entry.approved)
 
     def test_vote_count_display(self):
         """投票数の表示メソッド"""
         from .models import Vote
-        
+
         user2 = User.objects.create_user(
             username='voter',
             email='voter@example.com'
         )
-        
+
         # 投票を追加
         Vote.objects.create(entry=self.entry, user=user2)
-        
+
         # list_displayを確認
         self.assertIn('vote_count', self.admin.list_display)
-        
+
         # vote_countメソッドが存在すればテスト
         if hasattr(self.admin, 'vote_count'):
             count = self.admin.vote_count(self.entry)
@@ -190,4 +190,3 @@ class FlagAdminTest(TestCase):
     def test_list_filter(self):
         """フィルターの確認"""
         self.assertIn('resolved', self.admin.list_filter)
-

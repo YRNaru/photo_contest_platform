@@ -16,5 +16,3 @@ router.register(r'judge-scores', JudgeScoreViewSet, basename='judgescore')
 urlpatterns = [
     path('', include(router.urls)),
 ]
-
-

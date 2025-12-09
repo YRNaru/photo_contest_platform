@@ -20,7 +20,7 @@ class SerializerCoverageCompleteTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         # voting_end_atを設定するが、end_atはdataに含めない（インスタンスから取得される）
         # この時、行47-48の分岐がカバーされる
         serializer = ContestCreateSerializer(
@@ -30,19 +30,19 @@ class SerializerCoverageCompleteTest(TestCase):
             },
             partial=True
         )
-        
+
         # バリデーションエラー（end_atがインスタンスから取得され、比較される）
         is_valid = serializer.is_valid()
         self.assertFalse(is_valid)
         self.assertIn('投票終了日時', str(serializer.errors))
-    
+
     def test_voting_end_validation_all_branches(self):
         """voting_end_atのバリデーションの全分岐をカバー"""
         user = User.objects.create_user(
             username='testuser',
             email='test@example.com'
         )
-        
+
         contest = Contest.objects.create(
             slug='existing-contest',
             title='Existing Contest',
@@ -50,7 +50,7 @@ class SerializerCoverageCompleteTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         # ケース1: voting_end_atがあり、end_atがdataにない、インスタンスから取得
         # → 行47-48が実行される
         data1 = {
@@ -62,7 +62,7 @@ class SerializerCoverageCompleteTest(TestCase):
             partial=True
         )
         self.assertFalse(serializer1.is_valid())
-        
+
         # ケース2: voting_end_atがあり、end_atもdataにある
         # → 行48はスキップされる
         data2 = {
@@ -75,7 +75,7 @@ class SerializerCoverageCompleteTest(TestCase):
             partial=True
         )
         self.assertFalse(serializer2.is_valid())
-        
+
         # ケース3: voting_end_atが正しい値
         data3 = {
             'voting_end_at': timezone.now() + timedelta(days=45),  # end_atより後
@@ -86,4 +86,3 @@ class SerializerCoverageCompleteTest(TestCase):
             partial=True
         )
         self.assertTrue(serializer3.is_valid())
-

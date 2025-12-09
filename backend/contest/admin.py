@@ -14,11 +14,11 @@ class EntryImageInline(admin.TabularInline):
 @admin.register(Contest)
 class ContestAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'slug', 'judging_type', 'start_at', 
+        'title', 'slug', 'judging_type', 'start_at',
         'end_at', 'is_public', 'twitter_auto_fetch', 'created_at'
     )
     list_filter = (
-        'is_public', 'judging_type', 
+        'is_public', 'judging_type',
         'twitter_auto_fetch', 'start_at', 'end_at'
     )
     search_fields = ('title', 'slug', 'description', 'twitter_hashtag')
@@ -28,7 +28,7 @@ class ContestAdmin(admin.ModelAdmin):
     fieldsets = (
         ('基本情報', {
             'fields': (
-                'slug', 'title', 'description', 
+                'slug', 'title', 'description',
                 'banner_image', 'is_public', 'creator', 'judges'
             )
         }),
@@ -46,7 +46,7 @@ class ContestAdmin(admin.ModelAdmin):
         }),
         ('Twitter連携', {
             'fields': (
-                'twitter_hashtag', 'twitter_auto_fetch', 
+                'twitter_hashtag', 'twitter_auto_fetch',
                 'twitter_auto_approve', 'twitter_last_fetch'
             ),
             'classes': ('collapse',),
@@ -54,7 +54,7 @@ class ContestAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('twitter_last_fetch',)
     actions = ['fetch_twitter_now']
-    
+
     def fetch_twitter_now(self, request, queryset):
         """選択したコンテストのTwitter投稿を今すぐ取得"""
         from .twitter_integration import TwitterFetcher
@@ -92,7 +92,7 @@ class EntryAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
     )
-    
+
     def get_author_display(self, obj):
         """投稿者の表示名を取得"""
         if obj.author:
@@ -102,11 +102,11 @@ class EntryAdmin(admin.ModelAdmin):
         else:
             return "(投稿者不明)"
     get_author_display.short_description = '投稿者'
-    
+
     def approve_entries(self, request, queryset):
         queryset.update(approved=True, flagged=False)
     approve_entries.short_description = '選択したエントリーを承認'
-    
+
     def reject_entries(self, request, queryset):
         queryset.update(approved=False)
     reject_entries.short_description = '選択したエントリーを非承認'
@@ -143,7 +143,7 @@ class FlagAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'entry__title', 'reason')
     readonly_fields = ('created_at',)
     actions = ['mark_resolved']
-    
+
     def mark_resolved(self, request, queryset):
         queryset.update(resolved=True)
     mark_resolved.short_description = '選択した通報を解決済みにする'
@@ -152,7 +152,7 @@ class FlagAdmin(admin.ModelAdmin):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
-        'name', 'contest', 'order', 
+        'name', 'contest', 'order',
         'max_votes_per_judge', 'created_at'
     )
     list_filter = ('contest', 'created_at')
@@ -170,7 +170,7 @@ class EntryCategoryAssignmentAdmin(admin.ModelAdmin):
 @admin.register(JudgingCriteria)
 class JudgingCriteriaAdmin(admin.ModelAdmin):
     list_display = (
-        'name', 'contest', 'category', 
+        'name', 'contest', 'category',
         'max_score', 'order', 'created_at'
     )
     list_filter = ('contest', 'category', 'created_at')
@@ -185,9 +185,7 @@ class DetailedScoreAdmin(admin.ModelAdmin):
     )
     list_filter = ('criteria', 'created_at')
     search_fields = (
-        'judge_score__judge__username', 
+        'judge_score__judge__username',
         'criteria__name', 'comment'
     )
     readonly_fields = ('created_at', 'updated_at')
-
-

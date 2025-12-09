@@ -33,21 +33,21 @@ class ContestAdminActionsTest(TestCase):
             twitter_auto_fetch=True,
             twitter_hashtag='test'
         )
-        
+
         request = self.factory.get('/')
         request.user = self.user
         request._messages = Mock()
-        
+
         queryset = Contest.objects.filter(id=contest.id)
-        
+
         # TwitterFetcherをモック
         with patch('contest.twitter_integration.TwitterFetcher') as mock_fetcher_class:
             mock_fetcher = Mock()
             mock_fetcher.fetch_and_create_entries.return_value = 5
             mock_fetcher_class.return_value = mock_fetcher
-            
+
             self.admin.fetch_twitter_now(request, queryset)
-            
+
             # fetch_and_create_entriesが呼ばれたことを確認
             mock_fetcher.fetch_and_create_entries.assert_called_once_with(contest)
 
@@ -60,20 +60,20 @@ class ContestAdminActionsTest(TestCase):
             end_at=timezone.now() + timedelta(days=30),
             twitter_auto_fetch=False
         )
-        
+
         request = self.factory.get('/')
         request.user = self.user
         request._messages = Mock()
-        
+
         queryset = Contest.objects.filter(id=contest.id)
-        
+
         with patch('contest.twitter_integration.TwitterFetcher') as mock_fetcher_class:
             mock_fetcher = Mock()
             mock_fetcher.fetch_and_create_entries.return_value = 0
             mock_fetcher_class.return_value = mock_fetcher
-            
+
             self.admin.fetch_twitter_now(request, queryset)
-            
+
             # twitter_auto_fetchがFalseなので呼ばれない
             mock_fetcher.fetch_and_create_entries.assert_not_called()
 
@@ -87,19 +87,19 @@ class ContestAdminActionsTest(TestCase):
             twitter_auto_fetch=True,
             twitter_hashtag=''
         )
-        
+
         request = self.factory.get('/')
         request.user = self.user
         request._messages = Mock()
-        
+
         queryset = Contest.objects.filter(id=contest.id)
-        
+
         with patch('contest.twitter_integration.TwitterFetcher') as mock_fetcher_class:
             mock_fetcher = Mock()
             mock_fetcher_class.return_value = mock_fetcher
-            
+
             self.admin.fetch_twitter_now(request, queryset)
-            
+
             # ハッシュタグがないので呼ばれない
             mock_fetcher.fetch_and_create_entries.assert_not_called()
 
@@ -136,14 +136,13 @@ class FlagAdminActionsTest(TestCase):
             reason='Test reason',
             resolved=False
         )
-        
+
         request = self.factory.get('/')
         request._messages = Mock()
-        
+
         queryset = Flag.objects.filter(id=flag.id)
-        
+
         self.admin.mark_resolved(request, queryset)
-        
+
         flag.refresh_from_db()
         self.assertTrue(flag.resolved)
-

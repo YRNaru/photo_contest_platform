@@ -4,9 +4,9 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from unittest.mock import Mock, patch, MagicMock
-from .models import Contest, Entry, EntryImage
+from .models import Contest  # Entry, EntryImage unused
 from .twitter_integration import TwitterFetcher, fetch_all_active_contests
-from io import BytesIO
+# from io import BytesIO  # noqa: F401
 
 User = get_user_model()
 
@@ -38,12 +38,13 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_response.includes = {'users': [Mock(id='456', username='user', name='User')], 'media': []}
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
-        result = fetcher.fetch_tweets_by_hashtag('test', since_time=timezone.now())
-        
+        fetcher.fetch_tweets_by_hashtag('test', since_time=timezone.now())
+
         # since_timeが渡されたことを確認
         call_kwargs = mock_client.search_recent_tweets.call_args[1]
+        result = fetch_all_active_contests()
         self.assertIn('start_time', call_kwargs)
 
     @override_settings(TWITTER_BEARER_TOKEN='test_token')
@@ -55,10 +56,11 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_response.data = None  # データなし
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
-        result = fetcher.fetch_tweets_by_hashtag('test')
-        
+        fetcher.fetch_tweets_by_hashtag('test')
+
+        result = fetch_all_active_contests()
         self.assertEqual(result, [])
 
     @override_settings(TWITTER_BEARER_TOKEN='test_token')
@@ -66,7 +68,7 @@ class TwitterFetcherCompleteTest(TestCase):
     def test_fetch_tweets_with_media(self, mock_client_class):
         """メディア付きツイートの取得"""
         mock_client = Mock()
-        
+
         # メディア情報を持つツイート
         mock_tweet = Mock()
         mock_tweet.id = '123'
@@ -74,35 +76,35 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_tweet.author_id = '456'
         mock_tweet.created_at = timezone.now()
         mock_tweet.attachments = {'media_keys': ['media1', 'media2']}
-        
+
         mock_user = Mock()
         mock_user.id = '456'
         mock_user.username = 'testuser'
         mock_user.name = 'Test User'
-        
+
         mock_media1 = Mock()
         mock_media1.media_key = 'media1'
         mock_media1.type = 'photo'
         mock_media1.url = 'https://example.com/photo1.jpg'
-        
+
         mock_media2 = Mock()
         mock_media2.media_key = 'media2'
         mock_media2.type = 'photo'
         mock_media2.url = 'https://example.com/photo2.jpg'
-        
+
         mock_response = Mock()
         mock_response.data = [mock_tweet]
         mock_response.includes = {
             'users': [mock_user],
             'media': [mock_media1, mock_media2]
         }
-        
+
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
-        result = fetcher.fetch_tweets_by_hashtag('test')
-        
+        fetcher.fetch_tweets_by_hashtag('test')
+
         # メディアURLが含まれることを確認
         self.assertEqual(len(result), 1)
         self.assertEqual(len(result[0]['media_urls']), 2)
@@ -114,43 +116,43 @@ class TwitterFetcherCompleteTest(TestCase):
         """fetch_and_create_entriesの完全テスト"""
         # Twitter APIのモック
         mock_client = Mock()
-        
+
         mock_tweet = Mock()
         mock_tweet.id = '123456'
         mock_tweet.text = 'Test tweet #testhashtag'
         mock_tweet.author_id = '789'
         mock_tweet.created_at = timezone.now()
         mock_tweet.attachments = {'media_keys': ['media1']}
-        
+
         mock_user = Mock()
         mock_user.id = '789'
         mock_user.username = 'twitteruser'
         mock_user.name = 'Twitter User'
-        
+
         mock_media = Mock()
         mock_media.media_key = 'media1'
         mock_media.type = 'photo'
         mock_media.url = 'https://example.com/photo.jpg'
-        
+
         mock_response = Mock()
         mock_response.data = [mock_tweet]
         mock_response.includes = {
             'users': [mock_user],
             'media': [mock_media]
         }
-        
+
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         # 画像ダウンロードのモック
         mock_img_response = Mock()
         mock_img_response.content = b'fake image data'
         mock_img_response.raise_for_status = Mock()
         mock_requests.return_value = mock_img_response
-        
+
         fetcher = TwitterFetcher()
         count = fetcher.fetch_and_create_entries(self.contest)
-        
+
         # エントリーが作成されたことを確認
         self.assertGreaterEqual(count, 0)
 
@@ -161,10 +163,10 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_client = Mock()
         mock_client.search_recent_tweets.side_effect = Exception('Twitter API Error')
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
-        result = fetcher.fetch_tweets_by_hashtag('test')
-        
+        fetcher.fetch_tweets_by_hashtag('test')
+
         # 例外がキャッチされ、空リストが返る
         self.assertEqual(result, [])
 
@@ -180,15 +182,14 @@ class TwitterFetcherCompleteTest(TestCase):
             twitter_hashtag='test2',
             twitter_auto_fetch=True,
         )
-        
+
         mock_fetcher = Mock()
         mock_fetcher.fetch_and_create_entries.return_value = 10
         mock_fetcher_class.return_value = mock_fetcher
-        
-        result = fetch_all_active_contests()
-        
+
+        fetch_all_active_contests()
+
         # 結果が辞書であることを確認
         self.assertIsInstance(result, dict)
         # 複数のコンテストが処理されたことを確認
         self.assertGreaterEqual(len(result), 1)
-

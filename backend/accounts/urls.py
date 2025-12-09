@@ -11,4 +11,3 @@ urlpatterns = [
     path('auth/session-token/', get_session_token, name='get_session_token'),
     path('profile/', profile, name='profile'),
 ]
-

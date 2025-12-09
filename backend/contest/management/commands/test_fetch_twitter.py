@@ -30,10 +30,10 @@ class FetchTwitterCommandTest(TestCase):
         mock_fetcher = Mock()
         mock_fetcher.fetch_and_create_entries.return_value = 5
         mock_fetcher_class.return_value = mock_fetcher
-        
+
         out = StringIO()
         call_command('fetch_twitter', '--contest=test-contest', stdout=out)
-        
+
         # 成功メッセージが出力されることを確認
         self.assertIn('Successfully fetched', out.getvalue())
         self.assertIn('test-contest', out.getvalue())
@@ -42,7 +42,7 @@ class FetchTwitterCommandTest(TestCase):
         """存在しないコンテストを指定"""
         out = StringIO()
         call_command('fetch_twitter', '--contest=nonexistent', stdout=out)
-        
+
         # エラーメッセージが出力されることを確認
         self.assertIn('not found', out.getvalue())
 
@@ -50,12 +50,11 @@ class FetchTwitterCommandTest(TestCase):
     def test_command_without_contest_slug(self, mock_fetch_all):
         """コンテストを指定せずにコマンド実行"""
         mock_fetch_all.return_value = {'test-contest': 5, 'another-contest': 3}
-        
+
         out = StringIO()
         call_command('fetch_twitter', stdout=out)
-        
+
         # 成功メッセージと詳細が出力されることを確認
         self.assertIn('Successfully fetched', out.getvalue())
         self.assertIn('8 entries', out.getvalue())
         self.assertIn('test-contest', out.getvalue())
-

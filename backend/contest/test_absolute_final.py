@@ -30,10 +30,10 @@ class AbsoluteFinalTwitterTest(TestCase):
             twitter_hashtag='',  # ハッシュタグなし
             twitter_auto_fetch=True,
         )
-        
+
         fetcher = TwitterFetcher()
         count = fetcher.fetch_and_create_entries(contest_no_hashtag)
-        
+
         # 行190-192が実行され、0が返る
         self.assertEqual(count, 0)
 
@@ -50,10 +50,10 @@ class AbsoluteFinalTwitterTest(TestCase):
             twitter_hashtag='test',
             twitter_auto_fetch=True,
         )
-        
+
         fetcher = TwitterFetcher()
         count = fetcher.fetch_and_create_entries(closed_contest)
-        
+
         # 行199-201が実行され、0が返る
         self.assertEqual(count, 0)
 
@@ -69,14 +69,14 @@ class AbsoluteFinalTwitterTest(TestCase):
             twitter_hashtag='test2',
             twitter_auto_fetch=True,
         )
-        
+
         mock_client = Mock()
         mock_tweet = Mock()
         mock_tweet.id = 'tweet123'
         mock_tweet.text = 'Test tweet #test2'
         mock_tweet.author_id = '456'
         mock_tweet.created_at = timezone.now()
-        
+
         mock_response = Mock()
         mock_response.data = [mock_tweet]
         mock_response.includes = {
@@ -85,10 +85,10 @@ class AbsoluteFinalTwitterTest(TestCase):
         }
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
         count = fetcher.fetch_and_create_entries(contest)
-        
+
         # エントリーが作成され、カウントが返される（行200-201）
         self.assertIsInstance(count, int)
 
@@ -105,7 +105,7 @@ class AbsoluteFinalTwitterTest(TestCase):
             twitter_auto_fetch=True,
             twitter_last_fetch=None,  # 初回取得
         )
-        
+
         contest2 = Contest.objects.create(
             slug='c4',
             title='C4',
@@ -114,20 +114,20 @@ class AbsoluteFinalTwitterTest(TestCase):
             twitter_hashtag='test4',
             twitter_auto_fetch=True,
         )
-        
+
         mock_client = Mock()
         mock_response = Mock()
         mock_response.data = []
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         # fetch_all_active_contestsを実行
         result = fetch_all_active_contests()
-        
+
         # 両方のコンテストのtwitter_last_fetchが更新される（行246-248）
         contest1.refresh_from_db()
         contest2.refresh_from_db()
-        
+
         self.assertIsNotNone(contest1.twitter_last_fetch)
         self.assertIsNotNone(contest2.twitter_last_fetch)
 
@@ -142,7 +142,7 @@ class AbsoluteFinalTestsPyTest(TestCase):
             email='user543@example.com',
             password='pass'
         )
-        
+
         Contest.objects.create(
             slug='c543',
             title='C543',
@@ -150,10 +150,10 @@ class AbsoluteFinalTestsPyTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         client = Client()
         client.force_login(user)
-        
+
         # ページネーションなし
         with self.settings(REST_FRAMEWORK={}):
             response = client.get('/api/contests/my_contests/')
@@ -170,28 +170,27 @@ class AbsoluteFinalTestsPyTest(TestCase):
             password='pass',
             is_moderator=True
         )
-        
+
         contest = Contest.objects.create(
             slug='c946',
             title='C946',
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        
+
         Entry.objects.create(
             contest=contest,
             author=user,
             title='Pending946',
             approved=False
         )
-        
+
         client = Client()
         client.force_login(user)
-        
+
         # ページネーションなし
         with self.settings(REST_FRAMEWORK={}):
             response = client.get('/api/entries/pending/')
             # elseブランチ（行946）を通る
             self.assertEqual(response.status_code, 200)
             self.assertIsNotNone(response.data)
-

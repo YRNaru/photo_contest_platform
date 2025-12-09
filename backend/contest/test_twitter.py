@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from unittest.mock import Mock, patch, MagicMock
-from .models import Contest, Entry
+from .models import Contest  # Entry unused
 from .twitter_integration import TwitterFetcher, fetch_all_active_contests
 
 User = get_user_model()
@@ -50,9 +50,9 @@ class TwitterFetchTweetsTest(TestCase):
         """クライアントがない場合"""
         fetcher = TwitterFetcher()
         fetcher.client = None
-        
+
         result = fetcher.fetch_tweets_by_hashtag('test')
-        
+
         self.assertEqual(result, [])
 
     @override_settings(TWITTER_BEARER_TOKEN='token')
@@ -66,10 +66,10 @@ class TwitterFetchTweetsTest(TestCase):
         ]
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
-        result = fetcher.fetch_tweets_by_hashtag('test')
-        
+        fetcher.fetch_tweets_by_hashtag('test')
+
         # search_recent_tweetsが呼ばれたことを確認
         mock_client.search_recent_tweets.assert_called_once()
 
@@ -80,10 +80,10 @@ class TwitterFetchTweetsTest(TestCase):
         mock_client = Mock()
         mock_client.search_recent_tweets.side_effect = Exception('API Error')
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
-        result = fetcher.fetch_tweets_by_hashtag('test')
-        
+        fetcher.fetch_tweets_by_hashtag('test')
+
         self.assertEqual(result, [])
 
 
@@ -106,9 +106,9 @@ class FetchAllActiveContestsTest(TestCase):
         mock_fetcher = Mock()
         mock_fetcher.fetch_and_create_entries.return_value = 5
         mock_fetcher_class.return_value = mock_fetcher
-        
-        result = fetch_all_active_contests()
-        
+
+        fetch_all_active_contests()
+
         # TwitterFetcherが作成されたことを確認
         mock_fetcher_class.assert_called_once()
 
@@ -116,9 +116,8 @@ class FetchAllActiveContestsTest(TestCase):
         """アクティブなコンテストがない場合"""
         # すべてのコンテストを無効化
         Contest.objects.all().update(twitter_auto_fetch=False)
-        
-        result = fetch_all_active_contests()
-        
+
+        fetch_all_active_contests()
+
         # 空の結果が返る
         self.assertIsInstance(result, dict)
-

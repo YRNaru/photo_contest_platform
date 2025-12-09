@@ -1,5 +1,5 @@
 """テスト用の設定"""
-from .settings import *
+from .settings import *  # noqa: F403, F401
 
 # テスト用にSQLiteを使用
 DATABASES = {
@@ -20,4 +20,3 @@ DEBUG = True
 # Celeryをイーガーモードで実行（テスト用）
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
-

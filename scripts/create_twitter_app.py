@@ -6,8 +6,8 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from django.contrib.sites.models import Site
-from allauth.socialaccount.models import SocialApp
+from django.contrib.sites.models import Site  # noqa: E402
+from allauth.socialaccount.models import SocialApp  # noqa: E402
 
 print("=" * 60)
 print("Twitter OAuth2 SocialAppの作成")
@@ -24,8 +24,14 @@ else:
     print(f"✅ 既存のSiteを使用: {site.domain}")
 
 # 環境変数から認証情報を取得
-client_id = os.environ.get('TWITTER_OAUTH_CLIENT_ID', 'T09GVEFkUVljOFlSTFBveHN5eE46MTpjaQ')
-client_secret = os.environ.get('TWITTER_OAUTH_CLIENT_SECRET', '2lS85HZbV-nFliK0wFvkxz6BgQm0oqBniPSTf_aVz-VdImkaMe')
+client_id = os.environ.get(
+    'TWITTER_OAUTH_CLIENT_ID',
+    'T09GVEFkUVljOFlSTFBveHN5eE46MTpjaQ'
+)
+client_secret = os.environ.get(
+    'TWITTER_OAUTH_CLIENT_SECRET',
+    '2lS85HZbV-nFliK0wFvkxz6BgQm0oqBniPSTf_aVz-VdImkaMe'
+)
 
 print(f"\nClient ID: {client_id}")
 print(f"Client Secret: {client_secret[:20]}...")

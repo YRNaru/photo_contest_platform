@@ -41,9 +41,9 @@ class TwitterIntegration100Test(TestCase):
             source='twitter',
             approved=True
         )
-        
+
         fetcher = TwitterFetcher()
-        
+
         # 同じtweet_idで再度作成を試みる
         tweet_data = {
             'id': '123456',  # 同じID
@@ -53,9 +53,9 @@ class TwitterIntegration100Test(TestCase):
             'url': 'https://twitter.com/user/status/123456',
             'media_urls': []
         }
-        
+
         result = fetcher.create_entry_from_tweet(self.contest, tweet_data)
-        
+
         # Noneが返ることを確認（行122）
         self.assertIsNone(result)
 
@@ -64,7 +64,7 @@ class TwitterIntegration100Test(TestCase):
     def test_create_entry_empty_title_fallback(self, mock_client_class):
         """タイトルが空の場合のフォールバック（行135-136）"""
         fetcher = TwitterFetcher()
-        
+
         # ハッシュタグのみのツイート
         tweet_data = {
             'id': '999',
@@ -74,9 +74,9 @@ class TwitterIntegration100Test(TestCase):
             'url': 'https://twitter.com/user/status/999',
             'media_urls': []
         }
-        
+
         result = fetcher.create_entry_from_tweet(self.contest, tweet_data)
-        
+
         # タイトルがユーザー名から生成されることを確認（行136）
         self.assertIsNotNone(result)
         self.assertIn('@user', result.title)
@@ -91,9 +91,9 @@ class TwitterIntegration100Test(TestCase):
         mock_img_response.content = b'fake image data'
         mock_img_response.raise_for_status = Mock()
         mock_requests.return_value = mock_img_response
-        
+
         fetcher = TwitterFetcher()
-        
+
         tweet_data = {
             'id': '111',
             'text': 'Tweet with images #testhashtag',
@@ -102,9 +102,9 @@ class TwitterIntegration100Test(TestCase):
             'url': 'https://twitter.com/user/status/111',
             'media_urls': ['https://example.com/img1.jpg', 'https://example.com/img2.jpg']
         }
-        
+
         result = fetcher.create_entry_from_tweet(self.contest, tweet_data)
-        
+
         # エントリーが作成され、画像がダウンロードされることを確認
         self.assertIsNotNone(result)
         self.assertGreaterEqual(result.images.count(), 1)
@@ -115,9 +115,9 @@ class TwitterIntegration100Test(TestCase):
     def test_create_entry_download_images_error(self, mock_requests, mock_client_class):
         """画像ダウンロードエラー（行170-171）"""
         mock_requests.side_effect = Exception('Download error')
-        
+
         fetcher = TwitterFetcher()
-        
+
         tweet_data = {
             'id': '222',
             'text': 'Tweet #testhashtag',
@@ -126,9 +126,9 @@ class TwitterIntegration100Test(TestCase):
             'url': 'https://twitter.com/user/status/222',
             'media_urls': ['https://example.com/img.jpg']
         }
-        
+
         result = fetcher.create_entry_from_tweet(self.contest, tweet_data)
-        
+
         # エラーがログされるがエントリーは作成される
         self.assertIsNotNone(result)
 
@@ -137,7 +137,7 @@ class TwitterIntegration100Test(TestCase):
     def test_create_entry_exception_handling(self, mock_client_class):
         """エントリー作成時の例外ハンドリング（行176-178）"""
         fetcher = TwitterFetcher()
-        
+
         # 不正なデータで例外を発生させる
         tweet_data = {
             'id': 'valid_id',
@@ -147,10 +147,10 @@ class TwitterIntegration100Test(TestCase):
             'url': 'https://twitter.com/user/status/valid',
             'media_urls': []
         }
-        
+
         # contestをNoneにして例外を発生させる
         result = fetcher.create_entry_from_tweet(None, tweet_data)
-        
+
         # Noneが返ることを確認（例外がキャッチされる）
         self.assertIsNone(result)
 
@@ -162,16 +162,16 @@ class TwitterIntegration100Test(TestCase):
         # 既存の最終取得日時を設定
         self.contest.twitter_last_fetch = timezone.now() - timedelta(hours=1)
         self.contest.save()
-        
+
         mock_client = Mock()
         mock_response = Mock()
         mock_response.data = []
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
         count = fetcher.fetch_and_create_entries(self.contest)
-        
+
         # since_timeが使用されたことを確認
         self.assertEqual(count, 0)
 
@@ -180,20 +180,26 @@ class TwitterIntegration100Test(TestCase):
     def test_fetch_and_create_multiple_entries(self, mock_client_class):
         """複数エントリーの作成（行200-201）"""
         mock_client = Mock()
-        
+
         # 複数のツイートを返す
         mock_response = Mock()
         mock_tweet1 = Mock(id='111', text='Tweet1 #test', author_id='1', created_at=timezone.now())
         mock_tweet2 = Mock(id='222', text='Tweet2 #test', author_id='2', created_at=timezone.now())
         mock_response.data = [mock_tweet1, mock_tweet2]
-        mock_response.includes = {'users': [Mock(id='1', username='u1', name='U1'), Mock(id='2', username='u2', name='U2')], 'media': []}
-        
+            profile_url = 'https://pbs.twimg.com/profile_images/123_normal.jpg'
+            SocialAccount.objects.create(
+                user=self.user,
+                provider='twitter_oauth2',
+                uid='123456789',
+                extra_data={'profile_image_url': profile_url}
+            )
+
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         fetcher = TwitterFetcher()
         count = fetcher.fetch_and_create_entries(self.contest)
-        
+
         # 複数作成されることを確認
         self.assertGreaterEqual(count, 0)
 
@@ -213,18 +219,17 @@ class FetchAllActiveContests100Test(TestCase):
             twitter_hashtag='test',
             twitter_auto_fetch=True,
         )
-        
+
         # Twitter APIのモック
         mock_client = Mock()
         mock_response = Mock()
         mock_response.data = []  # データなし
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
-        
+
         from .twitter_integration import fetch_all_active_contests
-        result = fetch_all_active_contests()
-        
+        fetch_all_active_contests()
+
         # コンテストの最終取得日時が更新されていることを確認
         contest.refresh_from_db()
         self.assertIsNotNone(contest.twitter_last_fetch)
-

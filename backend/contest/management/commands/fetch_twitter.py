@@ -45,4 +45,3 @@ class Command(BaseCommand):
             )
             for slug, count in results.items():
                 self.stdout.write(f'  {slug}: {count} entries')
-
