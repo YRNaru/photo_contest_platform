@@ -6,6 +6,12 @@ import uuid
 
 class Contest(models.Model):
     """コンテストモデル"""
+    
+    JUDGING_TYPE_CHOICES = [
+        ('vote', '投票方式'),
+        ('score', '点数方式'),
+    ]
+    
     slug = models.SlugField(unique=True, verbose_name='スラッグ')
     title = models.CharField(max_length=200, verbose_name='タイトル')
     description = models.TextField(blank=True, verbose_name='説明')
@@ -18,6 +24,20 @@ class Contest(models.Model):
     is_public = models.BooleanField(default=True, verbose_name='公開')
     max_entries_per_user = models.IntegerField(default=1, verbose_name='ユーザーあたり最大応募数')
     max_images_per_entry = models.IntegerField(default=5, verbose_name='エントリーあたり最大画像数')
+    
+    # 審査方式設定
+    judging_type = models.CharField(
+        max_length=20, 
+        choices=JUDGING_TYPE_CHOICES, 
+        default='vote', 
+        verbose_name='審査方式',
+        help_text='投票方式または点数方式を選択'
+    )
+    max_votes_per_judge = models.IntegerField(
+        default=3, 
+        verbose_name='審査員あたり最大投票数',
+        help_text='投票方式の場合のみ有効。各審査員が投票できる作品数'
+    )
     
     # 承認設定
     auto_approve_entries = models.BooleanField(default=False, verbose_name='投稿の自動承認', help_text='有効にすると、投稿が自動的に承認されます')
@@ -108,6 +128,51 @@ class Entry(models.Model):
         return sum(s.score for s in scores) / len(scores)
 
 
+class Category(models.Model):
+    """部門モデル - コンテストの部門（賞）を管理"""
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="categories", verbose_name='コンテスト')
+    name = models.CharField(max_length=100, verbose_name='部門名', help_text='例: 風景部門、人物部門、グランプリ')
+    description = models.TextField(blank=True, verbose_name='説明')
+    order = models.IntegerField(default=0, verbose_name='表示順')
+    max_votes_per_judge = models.IntegerField(
+        null=True, 
+        blank=True, 
+        verbose_name='審査員あたり最大投票数',
+        help_text='この部門での審査員の最大投票数。未設定の場合はコンテストの設定を使用'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '部門'
+        verbose_name_plural = '部門'
+        ordering = ['order', 'created_at']
+        unique_together = ('contest', 'name')
+
+    def __str__(self):
+        return f"{self.contest.title} - {self.name}"
+
+    def get_max_votes(self):
+        """この部門の最大投票数を取得（未設定の場合はコンテストの設定）"""
+        return self.max_votes_per_judge if self.max_votes_per_judge is not None else self.contest.max_votes_per_judge
+
+
+class EntryCategoryAssignment(models.Model):
+    """エントリーと部門の紐付けモデル"""
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="category_assignments", verbose_name='エントリー')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="entry_assignments", verbose_name='部門')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'エントリー部門紐付け'
+        verbose_name_plural = 'エントリー部門紐付け'
+        unique_together = ('entry', 'category')
+        ordering = ['category__order']
+
+    def __str__(self):
+        return f"{self.entry.title} → {self.category.name}"
+
+
 class EntryImage(models.Model):
     """エントリー画像モデル"""
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="images", verbose_name='エントリー')
@@ -130,42 +195,112 @@ class EntryImage(models.Model):
 
 
 class Vote(models.Model):
-    """投票モデル"""
+    """投票モデル - 投票方式用"""
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="votes", verbose_name='エントリー')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="votes", verbose_name='部門', null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="votes", verbose_name='ユーザー')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = '投票'
         verbose_name_plural = '投票'
-        unique_together = ("entry", "user")
+        unique_together = ("entry", "user", "category")
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['category', 'user']),
+            models.Index(fields=['entry', 'category']),
+        ]
 
     def __str__(self):
         user_name = self.user.username if self.user else "(ユーザー不明)"
         entry_title = self.entry.title if self.entry else "(エントリー不明)"
-        return f"{user_name} -> {entry_title}"
+        category_name = self.category.name if self.category else "全体"
+        return f"{user_name} → {entry_title} ({category_name})"
+
+
+class JudgingCriteria(models.Model):
+    """審査基準モデル - 点数方式で使用する評価項目"""
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="judging_criteria", verbose_name='コンテスト')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="judging_criteria", verbose_name='部門', null=True, blank=True, help_text='部門固有の基準。未設定の場合は全部門共通')
+    name = models.CharField(max_length=100, verbose_name='評価項目名', help_text='例: 構図、色彩、独創性')
+    description = models.TextField(blank=True, verbose_name='説明')
+    max_score = models.IntegerField(default=10, verbose_name='最大点数', help_text='この項目の最大点数')
+    order = models.IntegerField(default=0, verbose_name='表示順')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '審査基準'
+        verbose_name_plural = '審査基準'
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        contest_name = f"{self.contest.title}"
+        category_name = f" - {self.category.name}" if self.category else ""
+        return f"{contest_name}{category_name}: {self.name} (最大{self.max_score}点)"
 
 
 class JudgeScore(models.Model):
-    """審査員スコアモデル"""
+    """審査員スコアモデル - 点数方式用（総合スコア）"""
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="scores", verbose_name='エントリー')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="scores", verbose_name='部門', null=True, blank=True)
     judge = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="judge_scores", verbose_name='審査員')
-    score = models.IntegerField(verbose_name='スコア', help_text='0-100')
-    comment = models.TextField(blank=True, verbose_name='コメント')
+    total_score = models.DecimalField(max_digits=6, decimal_places=2, default=0, verbose_name='総合点', help_text='各評価項目の合計点')
+    comment = models.TextField(blank=True, verbose_name='総評コメント')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = '審査員スコア'
         verbose_name_plural = '審査員スコア'
-        unique_together = ("entry", "judge")
-        ordering = ['-created_at']
+        unique_together = ("entry", "judge", "category")
+        ordering = ['-total_score', '-created_at']
+        indexes = [
+            models.Index(fields=['category', 'judge']),
+            models.Index(fields=['entry', 'category']),
+        ]
 
     def __str__(self):
         judge_name = self.judge.username if self.judge else "(審査員不明)"
         entry_title = self.entry.title if self.entry else "(エントリー不明)"
-        return f"{judge_name} -> {entry_title}: {self.score}"
+        category_name = f" ({self.category.name})" if self.category else ""
+        return f"{judge_name} → {entry_title}{category_name}: {self.total_score}点"
+
+    def calculate_total_score(self):
+        """詳細スコアから総合点を計算"""
+        detailed_scores = self.detailed_scores.all()
+        self.total_score = sum(ds.score for ds in detailed_scores)
+        self.save()
+        return self.total_score
+
+
+class DetailedScore(models.Model):
+    """詳細スコアモデル - 各審査基準に対する点数"""
+    judge_score = models.ForeignKey(JudgeScore, on_delete=models.CASCADE, related_name="detailed_scores", verbose_name='審査員スコア')
+    criteria = models.ForeignKey(JudgingCriteria, on_delete=models.CASCADE, related_name="detailed_scores", verbose_name='審査基準')
+    score = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='点数', help_text='この評価項目の点数')
+    comment = models.TextField(blank=True, verbose_name='コメント')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = '詳細スコア'
+        verbose_name_plural = '詳細スコア'
+        unique_together = ("judge_score", "criteria")
+        ordering = ['criteria__order']
+
+    def __str__(self):
+        return f"{self.judge_score} - {self.criteria.name}: {self.score}点"
+
+    def save(self, *args, **kwargs):
+        """保存時にスコアの妥当性をチェック"""
+        if self.score > self.criteria.max_score:
+            raise ValueError(f"スコアは最大{self.criteria.max_score}点を超えることはできません")
+        if self.score < 0:
+            raise ValueError("スコアは0点未満にはできません")
+        super().save(*args, **kwargs)
+        # 総合点を再計算
+        self.judge_score.calculate_total_score()
 
 
 class Flag(models.Model):

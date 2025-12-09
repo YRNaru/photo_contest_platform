@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Contest, Entry, EntryImage, Vote, JudgeScore, Flag
+from .models import (
+    Contest, Entry, EntryImage, Vote, JudgeScore, Flag,
+    Category, EntryCategoryAssignment, JudgingCriteria, DetailedScore
+)
 
 
 class EntryImageInline(admin.TabularInline):
@@ -10,23 +13,42 @@ class EntryImageInline(admin.TabularInline):
 
 @admin.register(Contest)
 class ContestAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug', 'start_at', 'end_at', 'is_public', 'twitter_auto_fetch', 'created_at')
-    list_filter = ('is_public', 'twitter_auto_fetch', 'start_at', 'end_at')
+    list_display = (
+        'title', 'slug', 'judging_type', 'start_at', 
+        'end_at', 'is_public', 'twitter_auto_fetch', 'created_at'
+    )
+    list_filter = (
+        'is_public', 'judging_type', 
+        'twitter_auto_fetch', 'start_at', 'end_at'
+    )
     search_fields = ('title', 'slug', 'description', 'twitter_hashtag')
     prepopulated_fields = {'slug': ('title',)}
     date_hierarchy = 'start_at'
+    filter_horizontal = ('judges',)
     fieldsets = (
         ('基本情報', {
-            'fields': ('slug', 'title', 'description', 'banner_image', 'is_public')
+            'fields': (
+                'slug', 'title', 'description', 
+                'banner_image', 'is_public', 'creator', 'judges'
+            )
+        }),
+        ('審査設定', {
+            'fields': ('judging_type', 'max_votes_per_judge')
         }),
         ('期間設定', {
             'fields': ('start_at', 'end_at', 'voting_end_at')
         }),
         ('応募設定', {
-            'fields': ('max_entries_per_user', 'max_images_per_entry')
+            'fields': (
+                'max_entries_per_user', 'max_images_per_entry',
+                'auto_approve_entries', 'require_twitter_account'
+            )
         }),
         ('Twitter連携', {
-            'fields': ('twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve', 'twitter_last_fetch'),
+            'fields': (
+                'twitter_hashtag', 'twitter_auto_fetch', 
+                'twitter_auto_approve', 'twitter_last_fetch'
+            ),
             'classes': ('collapse',),
         }),
     )
@@ -100,18 +122,18 @@ class EntryImageAdmin(admin.ModelAdmin):
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'entry', 'created_at')
-    list_filter = ('created_at',)
+    list_display = ('user', 'entry', 'category', 'created_at')
+    list_filter = ('category', 'created_at')
     search_fields = ('user__username', 'user__email', 'entry__title')
     readonly_fields = ('created_at',)
 
 
 @admin.register(JudgeScore)
 class JudgeScoreAdmin(admin.ModelAdmin):
-    list_display = ('judge', 'entry', 'score', 'created_at')
-    list_filter = ('score', 'created_at')
+    list_display = ('judge', 'entry', 'category', 'total_score', 'created_at')
+    list_filter = ('category', 'created_at')
     search_fields = ('judge__username', 'entry__title', 'comment')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('total_score', 'created_at', 'updated_at')
 
 
 @admin.register(Flag)
@@ -125,4 +147,47 @@ class FlagAdmin(admin.ModelAdmin):
     def mark_resolved(self, request, queryset):
         queryset.update(resolved=True)
     mark_resolved.short_description = '選択した通報を解決済みにする'
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        'name', 'contest', 'order', 
+        'max_votes_per_judge', 'created_at'
+    )
+    list_filter = ('contest', 'created_at')
+    search_fields = ('name', 'description', 'contest__title')
+    ordering = ('contest', 'order')
+
+
+@admin.register(EntryCategoryAssignment)
+class EntryCategoryAssignmentAdmin(admin.ModelAdmin):
+    list_display = ('entry', 'category', 'created_at')
+    list_filter = ('category', 'created_at')
+    search_fields = ('entry__title', 'category__name')
+
+
+@admin.register(JudgingCriteria)
+class JudgingCriteriaAdmin(admin.ModelAdmin):
+    list_display = (
+        'name', 'contest', 'category', 
+        'max_score', 'order', 'created_at'
+    )
+    list_filter = ('contest', 'category', 'created_at')
+    search_fields = ('name', 'description', 'contest__title')
+    ordering = ('contest', 'category', 'order')
+
+
+@admin.register(DetailedScore)
+class DetailedScoreAdmin(admin.ModelAdmin):
+    list_display = (
+        'judge_score', 'criteria', 'score', 'created_at'
+    )
+    list_filter = ('criteria', 'created_at')
+    search_fields = (
+        'judge_score__judge__username', 
+        'criteria__name', 'comment'
+    )
+    readonly_fields = ('created_at', 'updated_at')
+
 

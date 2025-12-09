@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Contest, Entry, EntryImage, Vote, JudgeScore, Flag
+from .models import (
+    Contest, Entry, EntryImage, Vote, JudgeScore, Flag,
+    Category, EntryCategoryAssignment, JudgingCriteria, DetailedScore
+)
 from accounts.serializers import UserSerializer
 import hashlib
 
@@ -20,12 +23,15 @@ class ContestCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Contest
-        fields = ('slug', 'title', 'description', 'banner_image',
-                  'start_at', 'end_at', 'voting_end_at', 'is_public',
-                  'max_entries_per_user', 'max_images_per_entry',
-                  'auto_approve_entries',
-                  'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
-                  'require_twitter_account')
+        fields = (
+            'slug', 'title', 'description', 'banner_image',
+            'start_at', 'end_at', 'voting_end_at', 'is_public',
+            'max_entries_per_user', 'max_images_per_entry',
+            'judging_type', 'max_votes_per_judge',
+            'auto_approve_entries',
+            'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
+            'require_twitter_account'
+        )
     
     def validate(self, data):
         # 開始日時と終了日時のチェック（両方が存在する場合のみ）
@@ -58,17 +64,22 @@ class ContestListSerializer(serializers.ModelSerializer):
     """コンテスト一覧シリアライザー"""
     phase = serializers.SerializerMethodField()
     entry_count = serializers.SerializerMethodField()
-    creator_username = serializers.CharField(source='creator.username', read_only=True)
+    creator_username = serializers.CharField(
+        source='creator.username', read_only=True
+    )
     is_owner = serializers.SerializerMethodField()
     is_judge = serializers.SerializerMethodField()
     judge_count = serializers.SerializerMethodField()
     
     class Meta:
         model = Contest
-        fields = ('slug', 'title', 'description', 'banner_image',
-                  'start_at', 'end_at', 'voting_end_at', 'is_public',
-                  'phase', 'entry_count', 'creator_username', 'is_owner', 
-                  'is_judge', 'judge_count', 'created_at')
+        fields = (
+            'slug', 'title', 'description', 'banner_image',
+            'start_at', 'end_at', 'voting_end_at', 'is_public',
+            'judging_type', 'max_votes_per_judge',
+            'phase', 'entry_count', 'creator_username', 'is_owner',
+            'is_judge', 'judge_count', 'created_at'
+        )
     
     def get_phase(self, obj):
         return obj.phase()
@@ -99,22 +110,29 @@ class ContestDetailSerializer(serializers.ModelSerializer):
     """コンテスト詳細シリアライザー"""
     phase = serializers.SerializerMethodField()
     entry_count = serializers.SerializerMethodField()
-    creator_username = serializers.CharField(source='creator.username', read_only=True)
+    creator_username = serializers.CharField(
+        source='creator.username', read_only=True
+    )
     is_owner = serializers.SerializerMethodField()
     is_judge = serializers.SerializerMethodField()
     judges = UserSerializer(many=True, read_only=True)
+    categories = CategorySerializer(many=True, read_only=True)
+    judging_criteria = JudgingCriteriaSerializer(many=True, read_only=True)
     
     class Meta:
         model = Contest
-        fields = ('slug', 'title', 'description', 'banner_image',
-                  'start_at', 'end_at', 'voting_end_at', 'is_public',
-                  'max_entries_per_user', 'max_images_per_entry',
-                  'auto_approve_entries',
-                  'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
-                  'require_twitter_account',
-                  'phase', 'entry_count', 'creator_username', 'is_owner',
-                  'is_judge', 'judges',
-                  'created_at', 'updated_at')
+        fields = (
+            'slug', 'title', 'description', 'banner_image',
+            'start_at', 'end_at', 'voting_end_at', 'is_public',
+            'max_entries_per_user', 'max_images_per_entry',
+            'judging_type', 'max_votes_per_judge',
+            'auto_approve_entries',
+            'twitter_hashtag', 'twitter_auto_fetch', 'twitter_auto_approve',
+            'require_twitter_account',
+            'phase', 'entry_count', 'creator_username', 'is_owner',
+            'is_judge', 'judges', 'categories', 'judging_criteria',
+            'created_at', 'updated_at'
+        )
     
     def get_phase(self, obj):
         return obj.phase()
@@ -334,22 +352,62 @@ class EntryCreateSerializer(serializers.ModelSerializer):
 
 class VoteSerializer(serializers.ModelSerializer):
     """投票シリアライザー"""
+    category_name = serializers.CharField(
+        source='category.name', read_only=True, allow_null=True
+    )
     
     class Meta:
         model = Vote
-        fields = ('id', 'entry', 'user', 'created_at')
+        fields = (
+            'id', 'entry', 'category', 'category_name', 
+            'user', 'created_at'
+        )
         read_only_fields = ('id', 'user', 'created_at')
-
-
-class JudgeScoreSerializer(serializers.ModelSerializer):
-    """審査員スコアシリアライザー"""
-    judge = UserSerializer(read_only=True)
     
-    class Meta:
-        model = JudgeScore
-        fields = ('id', 'entry', 'judge', 'score', 'comment', 
-                  'created_at', 'updated_at')
-        read_only_fields = ('id', 'judge', 'created_at', 'updated_at')
+    def validate(self, data):
+        """投票のバリデーション"""
+        entry = data.get('entry')
+        category = data.get('category')
+        request = self.context.get('request')
+        
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError('ログインが必要です')
+        
+        contest = entry.contest
+        
+        # 審査員チェック
+        if not contest.judges.filter(id=request.user.id).exists():
+            raise serializers.ValidationError(
+                'この投票は審査員のみ実行できます'
+            )
+        
+        # 投票方式チェック
+        if contest.judging_type != 'vote':
+            raise serializers.ValidationError(
+                'このコンテストは投票方式ではありません'
+            )
+        
+        # 投票期間チェック
+        phase = contest.phase()
+        if phase != 'voting':
+            raise serializers.ValidationError(
+                f'現在は投票期間ではありません（現在: {phase}）'
+            )
+        
+        # 最大投票数チェック
+        max_votes = category.get_max_votes() if category else contest.max_votes_per_judge
+        current_votes = Vote.objects.filter(
+            user=request.user,
+            category=category,
+            entry__contest=contest
+        ).count()
+        
+        if current_votes >= max_votes:
+            raise serializers.ValidationError(
+                f'この部門での最大投票数（{max_votes}票）に達しています'
+            )
+        
+        return data
 
 
 class FlagSerializer(serializers.ModelSerializer):
@@ -360,4 +418,165 @@ class FlagSerializer(serializers.ModelSerializer):
         model = Flag
         fields = ('id', 'entry', 'user', 'reason', 'resolved', 'created_at')
         read_only_fields = ('id', 'user', 'resolved', 'created_at')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """部門シリアライザー"""
+    entry_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Category
+        fields = (
+            'id', 'contest', 'name', 'description', 'order',
+            'max_votes_per_judge', 'entry_count', 'created_at'
+        )
+        read_only_fields = ('id', 'created_at')
+    
+    def get_entry_count(self, obj):
+        """この部門のエントリー数"""
+        return obj.entry_assignments.count()
+
+
+class EntryCategoryAssignmentSerializer(serializers.ModelSerializer):
+    """エントリー部門紐付けシリアライザー"""
+    category_name = serializers.CharField(
+        source='category.name', read_only=True
+    )
+    
+    class Meta:
+        model = EntryCategoryAssignment
+        fields = ('id', 'entry', 'category', 'category_name', 'created_at')
+        read_only_fields = ('id', 'created_at')
+
+
+class JudgingCriteriaSerializer(serializers.ModelSerializer):
+    """審査基準シリアライザー"""
+    category_name = serializers.CharField(
+        source='category.name', read_only=True, allow_null=True
+    )
+    
+    class Meta:
+        model = JudgingCriteria
+        fields = (
+            'id', 'contest', 'category', 'category_name', 'name',
+            'description', 'max_score', 'order', 'created_at'
+        )
+        read_only_fields = ('id', 'created_at')
+
+
+class DetailedScoreSerializer(serializers.ModelSerializer):
+    """詳細スコアシリアライザー"""
+    criteria_name = serializers.CharField(
+        source='criteria.name', read_only=True
+    )
+    criteria_max_score = serializers.IntegerField(
+        source='criteria.max_score', read_only=True
+    )
+    
+    class Meta:
+        model = DetailedScore
+        fields = (
+            'id', 'judge_score', 'criteria', 'criteria_name',
+            'criteria_max_score', 'score', 'comment',
+            'created_at', 'updated_at'
+        )
+        read_only_fields = ('id', 'created_at', 'updated_at')
+    
+    def validate(self, data):
+        """スコアの妥当性チェック"""
+        criteria = data.get('criteria')
+        score = data.get('score')
+        
+        if criteria and score is not None:
+            if score > criteria.max_score:
+                raise serializers.ValidationError(
+                    f'スコアは最大{criteria.max_score}点を超えることはできません'
+                )
+            if score < 0:
+                raise serializers.ValidationError(
+                    'スコアは0点未満にはできません'
+                )
+        
+        return data
+
+
+class JudgeScoreDetailSerializer(serializers.ModelSerializer):
+    """審査員スコア詳細シリアライザー（詳細スコア含む）"""
+    judge = UserSerializer(read_only=True)
+    detailed_scores = DetailedScoreSerializer(many=True, read_only=True)
+    category_name = serializers.CharField(
+        source='category.name', read_only=True, allow_null=True
+    )
+    
+    class Meta:
+        model = JudgeScore
+        fields = (
+            'id', 'entry', 'category', 'category_name', 'judge',
+            'total_score', 'comment', 'detailed_scores',
+            'created_at', 'updated_at'
+        )
+        read_only_fields = (
+            'id', 'judge', 'total_score', 'created_at', 'updated_at'
+        )
+
+
+class JudgeScoreCreateSerializer(serializers.ModelSerializer):
+    """審査員スコア作成シリアライザー"""
+    detailed_scores = DetailedScoreSerializer(many=True, required=False)
+    
+    class Meta:
+        model = JudgeScore
+        fields = (
+            'id', 'entry', 'category', 'comment', 'detailed_scores'
+        )
+        read_only_fields = ('id',)
+    
+    def create(self, validated_data):
+        """詳細スコアと共に作成"""
+        detailed_scores_data = validated_data.pop('detailed_scores', [])
+        judge = self.context['request'].user
+        
+        # JudgeScoreを作成
+        judge_score = JudgeScore.objects.create(
+            judge=judge,
+            **validated_data
+        )
+        
+        # DetailedScoreを作成
+        for ds_data in detailed_scores_data:
+            DetailedScore.objects.create(
+                judge_score=judge_score,
+                **ds_data
+            )
+        
+        # 総合点を計算
+        judge_score.calculate_total_score()
+        
+        return judge_score
+    
+    def update(self, instance, validated_data):
+        """詳細スコアを更新"""
+        detailed_scores_data = validated_data.pop('detailed_scores', None)
+        
+        # JudgeScoreを更新
+        instance.comment = validated_data.get('comment', instance.comment)
+        instance.save()
+        
+        # 詳細スコアがある場合は更新
+        if detailed_scores_data is not None:
+            # 既存の詳細スコアを削除
+            instance.detailed_scores.all().delete()
+            
+            # 新しい詳細スコアを作成
+            for ds_data in detailed_scores_data:
+                DetailedScore.objects.create(
+                    judge_score=instance,
+                    **ds_data
+                )
+            
+            # 総合点を再計算
+            instance.calculate_total_score()
+        
+        return instance
+
 

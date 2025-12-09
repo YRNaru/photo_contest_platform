@@ -4,11 +4,17 @@ from rest_framework.response import Response
 from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
-from .models import Contest, Entry, Vote, JudgeScore, Flag
+from .models import (
+    Contest, Entry, Vote, JudgeScore, Flag,
+    Category, EntryCategoryAssignment, JudgingCriteria, DetailedScore
+)
 from .serializers import (
     ContestCreateSerializer, ContestListSerializer, ContestDetailSerializer,
     EntryListSerializer, EntryDetailSerializer, EntryCreateSerializer,
-    VoteSerializer, JudgeScoreSerializer, FlagSerializer
+    VoteSerializer, FlagSerializer,
+    CategorySerializer, EntryCategoryAssignmentSerializer,
+    JudgingCriteriaSerializer, DetailedScoreSerializer,
+    JudgeScoreDetailSerializer, JudgeScoreCreateSerializer
 )
 from .permissions import IsJudge, IsModerator
 
@@ -407,4 +413,161 @@ class EntryViewSet(viewsets.ModelViewSet):
         
         serializer = EntryListSerializer(entries, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """部門ViewSet"""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['contest']
+    ordering_fields = ['order', 'created_at']
+    
+    def get_permissions(self):
+        """作成・更新・削除はコンテスト作成者のみ"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+    
+    def perform_create(self, serializer):
+        """部門作成時に権限チェック"""
+        contest = serializer.validated_data['contest']
+        if contest.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("このコンテストの部門を作成する権限がありません")
+        serializer.save()
+    
+    def perform_update(self, serializer):
+        """部門更新時に権限チェック"""
+        category = self.get_object()
+        if category.contest.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("この部門を編集する権限がありません")
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        """部門削除時に権限チェック"""
+        if instance.contest.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("この部門を削除する権限がありません")
+        instance.delete()
+
+
+class JudgingCriteriaViewSet(viewsets.ModelViewSet):
+    """審査基準ViewSet"""
+    queryset = JudgingCriteria.objects.all()
+    serializer_class = JudgingCriteriaSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['contest', 'category']
+    ordering_fields = ['order', 'created_at']
+    
+    def get_permissions(self):
+        """作成・更新・削除はコンテスト作成者のみ"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+    
+    def perform_create(self, serializer):
+        """審査基準作成時に権限チェック"""
+        contest = serializer.validated_data['contest']
+        if contest.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("このコンテストの審査基準を作成する権限がありません")
+        serializer.save()
+    
+    def perform_update(self, serializer):
+        """審査基準更新時に権限チェック"""
+        criteria = self.get_object()
+        if criteria.contest.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("この審査基準を編集する権限がありません")
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        """審査基準削除時に権限チェック"""
+        if instance.contest.creator != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("この審査基準を削除する権限がありません")
+        instance.delete()
+
+
+class VoteViewSet(viewsets.ModelViewSet):
+    """投票ViewSet"""
+    queryset = Vote.objects.all()
+    serializer_class = VoteSerializer
+    permission_classes = [permissions.IsAuthenticated, IsJudge]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['entry', 'category', 'user']
+    
+    def get_queryset(self):
+        """自分の投票のみ表示（管理者は全て）"""
+        if self.request.user.is_staff:
+            return Vote.objects.all()
+        return Vote.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        """投票作成時にユーザーを自動設定"""
+        serializer.save(user=self.request.user)
+    
+    @action(detail=False, methods=['get'])
+    def my_votes(self, request):
+        """自分の投票一覧"""
+        votes = Vote.objects.filter(user=request.user).select_related(
+            'entry', 'category'
+        )
+        
+        page = self.paginate_queryset(votes)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(votes, many=True)
+        return Response(serializer.data)
+
+
+class JudgeScoreViewSet(viewsets.ModelViewSet):
+    """審査員スコアViewSet"""
+    queryset = JudgeScore.objects.all()
+    permission_classes = [permissions.IsAuthenticated, IsJudge]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['entry', 'category', 'judge']
+    ordering_fields = ['total_score', 'created_at']
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return JudgeScoreCreateSerializer
+        return JudgeScoreDetailSerializer
+    
+    def get_queryset(self):
+        """自分のスコアのみ表示（管理者とコンテスト作成者は全て）"""
+        if self.request.user.is_staff:
+            return JudgeScore.objects.all()
+        
+        # 自分が審査員のコンテストのスコア、または自分のスコア
+        return JudgeScore.objects.filter(
+            Q(judge=self.request.user) |
+            Q(entry__contest__creator=self.request.user)
+        ).distinct()
+    
+    def perform_create(self, serializer):
+        """スコア作成時にユーザーを自動設定"""
+        serializer.save(judge=self.request.user)
+    
+    @action(detail=False, methods=['get'])
+    def my_scores(self, request):
+        """自分のスコア一覧"""
+        scores = JudgeScore.objects.filter(
+            judge=request.user
+        ).select_related('entry', 'category', 'judge')
+        
+        page = self.paginate_queryset(scores)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(scores, many=True)
+        return Response(serializer.data)
+
 
