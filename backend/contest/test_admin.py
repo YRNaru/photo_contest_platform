@@ -35,7 +35,10 @@ class ContestAdminTest(TestCase):
 
     def test_list_display(self):
         """リスト表示のフィールド確認"""
-        expected = ('title', 'slug', 'start_at', 'end_at', 'is_public', 'twitter_auto_fetch', 'created_at')
+        expected = (
+            'title', 'slug', 'judging_type', 'start_at',
+            'end_at', 'is_public', 'twitter_auto_fetch', 'created_at'
+        )
         self.assertEqual(self.admin.list_display, expected)
 
     def test_list_filter(self):
@@ -81,7 +84,7 @@ class EntryAdminTest(TestCase):
         """リスト表示のフィールド確認"""
         self.assertIn('title', self.admin.list_display)
         self.assertIn('contest', self.admin.list_display)
-        self.assertIn('author', self.admin.list_display)
+        self.assertIn('get_author_display', self.admin.list_display)
         self.assertIn('approved', self.admin.list_display)
 
     def test_list_filter(self):
@@ -171,7 +174,7 @@ class JudgeScoreAdminTest(TestCase):
         """リスト表示のフィールド確認"""
         self.assertIn('entry', self.admin.list_display)
         self.assertIn('judge', self.admin.list_display)
-        self.assertIn('score', self.admin.list_display)
+        self.assertIn('total_score', self.admin.list_display)
 
 
 class FlagAdminTest(TestCase):

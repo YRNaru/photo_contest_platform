@@ -390,12 +390,7 @@ class EntrySerializerTest(TestCase):
             approved=True
         )
 
-        # サムネイルなし画像を作成
-        # image = Entry  # unusedImage.objects.create(
-        #     entry=entry,
-        #     image=create_test_image('image.png'),
-        #     order=0
-        # )
+        # 画像なし（サムネイルもなし）
 
         request = self.factory.get('/api/entries/')
         request.user = self.user
@@ -403,7 +398,8 @@ class EntrySerializerTest(TestCase):
         serializer = EntryListSerializer(entry, context={'request': request})
         data = serializer.data
 
-        self.assertIsNotNone(data['thumbnail'])
+        # 画像がない場合、サムネイルはNone
+        self.assertIsNone(data['thumbnail'])
 
     def test_entry_detail_serializer_user_voted(self):
         """ユーザーの投票状態を確認"""

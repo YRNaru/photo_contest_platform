@@ -221,7 +221,7 @@ class Entry(models.Model):
         scores = self.scores.all()
         if not scores:
             return None
-        return sum(s.score for s in scores) / len(scores)
+        return sum(float(s.total_score) for s in scores) / len(scores)
 
 
 class Category(models.Model):
