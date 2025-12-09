@@ -1,27 +1,27 @@
-"use client";
+'use client'
 
-import { useAuth } from "@/lib/auth";
-import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { FaUser, FaSignOutAlt, FaCog, FaImage } from "react-icons/fa";
+import { useAuth } from '@/lib/auth'
+import Link from 'next/link'
+import { useState, useRef, useEffect } from 'react'
+import { FaUser, FaSignOutAlt, FaCog, FaImage } from 'react-icons/fa'
 
 export function UserMenu() {
-  const { user, logout } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth()
+  const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
-  if (!user) return null;
+  if (!user) return null
 
   return (
     <div className="relative" ref={menuRef}>
@@ -30,11 +30,7 @@ export function UserMenu() {
         className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
       >
         {user.avatar_url ? (
-          <img
-            src={user.avatar_url}
-            alt={user.username}
-            className="w-8 h-8 rounded-full"
-          />
+          <img src={user.avatar_url} alt={user.username} className="w-8 h-8 rounded-full" />
         ) : (
           <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
             {user.username[0].toUpperCase()}
@@ -53,7 +49,7 @@ export function UserMenu() {
             <FaUser />
             <span>プロフィール</span>
           </Link>
-          
+
           <Link
             href="/my-entries"
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -62,7 +58,7 @@ export function UserMenu() {
             <FaImage />
             <span>マイ投稿</span>
           </Link>
-          
+
           {user.is_moderator && (
             <Link
               href="/admin/moderation"
@@ -78,8 +74,8 @@ export function UserMenu() {
 
           <button
             onClick={() => {
-              logout();
-              setIsOpen(false);
+              logout()
+              setIsOpen(false)
             }}
             className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
           >
@@ -89,6 +85,5 @@ export function UserMenu() {
         </div>
       )}
     </div>
-  );
+  )
 }
-

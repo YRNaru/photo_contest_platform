@@ -1,53 +1,53 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Category, CreateCategoryRequest } from '@/types/judging';
-import { categoryApi } from '@/lib/api';
-import { PlusIcon } from '@heroicons/react/24/outline';
-import { CategoryForm } from './CategoryForm';
-import { CategoryItem } from './CategoryItem';
+import { useState, useEffect } from 'react'
+import { Category, CreateCategoryRequest } from '@/types/judging'
+import { categoryApi } from '@/lib/api'
+import { PlusIcon } from '@heroicons/react/24/outline'
+import { CategoryForm } from './CategoryForm'
+import { CategoryItem } from './CategoryItem'
 
 interface CategoryManagerProps {
-  contestId: number;
-  contestSlug: string;
-  isOwner: boolean;
+  contestId: number
+  contestSlug: string
+  isOwner: boolean
 }
 
 export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryManagerProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     order: 0,
     max_votes_per_judge: '',
-  });
+  })
 
   useEffect(() => {
-    loadCategories();
-  }, [contestId]);
+    loadCategories()
+  }, [contestId])
 
   const loadCategories = async () => {
     try {
-      setLoading(true);
-      const response = await categoryApi.getCategories(contestId);
-      setCategories(response.data);
-      setError(null);
+      setLoading(true)
+      const response = await categoryApi.getCategories(contestId)
+      setCategories(response.data)
+      setError(null)
     } catch (err: any) {
-      setError('部門の読み込みに失敗しました');
-      console.error(err);
+      setError('部門の読み込みに失敗しました')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     try {
       const data: CreateCategoryRequest = {
         contest: contestId,
@@ -57,46 +57,46 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
         max_votes_per_judge: formData.max_votes_per_judge
           ? parseInt(formData.max_votes_per_judge)
           : null,
-      };
-
-      if (editingCategory) {
-        await categoryApi.updateCategory(editingCategory.id, data);
-      } else {
-        await categoryApi.createCategory(data);
       }
 
-      await loadCategories();
-      resetForm();
+      if (editingCategory) {
+        await categoryApi.updateCategory(editingCategory.id, data)
+      } else {
+        await categoryApi.createCategory(data)
+      }
+
+      await loadCategories()
+      resetForm()
     } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '部門の保存に失敗しました';
-      setError(errorMsg);
-      console.error(err);
+      const errorMsg = err.response?.data?.detail || '部門の保存に失敗しました'
+      setError(errorMsg)
+      console.error(err)
     }
-  };
+  }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('この部門を削除しますか？')) return;
+    if (!confirm('この部門を削除しますか？')) return
 
     try {
-      await categoryApi.deleteCategory(id);
-      await loadCategories();
+      await categoryApi.deleteCategory(id)
+      await loadCategories()
     } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || '部門の削除に失敗しました';
-      setError(errorMsg);
-      console.error(err);
+      const errorMsg = err.response?.data?.detail || '部門の削除に失敗しました'
+      setError(errorMsg)
+      console.error(err)
     }
-  };
+  }
 
   const handleEdit = (category: Category) => {
-    setEditingCategory(category);
+    setEditingCategory(category)
     setFormData({
       name: category.name,
       description: category.description,
       order: category.order,
       max_votes_per_judge: category.max_votes_per_judge?.toString() || '',
-    });
-    setIsAddingCategory(true);
-  };
+    })
+    setIsAddingCategory(true)
+  }
 
   const resetForm = () => {
     setFormData({
@@ -104,21 +104,19 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
       description: '',
       order: categories.length,
       max_votes_per_judge: '',
-    });
-    setEditingCategory(null);
-    setIsAddingCategory(false);
-  };
+    })
+    setEditingCategory(null)
+    setIsAddingCategory(false)
+  }
 
   if (loading) {
-    return <div className="text-center py-4">読み込み中...</div>;
+    return <div className="text-center py-4">読み込み中...</div>
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          部門管理
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">部門管理</h2>
         {isOwner && !isAddingCategory && (
           <button
             onClick={() => setIsAddingCategory(true)}
@@ -143,7 +141,7 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
           isEditing={!!editingCategory}
           onSubmit={handleSubmit}
           onCancel={resetForm}
-          onChange={(data) => setFormData({ ...formData, ...data })}
+          onChange={data => setFormData({ ...formData, ...data })}
         />
       )}
 
@@ -157,7 +155,7 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
         </div>
       ) : (
         <div className="grid gap-4">
-          {categories.map((category) => (
+          {categories.map(category => (
             <CategoryItem
               key={category.id}
               category={category}
@@ -169,6 +167,5 @@ export function CategoryManager({ contestId, contestSlug, isOwner }: CategoryMan
         </div>
       )}
     </div>
-  );
+  )
 }
-

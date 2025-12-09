@@ -4,6 +4,5 @@ export function ProfileHeader() {
       <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-2">👤 プロフィール</h1>
       <p className="text-purple-100 text-base sm:text-lg">VRChat Photo Contest Platform</p>
     </div>
-  );
+  )
 }
-

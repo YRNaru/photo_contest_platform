@@ -26,7 +26,7 @@ describe('Utility Functions - Full Coverage', () => {
     it('formats ISO date to Japanese locale', () => {
       const date = '2024-01-15T10:30:00Z'
       const formatted = formatDate(date)
-      
+
       expect(formatted).toContain('2024')
       expect(formatted).toContain('1')
       expect(formatted).toContain('15')
@@ -35,7 +35,7 @@ describe('Utility Functions - Full Coverage', () => {
     it('handles different date formats', () => {
       const date = '2024-12-31T23:59:59Z'
       const formatted = formatDate(date)
-      
+
       expect(formatted).toContain('2024')
       expect(formatted).toContain('12')
       expect(formatted).toContain('31')
@@ -46,7 +46,7 @@ describe('Utility Functions - Full Coverage', () => {
     it('formats ISO datetime to Japanese locale with time', () => {
       const datetime = '2024-01-15T10:30:00Z'
       const formatted = formatDateTime(datetime)
-      
+
       expect(formatted).toContain('2024')
       // 時刻が含まれることを確認
       expect(formatted.length).toBeGreaterThan(formatDate(datetime).length)
@@ -55,7 +55,7 @@ describe('Utility Functions - Full Coverage', () => {
     it('includes hour and minute', () => {
       const datetime = '2024-06-15T14:45:00Z'
       const formatted = formatDateTime(datetime)
-      
+
       expect(formatted).toContain('2024')
     })
   })
@@ -104,4 +104,3 @@ describe('Utility Functions - Full Coverage', () => {
     })
   })
 })
-

@@ -14,7 +14,7 @@ describe('LoginButton', () => {
 
   it('renders login button', () => {
     render(<LoginButton />)
-    
+
     const loginButton = screen.getByText('ログイン')
     expect(loginButton).toBeInTheDocument()
   })
@@ -22,10 +22,10 @@ describe('LoginButton', () => {
   it('shows login options when clicked', async () => {
     const user = userEvent.setup()
     render(<LoginButton />)
-    
+
     const loginButton = screen.getByText('ログイン')
     await user.click(loginButton)
-    
+
     // ログインオプションが表示される
     expect(screen.getByText('Googleでログイン')).toBeInTheDocument()
     expect(screen.getByText('Twitterでログイン')).toBeInTheDocument()
@@ -34,13 +34,13 @@ describe('LoginButton', () => {
   it('redirects to Google login when Google option clicked', async () => {
     const user = userEvent.setup()
     render(<LoginButton />)
-    
+
     const loginButton = screen.getByText('ログイン')
     await user.click(loginButton)
-    
+
     const googleButton = screen.getByText('Googleでログイン')
     await user.click(googleButton)
-    
+
     // Google OAuth URLにリダイレクトされる
     expect(window.location.href).toContain('google/login')
   })
@@ -48,15 +48,14 @@ describe('LoginButton', () => {
   it('redirects to Twitter login when Twitter option clicked', async () => {
     const user = userEvent.setup()
     render(<LoginButton />)
-    
+
     const loginButton = screen.getByText('ログイン')
     await user.click(loginButton)
-    
+
     const twitterButton = screen.getByText('Twitterでログイン')
     await user.click(twitterButton)
-    
+
     // Twitter OAuth URLにリダイレクトされる
     expect(window.location.href).toContain('twitter_oauth2/login')
   })
 })
-

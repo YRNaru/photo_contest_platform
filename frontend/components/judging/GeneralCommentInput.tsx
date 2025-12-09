@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
 interface GeneralCommentInputProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: string
+  onChange: (value: string) => void
 }
 
 export function GeneralCommentInput({ value, onChange }: GeneralCommentInputProps) {
@@ -13,12 +13,11 @@ export function GeneralCommentInput({ value, onChange }: GeneralCommentInputProp
       </label>
       <textarea
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         rows={4}
         placeholder="作品全体についての総評"
         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
       />
     </div>
-  );
+  )
 }
-

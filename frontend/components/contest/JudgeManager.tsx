@@ -1,89 +1,89 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { contestApi, userApi } from "@/lib/api";
-import { User } from "@/lib/types";
+import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { contestApi, userApi } from '@/lib/api'
+import { User } from '@/lib/types'
 
 interface JudgeManagerProps {
-  contestSlug: string;
-  isOwner: boolean;
+  contestSlug: string
+  isOwner: boolean
 }
 
 export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps) {
-  const queryClient = useQueryClient();
-  const [isAddingJudge, setIsAddingJudge] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState("");
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const queryClient = useQueryClient()
+  const [isAddingJudge, setIsAddingJudge] = useState(false)
+  const [selectedUserId, setSelectedUserId] = useState('')
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // 審査員一覧を取得
   const { data: judges, isLoading: judgesLoading } = useQuery({
-    queryKey: ["judges", contestSlug],
+    queryKey: ['judges', contestSlug],
     queryFn: async () => {
-      const response = await contestApi.getJudges(contestSlug);
-      return response.data as User[];
+      const response = await contestApi.getJudges(contestSlug)
+      return response.data as User[]
     },
     enabled: isOwner,
     staleTime: 30 * 1000, // 30秒間キャッシュ
     refetchOnMount: true,
-  });
+  })
 
   // ユーザー一覧を取得（審査員追加用）
   const { data: users } = useQuery({
-    queryKey: ["users"],
+    queryKey: ['users'],
     queryFn: async () => {
-      const response = await userApi.getUsers();
-      return response.data.results as User[];
+      const response = await userApi.getUsers()
+      return response.data.results as User[]
     },
     enabled: isAddingJudge,
     staleTime: 2 * 60 * 1000, // 2分間キャッシュ
-  });
+  })
 
   // 審査員を追加
   const addJudgeMutation = useMutation({
     mutationFn: async (userId: string) => {
-      return await contestApi.addJudge(contestSlug, userId);
+      return await contestApi.addJudge(contestSlug, userId)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["judges", contestSlug] });
-      queryClient.invalidateQueries({ queryKey: ["contest", contestSlug] });
-      setSuccessMessage("審査員を追加しました");
-      setErrorMessage(null);
-      setIsAddingJudge(false);
-      setSelectedUserId("");
-      setTimeout(() => setSuccessMessage(null), 3000);
+      queryClient.invalidateQueries({ queryKey: ['judges', contestSlug] })
+      queryClient.invalidateQueries({ queryKey: ['contest', contestSlug] })
+      setSuccessMessage('審査員を追加しました')
+      setErrorMessage(null)
+      setIsAddingJudge(false)
+      setSelectedUserId('')
+      setTimeout(() => setSuccessMessage(null), 3000)
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || "審査員の追加に失敗しました";
-      setErrorMessage(message);
-      setSuccessMessage(null);
-      setTimeout(() => setErrorMessage(null), 5000);
+      const message = error.response?.data?.detail || '審査員の追加に失敗しました'
+      setErrorMessage(message)
+      setSuccessMessage(null)
+      setTimeout(() => setErrorMessage(null), 5000)
     },
-  });
+  })
 
   // 審査員を削除
   const removeJudgeMutation = useMutation({
     mutationFn: async (userId: string) => {
-      return await contestApi.removeJudge(contestSlug, userId);
+      return await contestApi.removeJudge(contestSlug, userId)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["judges", contestSlug] });
-      queryClient.invalidateQueries({ queryKey: ["contest", contestSlug] });
-      setSuccessMessage("審査員を削除しました");
-      setErrorMessage(null);
-      setTimeout(() => setSuccessMessage(null), 3000);
+      queryClient.invalidateQueries({ queryKey: ['judges', contestSlug] })
+      queryClient.invalidateQueries({ queryKey: ['contest', contestSlug] })
+      setSuccessMessage('審査員を削除しました')
+      setErrorMessage(null)
+      setTimeout(() => setSuccessMessage(null), 3000)
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || "審査員の削除に失敗しました";
-      setErrorMessage(message);
-      setSuccessMessage(null);
-      setTimeout(() => setErrorMessage(null), 5000);
+      const message = error.response?.data?.detail || '審査員の削除に失敗しました'
+      setErrorMessage(message)
+      setSuccessMessage(null)
+      setTimeout(() => setErrorMessage(null), 5000)
     },
-  });
+  })
 
   if (!isOwner) {
-    return null;
+    return null
   }
 
   if (judgesLoading) {
@@ -94,7 +94,7 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
           <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3" />
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -134,11 +134,11 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
           <div className="flex gap-2">
             <select
               value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
+              onChange={e => setSelectedUserId(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="">ユーザーを選択...</option>
-              {users?.map((user) => (
+              {users?.map(user => (
                 <option key={user.id} value={user.id}>
                   {user.username} ({user.email})
                 </option>
@@ -147,18 +147,18 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
             <button
               onClick={() => {
                 if (selectedUserId) {
-                  addJudgeMutation.mutate(selectedUserId);
+                  addJudgeMutation.mutate(selectedUserId)
                 }
               }}
               disabled={!selectedUserId || addJudgeMutation.isPending}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg transition-colors"
             >
-              {addJudgeMutation.isPending ? "追加中..." : "追加"}
+              {addJudgeMutation.isPending ? '追加中...' : '追加'}
             </button>
             <button
               onClick={() => {
-                setIsAddingJudge(false);
-                setSelectedUserId("");
+                setIsAddingJudge(false)
+                setSelectedUserId('')
               }}
               className="px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold text-sm rounded-lg transition-colors"
             >
@@ -171,7 +171,7 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
       {/* 審査員一覧 */}
       <div className="space-y-3">
         {judges && judges.length > 0 ? (
-          judges.map((judge) => (
+          judges.map(judge => (
             <div
               key={judge.id}
               className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
@@ -209,5 +209,5 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
         )}
       </div>
     </div>
-  );
+  )
 }

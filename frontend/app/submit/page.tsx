@@ -1,173 +1,178 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { contestApi, entryApi } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
-import { ContestSelect } from "@/components/submit/ContestSelect";
-import { EntryLimitInfo } from "@/components/submit/EntryLimitInfo";
-import { FormInput } from "@/components/submit/FormInput";
-import { ImageUploadSection } from "@/components/submit/ImageUploadSection";
-import { ErrorDisplay } from "@/components/submit/ErrorDisplay";
-import { SubmitButton } from "@/components/submit/SubmitButton";
-import { TagSelector } from "@/components/submit/TagSelector";
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { contestApi, entryApi } from '@/lib/api'
+import { useAuth } from '@/lib/auth'
+import { ContestSelect } from '@/components/submit/ContestSelect'
+import { EntryLimitInfo } from '@/components/submit/EntryLimitInfo'
+import { FormInput } from '@/components/submit/FormInput'
+import { ImageUploadSection } from '@/components/submit/ImageUploadSection'
+import { ErrorDisplay } from '@/components/submit/ErrorDisplay'
+import { SubmitButton } from '@/components/submit/SubmitButton'
+import { TagSelector } from '@/components/submit/TagSelector'
 
 export default function SubmitPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const contestSlug = searchParams.get("contest");
-  const { isAuthenticated } = useAuth();
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const contestSlug = searchParams.get('contest')
+  const { isAuthenticated } = useAuth()
 
-  const [selectedContest, setSelectedContest] = useState(contestSlug || "");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [images, setImages] = useState<File[]>([]);
-  const [error, setError] = useState("");
+  const [selectedContest, setSelectedContest] = useState(contestSlug || '')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [images, setImages] = useState<File[]>([])
+  const [error, setError] = useState('')
 
   // コンテスト一覧取得
   const { data: contests } = useQuery({
-    queryKey: ["contests"],
+    queryKey: ['contests'],
     queryFn: async () => {
-      const response = await contestApi.getContests();
-      return response.data.results || response.data;
+      const response = await contestApi.getContests()
+      return response.data.results || response.data
     },
-  });
+  })
 
   // 選択されたコンテストの詳細を取得
   const { data: contestDetail } = useQuery({
-    queryKey: ["contest", selectedContest],
+    queryKey: ['contest', selectedContest],
     queryFn: async () => {
-      if (!selectedContest) return null;
-      const response = await contestApi.getContest(selectedContest);
-      return response.data;
+      if (!selectedContest) return null
+      const response = await contestApi.getContest(selectedContest)
+      return response.data
     },
     enabled: !!selectedContest,
-  });
+  })
 
   // ユーザーの既存エントリーを取得
   const { data: userEntries } = useQuery({
-    queryKey: ["user-entries", selectedContest],
+    queryKey: ['user-entries', selectedContest],
     queryFn: async () => {
-      if (!selectedContest || !isAuthenticated) return [];
-      const response = await entryApi.getEntries({ contest: selectedContest });
-      const allEntries = response.data.results || response.data;
+      if (!selectedContest || !isAuthenticated) return []
+      const response = await entryApi.getEntries({ contest: selectedContest })
+      const allEntries = response.data.results || response.data
       // 現在のユーザーのエントリーのみフィルター（クライアント側で）
-      return allEntries;
+      return allEntries
     },
     enabled: !!selectedContest && isAuthenticated,
-  });
+  })
 
   // 画像追加ハンドラー
   const handleImagesAdd = (acceptedFiles: File[]) => {
     if (images.length + acceptedFiles.length > 5) {
-      setError("画像は最大5枚までアップロードできます");
-      return;
+      setError('画像は最大5枚までアップロードできます')
+      return
     }
-    setImages([...images, ...acceptedFiles]);
-    setError("");
-  };
+    setImages([...images, ...acceptedFiles])
+    setError('')
+  }
 
   // 投稿mutation
   const submitMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await entryApi.createEntry(formData);
-      return response.data;
+      const response = await entryApi.createEntry(formData)
+      return response.data
     },
-    onSuccess: (data) => {
-      router.push(`/entries/${data.id}`);
+    onSuccess: data => {
+      router.push(`/entries/${data.id}`)
     },
     onError: (error: any) => {
-      console.error('投稿エラー:', error);
-      console.error('エラーレスポンス:', error.response?.data);
-      console.error('エラーステータス:', error.response?.status);
-      console.error('エラーヘッダー:', error.response?.headers);
-      
+      console.error('投稿エラー:', error)
+      console.error('エラーレスポンス:', error.response?.data)
+      console.error('エラーステータス:', error.response?.status)
+      console.error('エラーヘッダー:', error.response?.headers)
+
       // non_field_errorsの中身を詳細に表示
       if (error.response?.data?.non_field_errors) {
-        console.error('non_field_errors 詳細:', error.response.data.non_field_errors);
+        console.error('non_field_errors 詳細:', error.response.data.non_field_errors)
         error.response.data.non_field_errors.forEach((err: any, index: number) => {
-          console.error(`  [${index}]:`, err);
-        });
+          console.error(`  [${index}]:`, err)
+        })
       }
-      
+
       // エラーメッセージを整形
-      let errorMessage = '投稿に失敗しました。';
+      let errorMessage = '投稿に失敗しました。'
       if (error.response?.data) {
         if (typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
+          errorMessage = error.response.data
         } else if (error.response.data.detail) {
-          errorMessage = error.response.data.detail;
+          errorMessage = error.response.data.detail
         } else if (error.response.data.non_field_errors) {
-          errorMessage = Array.isArray(error.response.data.non_field_errors) 
+          errorMessage = Array.isArray(error.response.data.non_field_errors)
             ? error.response.data.non_field_errors.join('\n')
-            : error.response.data.non_field_errors;
+            : error.response.data.non_field_errors
         } else {
           // フィールドごとのエラーを表示
-          const errors = Object.entries(error.response.data).map(([field, messages]: [string, any]) => {
-            const fieldName = field === 'non_field_errors' ? '' : `${field}: `;
-            return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`;
-          }).join('\n');
-          errorMessage = errors || JSON.stringify(error.response.data);
+          const errors = Object.entries(error.response.data)
+            .map(([field, messages]: [string, any]) => {
+              const fieldName = field === 'non_field_errors' ? '' : `${field}: `
+              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`
+            })
+            .join('\n')
+          errorMessage = errors || JSON.stringify(error.response.data)
         }
       }
-      setError(errorMessage);
+      setError(errorMessage)
     },
-  });
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // デバッグ: 認証状態を確認
-    console.log('認証状態:', isAuthenticated);
-    console.log('アクセストークン:', localStorage.getItem('access_token') ? '存在する' : '存在しない');
+    console.log('認証状態:', isAuthenticated)
+    console.log(
+      'アクセストークン:',
+      localStorage.getItem('access_token') ? '存在する' : '存在しない'
+    )
 
     if (!isAuthenticated) {
-      setError("ログインしてください");
-      return;
+      setError('ログインしてください')
+      return
     }
 
     if (!selectedContest) {
-      setError("コンテストを選択してください");
-      return;
+      setError('コンテストを選択してください')
+      return
     }
 
     if (!title.trim()) {
-      setError("タイトルを入力してください");
-      return;
+      setError('タイトルを入力してください')
+      return
     }
 
     if (images.length === 0) {
-      setError("画像を1枚以上アップロードしてください");
-      return;
+      setError('画像を1枚以上アップロードしてください')
+      return
     }
 
-    const formData = new FormData();
-    formData.append("contest", selectedContest);
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("tags", selectedTags.join(", "));
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
+    const formData = new FormData()
+    formData.append('contest', selectedContest)
+    formData.append('title', title)
+    formData.append('description', description)
+    formData.append('tags', selectedTags.join(', '))
+    images.forEach(image => {
+      formData.append('images', image)
+    })
 
     // デバッグ: FormDataの内容を確認
-    console.log('送信するFormData:');
-    for (let [key, value] of formData.entries()) {
+    console.log('送信するFormData:')
+    for (const [key, value] of formData.entries()) {
       if (value instanceof File) {
-        console.log(`  ${key}:`, value.name, value.type, value.size, 'bytes');
+        console.log(`  ${key}:`, value.name, value.type, value.size, 'bytes')
       } else {
-        console.log(`  ${key}:`, value);
+        console.log(`  ${key}:`, value)
       }
     }
 
-    submitMutation.mutate(formData);
-  };
+    submitMutation.mutate(formData)
+  }
 
   const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
+    setImages(images.filter((_, i) => i !== index))
+  }
 
   if (!isAuthenticated) {
     return (
@@ -182,7 +187,7 @@ export default function SubmitPage() {
           </p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -192,18 +197,18 @@ export default function SubmitPage() {
       </h1>
 
       {contestDetail && userEntries && (
-        <EntryLimitInfo 
+        <EntryLimitInfo
           maxEntriesPerUser={contestDetail.max_entries_per_user}
           currentEntriesCount={userEntries.length}
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8 animate-fadeInUp" style={{ animationDelay: '100ms' }}>
-        <ContestSelect
-          value={selectedContest}
-          onChange={setSelectedContest}
-          contests={contests}
-        />
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-8 animate-fadeInUp"
+        style={{ animationDelay: '100ms' }}
+      >
+        <ContestSelect value={selectedContest} onChange={setSelectedContest} contests={contests} />
 
         <FormInput
           label="タイトル"
@@ -227,9 +232,7 @@ export default function SubmitPage() {
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-purple-500/10 p-6 border border-gray-200 dark:border-gray-800">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl">🏷️</span>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-              タグ
-            </h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">タグ</h2>
           </div>
           <TagSelector selectedTags={selectedTags} onTagsChange={setSelectedTags} />
         </div>
@@ -245,6 +248,5 @@ export default function SubmitPage() {
         <SubmitButton isSubmitting={submitMutation.isPending} />
       </form>
     </div>
-  );
+  )
 }
-

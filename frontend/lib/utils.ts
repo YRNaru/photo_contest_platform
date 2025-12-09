@@ -1,8 +1,8 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 export function formatDate(date: string) {
@@ -10,7 +10,7 @@ export function formatDate(date: string) {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  });
+  })
 }
 
 export function formatDateTime(date: string) {
@@ -20,7 +20,7 @@ export function formatDateTime(date: string) {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 }
 
 export function getPhaseLabel(phase: string) {
@@ -29,8 +29,8 @@ export function getPhaseLabel(phase: string) {
     submission: '応募受付中',
     voting: '投票受付中',
     closed: '終了',
-  };
-  return labels[phase] || phase;
+  }
+  return labels[phase] || phase
 }
 
 export function getPhaseColor(phase: string) {
@@ -39,7 +39,6 @@ export function getPhaseColor(phase: string) {
     submission: 'bg-green-500',
     voting: 'bg-blue-500',
     closed: 'bg-gray-400',
-  };
-  return colors[phase] || 'bg-gray-500';
+  }
+  return colors[phase] || 'bg-gray-500'
 }
-

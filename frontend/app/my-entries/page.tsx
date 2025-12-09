@@ -1,64 +1,64 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { entryApi } from '@/lib/api';
-import { Entry } from '@/lib/types';
-import { FaImage, FaHeart, FaEye } from 'react-icons/fa';
-import Link from 'next/link';
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { entryApi } from '@/lib/api'
+import { Entry } from '@/lib/types'
+import { FaImage, FaHeart, FaEye } from 'react-icons/fa'
+import Link from 'next/link'
 
 export default function MyEntriesPage() {
-  const router = useRouter();
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const [entries, setEntries] = useState<Entry[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchMyEntries = async () => {
       try {
         // トークンがあるか確認
-        const storedToken = localStorage.getItem('access_token');
+        const storedToken = localStorage.getItem('access_token')
         if (!storedToken) {
-          console.error('トークンがありません。ログインページにリダイレクトします。');
-          router.push('/');
-          return;
+          console.error('トークンがありません。ログインページにリダイレクトします。')
+          router.push('/')
+          return
         }
 
         // 現在のユーザー情報を取得してからエントリーを取得
         const userResponse = await fetch('http://localhost:18000/api/users/me/', {
           headers: {
-            'Authorization': `Bearer ${storedToken}`
-          }
-        });
+            Authorization: `Bearer ${storedToken}`,
+          },
+        })
 
         if (!userResponse.ok) {
-          throw new Error('ユーザー情報の取得に失敗しました');
+          throw new Error('ユーザー情報の取得に失敗しました')
         }
 
-        const userData = await userResponse.json();
-        
+        const userData = await userResponse.json()
+
         // ユーザーIDでエントリーをフィルタリング
-        const response = await entryApi.getEntries({ author: userData.id });
-        setEntries(response.data.results || response.data);
+        const response = await entryApi.getEntries({ author: userData.id })
+        setEntries(response.data.results || response.data)
       } catch (err: any) {
-        console.error('投稿取得エラー:', err);
-        
+        console.error('投稿取得エラー:', err)
+
         if (err.message === 'Network Error') {
-          setError('バックエンドに接続できません。サーバーが起動しているか確認してください。');
+          setError('バックエンドに接続できません。サーバーが起動しているか確認してください。')
         } else if (err.response?.status === 401) {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          router.push('/');
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+          router.push('/')
         } else {
-          setError('投稿の取得に失敗しました');
+          setError('投稿の取得に失敗しました')
         }
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchMyEntries();
-  }, [router]);
+    fetchMyEntries()
+  }, [router])
 
   if (loading) {
     return (
@@ -68,7 +68,7 @@ export default function MyEntriesPage() {
           <div className="text-gray-900 dark:text-gray-100 text-xl font-bold">読み込み中...</div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -87,7 +87,7 @@ export default function MyEntriesPage() {
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -104,7 +104,9 @@ export default function MyEntriesPage() {
           {entries.length === 0 ? (
             <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/30 dark:to-gray-700/30 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 animate-fadeInUp">
               <span className="text-7xl mb-4 block opacity-50">📸</span>
-              <p className="text-gray-500 dark:text-gray-400 italic text-lg mb-4">まだ投稿がありません</p>
+              <p className="text-gray-500 dark:text-gray-400 italic text-lg mb-4">
+                まだ投稿がありません
+              </p>
               <Link
                 href="/submit"
                 className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-lg"
@@ -116,7 +118,9 @@ export default function MyEntriesPage() {
             <>
               <div className="mb-6 flex items-center justify-between">
                 <div className="text-gray-700 dark:text-gray-300">
-                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{entries.length}</span>
+                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {entries.length}
+                  </span>
                   <span className="ml-2">件の投稿</span>
                 </div>
                 <Link
@@ -166,7 +170,7 @@ export default function MyEntriesPage() {
                       <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                         {entry.title}
                       </h3>
-                      
+
                       {entry.description && (
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
                           {entry.description}
@@ -204,6 +208,5 @@ export default function MyEntriesPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
-

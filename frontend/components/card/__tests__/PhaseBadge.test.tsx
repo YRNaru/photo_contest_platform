@@ -46,4 +46,3 @@ describe('PhaseBadge', () => {
     expect(badge).toHaveClass('bg-gray-400')
   })
 })
-

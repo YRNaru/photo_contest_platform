@@ -1,43 +1,47 @@
-'use client';
+'use client'
 
-import { useParams } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { entryApi } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
-import { formatDate } from '@/lib/utils';
-import Link from 'next/link';
-import { FaHeart, FaRegHeart, FaEye, FaCalendar, FaUser } from 'react-icons/fa';
-import { useState } from 'react';
+import { useParams } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { entryApi } from '@/lib/api'
+import { useAuth } from '@/lib/auth'
+import { formatDate } from '@/lib/utils'
+import Link from 'next/link'
+import { FaHeart, FaRegHeart, FaEye, FaCalendar, FaUser } from 'react-icons/fa'
+import { useState } from 'react'
 
 export default function EntryDetailPage() {
-  const params = useParams();
-  const id = params.id as string;
-  const { user, isAuthenticated } = useAuth();
-  const queryClient = useQueryClient();
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const params = useParams()
+  const id = params.id as string
+  const { user, isAuthenticated } = useAuth()
+  const queryClient = useQueryClient()
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   // エントリー詳細取得
-  const { data: entry, isLoading, error } = useQuery({
+  const {
+    data: entry,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['entry', id],
     queryFn: async () => {
-      const response = await entryApi.getEntry(id);
-      return response.data;
+      const response = await entryApi.getEntry(id)
+      return response.data
     },
-  });
+  })
 
   // 投票mutation
   const voteMutation = useMutation({
     mutationFn: async () => {
       if (entry?.user_voted) {
-        await entryApi.unvote(id);
+        await entryApi.unvote(id)
       } else {
-        await entryApi.vote(id);
+        await entryApi.vote(id)
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['entry', id] });
+      queryClient.invalidateQueries({ queryKey: ['entry', id] })
     },
-  });
+  })
 
   if (isLoading) {
     return (
@@ -49,7 +53,7 @@ export default function EntryDetailPage() {
           <div className="h-4 bg-gray-200 rounded w-3/4"></div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error || !entry) {
@@ -65,10 +69,10 @@ export default function EntryDetailPage() {
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
-  const currentImage = entry.images?.[selectedImageIndex];
+  const currentImage = entry.images?.[selectedImageIndex]
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -157,9 +161,7 @@ export default function EntryDetailPage() {
           {entry.description && (
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2">説明</h2>
-              <p className="text-muted-foreground whitespace-pre-wrap">
-                {entry.description}
-              </p>
+              <p className="text-muted-foreground whitespace-pre-wrap">{entry.description}</p>
             </div>
           )}
 
@@ -183,9 +185,7 @@ export default function EntryDetailPage() {
           {/* 承認ステータス */}
           {!entry.approved && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800 text-sm">
-                このエントリーは承認待ちです。
-              </p>
+              <p className="text-yellow-800 text-sm">このエントリーは承認待ちです。</p>
             </div>
           )}
 
@@ -201,5 +201,5 @@ export default function EntryDetailPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,22 +1,22 @@
 interface ContestFormInputProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  required?: boolean;
-  placeholder?: string;
-  helperText?: string;
-  type?: 'text' | 'textarea' | 'number' | 'file';
-  accept?: string;
-  onFileChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  min?: string;
-  max?: string;
-  disabled?: boolean;
+  label: string
+  value: string
+  onChange: (value: string) => void
+  required?: boolean
+  placeholder?: string
+  helperText?: string
+  type?: 'text' | 'textarea' | 'number' | 'file'
+  accept?: string
+  onFileChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  min?: string
+  max?: string
+  disabled?: boolean
 }
 
-export function ContestFormInput({ 
-  label, 
-  value, 
-  onChange, 
+export function ContestFormInput({
+  label,
+  value,
+  onChange,
   required = false,
   placeholder = '',
   helperText = '',
@@ -25,7 +25,7 @@ export function ContestFormInput({
   onFileChange,
   min,
   max,
-  disabled = false
+  disabled = false,
 }: ContestFormInputProps) {
   return (
     <div>
@@ -36,7 +36,7 @@ export function ContestFormInput({
       {type === 'textarea' ? (
         <textarea
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           disabled={disabled}
           className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
           rows={4}
@@ -56,7 +56,7 @@ export function ContestFormInput({
           min={min}
           max={max}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           disabled={disabled}
           className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
         />
@@ -65,16 +65,13 @@ export function ContestFormInput({
           type={type}
           required={required}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           disabled={disabled}
           className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
           placeholder={placeholder}
         />
       )}
-      {helperText && (
-        <p className="text-sm text-gray-500 mt-1">{helperText}</p>
-      )}
+      {helperText && <p className="text-sm text-gray-500 mt-1">{helperText}</p>}
     </div>
-  );
+  )
 }
-

@@ -1,6 +1,6 @@
 /**
  * Auth utility functions test
- * 
+ *
  * このファイルは認証関連のヘルパー関数のテストです。
  */
 
@@ -13,7 +13,7 @@ describe('Auth Utilities', () => {
     it('stores access token in localStorage', () => {
       const token = 'test-access-token'
       localStorage.setItem('access_token', token)
-      
+
       const stored = localStorage.getItem('access_token')
       expect(stored).toBe(token)
     })
@@ -21,7 +21,7 @@ describe('Auth Utilities', () => {
     it('stores refresh token in localStorage', () => {
       const token = 'test-refresh-token'
       localStorage.setItem('refresh_token', token)
-      
+
       const stored = localStorage.getItem('refresh_token')
       expect(stored).toBe(token)
     })
@@ -29,10 +29,10 @@ describe('Auth Utilities', () => {
     it('removes tokens from localStorage', () => {
       localStorage.setItem('access_token', 'token1')
       localStorage.setItem('refresh_token', 'token2')
-      
+
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
-      
+
       expect(localStorage.getItem('access_token')).toBeNull()
       expect(localStorage.getItem('refresh_token')).toBeNull()
     })
@@ -58,7 +58,7 @@ describe('Auth Utilities', () => {
       const url = new URL(mockUrl)
       const accessToken = url.searchParams.get('access_token')
       const refreshToken = url.searchParams.get('refresh_token')
-      
+
       expect(accessToken).toBe('abc123')
       expect(refreshToken).toBe('def456')
     })
@@ -68,10 +68,9 @@ describe('Auth Utilities', () => {
       const url = new URL(mockUrl)
       const accessToken = url.searchParams.get('access_token')
       const refreshToken = url.searchParams.get('refresh_token')
-      
+
       expect(accessToken).toBeNull()
       expect(refreshToken).toBeNull()
     })
   })
 })
-

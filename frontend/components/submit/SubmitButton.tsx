@@ -1,6 +1,6 @@
 interface SubmitButtonProps {
-  isSubmitting: boolean;
-  disabled?: boolean;
+  isSubmitting: boolean
+  disabled?: boolean
 }
 
 export function SubmitButton({ isSubmitting, disabled = false }: SubmitButtonProps) {
@@ -22,6 +22,5 @@ export function SubmitButton({ isSubmitting, disabled = false }: SubmitButtonPro
         </>
       )}
     </button>
-  );
+  )
 }
-

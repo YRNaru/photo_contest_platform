@@ -56,12 +56,12 @@
   body {
     @apply bg-white text-foreground transition-colors duration-300;
   }
-  
+
   /* ダークモード用の背景 */
   .dark body {
     @apply bg-black text-gray-100;
   }
-  
+
   .dark {
     color-scheme: dark;
   }
@@ -71,12 +71,12 @@
   .text-balance {
     text-wrap: balance;
   }
-  
+
   /* コンテナのダークモード対応 */
   .container {
     @apply bg-transparent;
   }
-  
+
   /* グラスモーフィズム効果 */
   .glass {
     background: rgba(255, 255, 255, 0.7);
@@ -84,57 +84,57 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
-  
+
   .dark .glass {
     background: rgb(0, 0, 0);
     border: 1px solid rgba(75, 85, 99, 0.3);
   }
-  
+
   /* グロー効果 */
   .glow-purple {
     box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
   }
-  
+
   .glow-pink {
     box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
   }
-  
+
   /* カスタムスクロールバー */
   .scrollbar-custom {
     scrollbar-width: thin;
     scrollbar-color: rgb(192, 132, 252) rgb(229, 231, 235);
   }
-  
+
   .dark .scrollbar-custom {
     scrollbar-color: rgb(147, 51, 234) rgb(31, 41, 55);
   }
-  
+
   .scrollbar-custom::-webkit-scrollbar {
     width: 8px;
   }
-  
+
   .scrollbar-custom::-webkit-scrollbar-track {
     background: rgb(229, 231, 235);
     border-radius: 4px;
   }
-  
+
   .dark .scrollbar-custom::-webkit-scrollbar-track {
     background: rgb(31, 41, 55);
   }
-  
+
   .scrollbar-custom::-webkit-scrollbar-thumb {
     background: rgb(192, 132, 252);
     border-radius: 4px;
   }
-  
+
   .scrollbar-custom::-webkit-scrollbar-thumb:hover {
     background: rgb(168, 85, 247);
   }
-  
+
   .dark .scrollbar-custom::-webkit-scrollbar-thumb {
     background: rgb(147, 51, 234);
   }
-  
+
   .dark .scrollbar-custom::-webkit-scrollbar-thumb:hover {
     background: rgb(168, 85, 247);
   }
@@ -175,7 +175,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -193,7 +194,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -230,12 +232,7 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.5),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -248,4 +245,3 @@
   background-size: 200% 200%;
   animation: gradient 3s ease infinite;
 }
-

@@ -25,7 +25,7 @@ describe('API Configuration', () => {
       const token = 'test-token'
       localStorage.setItem('access_token', token)
 
-      mock.onGet('/test').reply((config) => {
+      mock.onGet('/test').reply(config => {
         expect(config.headers?.Authorization).toBe(`Bearer ${token}`)
         return [200, { success: true }]
       })
@@ -34,7 +34,7 @@ describe('API Configuration', () => {
     })
 
     it('should handle requests without token', async () => {
-      mock.onGet('/test').reply((config) => {
+      mock.onGet('/test').reply(config => {
         expect(config.headers?.Authorization).toBeUndefined()
         return [200, { success: true }]
       })
@@ -63,7 +63,7 @@ describe('API Configuration', () => {
     it('should create contest', async () => {
       const formData = new FormData()
       formData.append('title', 'New Contest')
-      
+
       mock.onPost('/contests/').reply(201, { id: 1, title: 'New Contest' })
 
       const response = await contestApi.createContest(formData)
@@ -73,7 +73,7 @@ describe('API Configuration', () => {
     it('should update contest', async () => {
       const formData = new FormData()
       formData.append('title', 'Updated Contest')
-      
+
       mock.onPatch('/contests/test-contest/').reply(200, { id: 1, title: 'Updated Contest' })
 
       const response = await contestApi.updateContest('test-contest', formData)
@@ -116,7 +116,7 @@ describe('API Configuration', () => {
     it('should create entry', async () => {
       const formData = new FormData()
       formData.append('title', 'New Entry')
-      
+
       mock.onPost('/entries/').reply(201, { id: 1, title: 'New Entry' })
 
       const response = await entryApi.createEntry(formData)
@@ -219,7 +219,7 @@ describe('API Configuration', () => {
     it('should update profile', async () => {
       const formData = new FormData()
       formData.append('username', 'newusername')
-      
+
       mock.onPatch('/users/update_me/').reply(200, { id: 1, username: 'newusername' })
 
       const response = await userApi.updateProfile(formData)
@@ -256,4 +256,3 @@ describe('API Configuration', () => {
     })
   })
 })
-

@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline'
 
 interface CategoryFormData {
-  name: string;
-  description: string;
-  order: number;
-  max_votes_per_judge: string;
+  name: string
+  description: string
+  order: number
+  max_votes_per_judge: string
 }
 
 interface CategoryFormProps {
-  formData: CategoryFormData;
-  isEditing: boolean;
-  onSubmit: (e: React.FormEvent) => void;
-  onCancel: () => void;
-  onChange: (data: Partial<CategoryFormData>) => void;
+  formData: CategoryFormData
+  isEditing: boolean
+  onSubmit: (e: React.FormEvent) => void
+  onCancel: () => void
+  onChange: (data: Partial<CategoryFormData>) => void
 }
 
 export function CategoryForm({
@@ -25,7 +25,10 @@ export function CategoryForm({
   onChange,
 }: CategoryFormProps) {
   return (
-    <form onSubmit={onSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
+    <form
+      onSubmit={onSubmit}
+      className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4"
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {isEditing ? '部門を編集' : '新しい部門を追加'}
@@ -46,7 +49,7 @@ export function CategoryForm({
         <input
           type="text"
           value={formData.name}
-          onChange={(e) => onChange({ name: e.target.value })}
+          onChange={e => onChange({ name: e.target.value })}
           required
           placeholder="例: 風景部門、人物部門、グランプリ"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
@@ -59,7 +62,7 @@ export function CategoryForm({
         </label>
         <textarea
           value={formData.description}
-          onChange={(e) => onChange({ description: e.target.value })}
+          onChange={e => onChange({ description: e.target.value })}
           rows={3}
           placeholder="部門の説明（任意）"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
@@ -74,7 +77,7 @@ export function CategoryForm({
           <input
             type="number"
             value={formData.order}
-            onChange={(e) => onChange({ order: parseInt(e.target.value) || 0 })}
+            onChange={e => onChange({ order: parseInt(e.target.value) || 0 })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
         </div>
@@ -86,13 +89,11 @@ export function CategoryForm({
           <input
             type="number"
             value={formData.max_votes_per_judge}
-            onChange={(e) => onChange({ max_votes_per_judge: e.target.value })}
+            onChange={e => onChange({ max_votes_per_judge: e.target.value })}
             placeholder="コンテスト設定を使用"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            未設定の場合、コンテストの設定を使用
-          </p>
+          <p className="text-xs text-gray-500 mt-1">未設定の場合、コンテストの設定を使用</p>
         </div>
       </div>
 
@@ -112,6 +113,5 @@ export function CategoryForm({
         </button>
       </div>
     </form>
-  );
+  )
 }
-

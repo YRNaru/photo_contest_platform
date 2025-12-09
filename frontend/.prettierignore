@@ -1,0 +1,9 @@
+node_modules
+.next
+coverage
+build
+dist
+*.min.js
+package-lock.json
+tsconfig.tsbuildinfo
+

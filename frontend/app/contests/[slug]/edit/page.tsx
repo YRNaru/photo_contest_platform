@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { contestApi } from '@/lib/api';
-import { ContestBasicInfoForm } from '@/components/contest/ContestBasicInfoForm';
-import { ContestDatesForm } from '@/components/contest/ContestDatesForm';
-import { ContestLimitsForm } from '@/components/contest/ContestLimitsForm';
-import { ContestSettingsForm } from '@/components/contest/ContestSettingsForm';
-import { TwitterSettings } from '@/components/contest/TwitterSettings';
-import { JudgingTypeSelector } from '@/components/contest/JudgingTypeSelector';
-import { Contest } from '@/lib/types';
-import { JudgingType } from '@/types/judging';
-import { useAuth } from '@/lib/auth';
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { contestApi } from '@/lib/api'
+import { ContestBasicInfoForm } from '@/components/contest/ContestBasicInfoForm'
+import { ContestDatesForm } from '@/components/contest/ContestDatesForm'
+import { ContestLimitsForm } from '@/components/contest/ContestLimitsForm'
+import { ContestSettingsForm } from '@/components/contest/ContestSettingsForm'
+import { TwitterSettings } from '@/components/contest/TwitterSettings'
+import { JudgingTypeSelector } from '@/components/contest/JudgingTypeSelector'
+import { Contest } from '@/lib/types'
+import { JudgingType } from '@/types/judging'
+import { useAuth } from '@/lib/auth'
 
 export default function EditContestPage() {
-  const router = useRouter();
-  const params = useParams();
-  const slug = params.slug as string;
-  const { user, loading: authLoading } = useAuth();
-  const queryClient = useQueryClient();
-  
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
+  const router = useRouter()
+  const params = useParams()
+  const slug = params.slug as string
+  const { user, isLoading: authLoading } = useAuth()
+  const queryClient = useQueryClient()
+
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -40,43 +40,43 @@ export default function EditContestPage() {
     twitter_auto_fetch: false,
     twitter_auto_approve: false,
     require_twitter_account: false,
-  });
-  
-  const [bannerImage, setBannerImage] = useState<File | null>(null);
-  const [unlimitedEntries, setUnlimitedEntries] = useState(false);
-  const [unlimitedImages, setUnlimitedImages] = useState(false);
+  })
+
+  const [bannerImage, setBannerImage] = useState<File | null>(null)
+  const [unlimitedEntries, setUnlimitedEntries] = useState(false)
+  const [unlimitedImages, setUnlimitedImages] = useState(false)
 
   // コンテスト情報を取得（キャッシュを使わず常に最新データを取得）
   const { data: contest, isLoading: contestLoading } = useQuery({
     queryKey: ['contest-edit', slug],
     queryFn: async () => {
-      const response = await contestApi.getContest(slug);
-      return response.data as Contest;
+      const response = await contestApi.getContest(slug)
+      return response.data as Contest
     },
     staleTime: 0,
     gcTime: 0,
-  });
+  })
 
   // コンテスト情報が取得できたらフォームに設定
   useEffect(() => {
     if (contest) {
       // 権限チェック: 作成者またはスタッフのみ編集可能
       if (!contest.is_owner && !user?.is_staff) {
-        router.push(`/contests/${slug}`);
-        return;
+        router.push(`/contests/${slug}`)
+        return
       }
 
       // ISO形式の日時を datetime-local 形式に変換
       const formatDateTimeLocal = (isoString: string) => {
-        if (!isoString) return '';
-        const date = new Date(isoString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-      };
+        if (!isoString) return ''
+        const date = new Date(isoString)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        const hours = String(date.getHours()).padStart(2, '0')
+        const minutes = String(date.getMinutes()).padStart(2, '0')
+        return `${year}-${month}-${day}T${hours}:${minutes}`
+      }
 
       setFormData({
         title: contest.title || '',
@@ -94,96 +94,98 @@ export default function EditContestPage() {
         twitter_auto_fetch: contest.twitter_auto_fetch || false,
         twitter_auto_approve: contest.twitter_auto_approve || false,
         require_twitter_account: contest.require_twitter_account || false,
-      });
-      
+      })
+
       // 無制限フラグを設定（0の場合は無制限）
-      setUnlimitedEntries(contest.max_entries_per_user === 0);
-      setUnlimitedImages(contest.max_images_per_entry === 0);
+      setUnlimitedEntries(contest.max_entries_per_user === 0)
+      setUnlimitedImages(contest.max_images_per_entry === 0)
     }
-  }, [contest, user, slug, router]);
+  }, [contest, user, slug, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
     try {
-      const data = new FormData();
-      
+      const data = new FormData()
+
       // 必須フィールド
-      data.append('title', formData.title);
-      data.append('description', formData.description);
-      
+      data.append('title', formData.title)
+      data.append('description', formData.description)
+
       // datetime-localの値をISO形式に変換
       if (formData.start_at) {
-        const startDate = new Date(formData.start_at);
-        data.append('start_at', startDate.toISOString());
+        const startDate = new Date(formData.start_at)
+        data.append('start_at', startDate.toISOString())
       }
       if (formData.end_at) {
-        const endDate = new Date(formData.end_at);
-        data.append('end_at', endDate.toISOString());
-      }
-      
-      data.append('is_public', formData.is_public.toString());
-      // 無制限の場合は0を送信
-      data.append('max_entries_per_user', unlimitedEntries ? '0' : formData.max_entries_per_user);
-      data.append('max_images_per_entry', unlimitedImages ? '0' : formData.max_images_per_entry);
-      data.append('auto_approve_entries', formData.auto_approve_entries.toString());
-      data.append('judging_type', formData.judging_type);
-      data.append('max_votes_per_judge', formData.max_votes_per_judge.toString());
-      
-      // オプションフィールド
-      if (formData.voting_end_at) {
-        const votingEndDate = new Date(formData.voting_end_at);
-        data.append('voting_end_at', votingEndDate.toISOString());
-      }
-      if (formData.twitter_hashtag) {
-        data.append('twitter_hashtag', formData.twitter_hashtag);
-      }
-      data.append('twitter_auto_fetch', formData.twitter_auto_fetch.toString());
-      data.append('twitter_auto_approve', formData.twitter_auto_approve.toString());
-      data.append('require_twitter_account', formData.require_twitter_account.toString());
-      
-      // バナー画像（新しい画像がアップロードされた場合のみ）
-      if (bannerImage) {
-        data.append('banner_image', bannerImage);
+        const endDate = new Date(formData.end_at)
+        data.append('end_at', endDate.toISOString())
       }
 
-      await contestApi.updateContest(slug, data);
-      
+      data.append('is_public', formData.is_public.toString())
+      // 無制限の場合は0を送信
+      data.append('max_entries_per_user', unlimitedEntries ? '0' : formData.max_entries_per_user)
+      data.append('max_images_per_entry', unlimitedImages ? '0' : formData.max_images_per_entry)
+      data.append('auto_approve_entries', formData.auto_approve_entries.toString())
+      data.append('judging_type', formData.judging_type)
+      data.append('max_votes_per_judge', formData.max_votes_per_judge.toString())
+
+      // オプションフィールド
+      if (formData.voting_end_at) {
+        const votingEndDate = new Date(formData.voting_end_at)
+        data.append('voting_end_at', votingEndDate.toISOString())
+      }
+      if (formData.twitter_hashtag) {
+        data.append('twitter_hashtag', formData.twitter_hashtag)
+      }
+      data.append('twitter_auto_fetch', formData.twitter_auto_fetch.toString())
+      data.append('twitter_auto_approve', formData.twitter_auto_approve.toString())
+      data.append('require_twitter_account', formData.require_twitter_account.toString())
+
+      // バナー画像（新しい画像がアップロードされた場合のみ）
+      if (bannerImage) {
+        data.append('banner_image', bannerImage)
+      }
+
+      await contestApi.updateContest(slug, data)
+
       // キャッシュをクリア
-      queryClient.invalidateQueries({ queryKey: ['contests'] });
-      queryClient.invalidateQueries({ queryKey: ['contest', slug] });
-      queryClient.invalidateQueries({ queryKey: ['contest-edit', slug] });
-      queryClient.removeQueries({ queryKey: ['contest-edit', slug] });
-      
+      queryClient.invalidateQueries({ queryKey: ['contests'] })
+      queryClient.invalidateQueries({ queryKey: ['contest', slug] })
+      queryClient.invalidateQueries({ queryKey: ['contest-edit', slug] })
+      queryClient.removeQueries({ queryKey: ['contest-edit', slug] })
+
       // 更新したコンテストの詳細ページにリダイレクト
-      router.push(`/contests/${slug}`);
+      router.push(`/contests/${slug}`)
     } catch (err: any) {
-      console.error('コンテスト更新エラー:', err);
-      console.error('エラーレスポンス:', err.response?.data);
-      
+      console.error('コンテスト更新エラー:', err)
+      console.error('エラーレスポンス:', err.response?.data)
+
       // エラーメッセージを整形
-      let errorMessage = 'コンテストの更新に失敗しました。';
+      let errorMessage = 'コンテストの更新に失敗しました。'
       if (err.response?.data) {
         if (typeof err.response.data === 'string') {
-          errorMessage = err.response.data;
+          errorMessage = err.response.data
         } else if (err.response.data.detail) {
-          errorMessage = err.response.data.detail;
+          errorMessage = err.response.data.detail
         } else {
           // フィールドごとのエラーを表示
-          const errors = Object.entries(err.response.data).map(([field, messages]: [string, any]) => {
-            const fieldName = field === 'non_field_errors' ? '' : `${field}: `;
-            return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`;
-          }).join('\n');
-          errorMessage = errors || JSON.stringify(err.response.data);
+          const errors = Object.entries(err.response.data)
+            .map(([field, messages]: [string, any]) => {
+              const fieldName = field === 'non_field_errors' ? '' : `${field}: `
+              return `${fieldName}${Array.isArray(messages) ? messages.join(', ') : messages}`
+            })
+            .join('\n')
+          errorMessage = errors || JSON.stringify(err.response.data)
         }
       }
-      setError(errorMessage);
+      setError(errorMessage)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // ローディング中
   if (authLoading || contestLoading) {
@@ -198,7 +200,7 @@ export default function EditContestPage() {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   // コンテストが見つからない場合
@@ -209,13 +211,13 @@ export default function EditContestPage() {
           コンテストが見つかりません
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <h1 className="text-3xl font-bold mb-6">コンテストを編集</h1>
-      
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           <pre className="whitespace-pre-wrap text-sm">{error}</pre>
@@ -230,8 +232,8 @@ export default function EditContestPage() {
           slug={slug}
           bannerImage={bannerImage}
           currentBannerImage={contest.banner_image}
-          onTitleChange={(value) => setFormData({ ...formData, title: value })}
-          onDescriptionChange={(value) => setFormData({ ...formData, description: value })}
+          onTitleChange={value => setFormData({ ...formData, title: value })}
+          onDescriptionChange={value => setFormData({ ...formData, description: value })}
           onBannerImageChange={setBannerImage}
         />
 
@@ -240,21 +242,19 @@ export default function EditContestPage() {
           startAt={formData.start_at}
           endAt={formData.end_at}
           votingEndAt={formData.voting_end_at}
-          onStartAtChange={(value) => setFormData({ ...formData, start_at: value })}
-          onEndAtChange={(value) => setFormData({ ...formData, end_at: value })}
-          onVotingEndAtChange={(value) => setFormData({ ...formData, voting_end_at: value })}
+          onStartAtChange={value => setFormData({ ...formData, start_at: value })}
+          onEndAtChange={value => setFormData({ ...formData, end_at: value })}
+          onVotingEndAtChange={value => setFormData({ ...formData, voting_end_at: value })}
         />
 
         {/* 審査方式選択 */}
         <div className="border-t pt-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-            審査方式
-          </h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">審査方式</h2>
           <JudgingTypeSelector
             judgingType={formData.judging_type}
-            onJudgingTypeChange={(type) => setFormData({ ...formData, judging_type: type })}
+            onJudgingTypeChange={type => setFormData({ ...formData, judging_type: type })}
             maxVotesPerJudge={formData.max_votes_per_judge}
-            onMaxVotesChange={(value) => setFormData({ ...formData, max_votes_per_judge: value })}
+            onMaxVotesChange={value => setFormData({ ...formData, max_votes_per_judge: value })}
           />
         </div>
 
@@ -264,8 +264,8 @@ export default function EditContestPage() {
           maxImagesPerEntry={formData.max_images_per_entry}
           unlimitedEntries={unlimitedEntries}
           unlimitedImages={unlimitedImages}
-          onMaxEntriesChange={(value) => setFormData({ ...formData, max_entries_per_user: value })}
-          onMaxImagesChange={(value) => setFormData({ ...formData, max_images_per_entry: value })}
+          onMaxEntriesChange={value => setFormData({ ...formData, max_entries_per_user: value })}
+          onMaxImagesChange={value => setFormData({ ...formData, max_images_per_entry: value })}
           onUnlimitedEntriesChange={setUnlimitedEntries}
           onUnlimitedImagesChange={setUnlimitedImages}
         />
@@ -274,8 +274,8 @@ export default function EditContestPage() {
         <ContestSettingsForm
           isPublic={formData.is_public}
           autoApproveEntries={formData.auto_approve_entries}
-          onIsPublicChange={(value) => setFormData({ ...formData, is_public: value })}
-          onAutoApproveChange={(value) => setFormData({ ...formData, auto_approve_entries: value })}
+          onIsPublicChange={value => setFormData({ ...formData, is_public: value })}
+          onAutoApproveChange={value => setFormData({ ...formData, auto_approve_entries: value })}
         />
 
         {/* Twitter設定 */}
@@ -284,10 +284,12 @@ export default function EditContestPage() {
           autoFetch={formData.twitter_auto_fetch}
           autoApprove={formData.twitter_auto_approve}
           requireTwitterAccount={formData.require_twitter_account}
-          onHashtagChange={(value) => setFormData({ ...formData, twitter_hashtag: value })}
-          onAutoFetchChange={(value) => setFormData({ ...formData, twitter_auto_fetch: value })}
-          onAutoApproveChange={(value) => setFormData({ ...formData, twitter_auto_approve: value })}
-          onRequireTwitterAccountChange={(value) => setFormData({ ...formData, require_twitter_account: value })}
+          onHashtagChange={value => setFormData({ ...formData, twitter_hashtag: value })}
+          onAutoFetchChange={value => setFormData({ ...formData, twitter_auto_fetch: value })}
+          onAutoApproveChange={value => setFormData({ ...formData, twitter_auto_approve: value })}
+          onRequireTwitterAccountChange={value =>
+            setFormData({ ...formData, require_twitter_account: value })
+          }
         />
 
         <div className="flex gap-4">
@@ -298,7 +300,7 @@ export default function EditContestPage() {
           >
             {loading ? '更新中...' : 'コンテストを更新'}
           </button>
-          
+
           <button
             type="button"
             onClick={() => router.push(`/contests/${slug}`)}
@@ -309,5 +311,5 @@ export default function EditContestPage() {
         </div>
       </form>
     </div>
-  );
+  )
 }

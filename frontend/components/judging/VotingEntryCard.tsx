@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { CheckIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image'
+import { CheckIcon } from '@heroicons/react/24/solid'
 
 interface VotingEntryCardProps {
-  entry: any;
-  voted: boolean;
-  isVoting: boolean;
-  remainingVotes: number;
-  onVote: () => void;
-  onUnvote: () => void;
+  entry: any
+  voted: boolean
+  isVoting: boolean
+  remainingVotes: number
+  onVote: () => void
+  onUnvote: () => void
 }
 
 export function VotingEntryCard({
@@ -23,20 +23,13 @@ export function VotingEntryCard({
   return (
     <div
       className={`bg-white dark:bg-gray-800 rounded-lg overflow-hidden border-2 transition-all ${
-        voted
-          ? 'border-purple-600 shadow-lg'
-          : 'border-gray-200 dark:border-gray-700'
+        voted ? 'border-purple-600 shadow-lg' : 'border-gray-200 dark:border-gray-700'
       }`}
     >
       {/* サムネイル */}
       {entry.thumbnail && (
         <div className="relative h-48 bg-gray-100 dark:bg-gray-900">
-          <Image
-            src={entry.thumbnail}
-            alt={entry.title}
-            fill
-            className="object-cover"
-          />
+          <Image src={entry.thumbnail} alt={entry.title} fill className="object-cover" />
           {voted && (
             <div className="absolute top-2 right-2 bg-purple-600 text-white p-2 rounded-full">
               <CheckIcon className="w-6 h-6" />
@@ -46,9 +39,7 @@ export function VotingEntryCard({
       )}
 
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          {entry.title}
-        </h3>
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{entry.title}</h3>
         {entry.description && (
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
             {entry.description}
@@ -74,6 +65,5 @@ export function VotingEntryCard({
         )}
       </div>
     </div>
-  );
+  )
 }
-

@@ -1,19 +1,23 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import { contestApi } from "@/lib/api";
-import { ContestCalendar } from "@/components/calendar/ContestCalendar";
-import { Contest } from "@/lib/types";
-import Link from "next/link";
+import { useQuery } from '@tanstack/react-query'
+import { contestApi } from '@/lib/api'
+import { ContestCalendar } from '@/components/calendar/ContestCalendar'
+import { Contest } from '@/lib/types'
+import Link from 'next/link'
 
 export default function CalendarPage() {
-  const { data: contests, isLoading, error } = useQuery({
-    queryKey: ["contests"],
+  const {
+    data: contests,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['contests'],
     queryFn: async () => {
-      const response = await contestApi.getContests();
-      return response.data.results || response.data;
+      const response = await contestApi.getContests()
+      return response.data.results || response.data
     },
-  });
+  })
 
   if (isLoading) {
     return (
@@ -23,7 +27,7 @@ export default function CalendarPage() {
           <div className="h-96 bg-gray-200 dark:bg-gray-800 rounded" />
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -35,10 +39,10 @@ export default function CalendarPage() {
           </p>
         </div>
       </div>
-    );
+    )
   }
 
-  const contestList: Contest[] = contests || [];
+  const contestList: Contest[] = contests || []
 
   return (
     <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
@@ -79,7 +83,7 @@ export default function CalendarPage() {
               応募受付中
             </div>
             <div className="text-3xl font-black text-green-900 dark:text-green-100">
-              {contestList.filter((c) => c.phase === "submission").length}
+              {contestList.filter(c => c.phase === 'submission').length}
               <span className="text-sm font-normal ml-1">件</span>
             </div>
           </div>
@@ -89,7 +93,7 @@ export default function CalendarPage() {
               開催予定
             </div>
             <div className="text-3xl font-black text-blue-900 dark:text-blue-100">
-              {contestList.filter((c) => c.phase === "upcoming").length}
+              {contestList.filter(c => c.phase === 'upcoming').length}
               <span className="text-sm font-normal ml-1">件</span>
             </div>
           </div>
@@ -115,6 +119,5 @@ export default function CalendarPage() {
         )}
       </div>
     </div>
-  );
+  )
 }
-

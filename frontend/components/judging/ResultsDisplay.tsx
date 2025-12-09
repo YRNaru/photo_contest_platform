@@ -1,24 +1,35 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Category, JudgeScore, Vote } from '@/types/judging';
-import { categoryApi, judgeScoreApi, voteApi } from '@/lib/api';
-import { TrophyIcon } from '@heroicons/react/24/solid';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useEffect } from 'react'
+import { Category, JudgeScore, Vote } from '@/types/judging'
+import { categoryApi, judgeScoreApi, voteApi } from '@/lib/api'
+import { TrophyIcon } from '@heroicons/react/24/solid'
+import Image from 'next/image'
+import Link from 'next/link'
 
-interface ResultsDisplayProps {
-  contestSlug: string;
-  contestId: number;
-  judgingType: 'vote' | 'score';
-  entries: any[];
-  isOwner: boolean;
+interface Entry {
+  id: number
+  title: string
+  author?: {
+    username: string
+  }
+  description?: string
+  thumbnail?: string
 }
 
-interface EntryWithScore extends any {
-  totalScore?: number;
-  voteCount?: number;
-  rank?: number;
+interface ResultsDisplayProps {
+  contestSlug: string
+  contestId: number
+  judgingType: 'vote' | 'score'
+  entries: any[]
+  isOwner: boolean
+}
+
+interface EntryWithScore extends Entry {
+  totalScore?: number
+  voteCount?: number
+  rank?: number
+  judgeCount?: number
 }
 
 export function ResultsDisplay({
@@ -28,154 +39,153 @@ export function ResultsDisplay({
   entries,
   isOwner,
 }: ResultsDisplayProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [rankedEntries, setRankedEntries] = useState<EntryWithScore[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const [rankedEntries, setRankedEntries] = useState<EntryWithScore[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadData();
-  }, [contestId, selectedCategory, judgingType]);
+    loadData()
+  }, [contestId, selectedCategory, judgingType])
 
   const loadData = async () => {
     try {
-      setLoading(true);
-      
+      setLoading(true)
+
       // 部門を読み込み
-      const categoriesRes = await categoryApi.getCategories(contestId);
-      setCategories(categoriesRes.data);
+      const categoriesRes = await categoryApi.getCategories(contestId)
+      setCategories(categoriesRes.data)
 
       // 結果を計算
       if (judgingType === 'vote') {
-        await calculateVoteResults();
+        await calculateVoteResults()
       } else {
-        await calculateScoreResults();
+        await calculateScoreResults()
       }
 
-      setError(null);
+      setError(null)
     } catch (err: any) {
-      setError('結果の読み込みに失敗しました');
-      console.error(err);
+      setError('結果の読み込みに失敗しました')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const calculateVoteResults = async () => {
     try {
-      const votesRes = await voteApi.getVotes();
-      const votes: Vote[] = votesRes.data;
+      const votesRes = await voteApi.getVotes()
+      const votes: Vote[] = votesRes.data
 
       // カテゴリーでフィルター
-      const filteredVotes = votes.filter(v => 
-        selectedCategory === null || v.category === selectedCategory
-      );
+      const filteredVotes = votes.filter(
+        v => selectedCategory === null || v.category === selectedCategory
+      )
 
       // エントリーごとの投票数を集計
-      const voteCountMap: { [entryId: string]: number } = {};
+      const voteCountMap: { [entryId: string]: number } = {}
       filteredVotes.forEach(vote => {
-        voteCountMap[vote.entry] = (voteCountMap[vote.entry] || 0) + 1;
-      });
+        voteCountMap[vote.entry] = (voteCountMap[vote.entry] || 0) + 1
+      })
 
       // エントリーにスコアを追加してソート
       const entriesWithScores: EntryWithScore[] = entries.map(entry => ({
         ...entry,
         voteCount: voteCountMap[entry.id] || 0,
-      }));
+      }))
 
-      entriesWithScores.sort((a, b) => b.voteCount - a.voteCount);
+      entriesWithScores.sort((a, b) => (b.voteCount ?? 0) - (a.voteCount ?? 0))
 
       // ランクを付ける
-      let currentRank = 1;
-      let previousVoteCount = -1;
+      let currentRank = 1
+      let previousVoteCount = -1
       entriesWithScores.forEach((entry, index) => {
-        if (entry.voteCount !== previousVoteCount) {
-          currentRank = index + 1;
-          previousVoteCount = entry.voteCount;
+        if ((entry.voteCount ?? 0) !== previousVoteCount) {
+          currentRank = index + 1
+          previousVoteCount = entry.voteCount ?? 0
         }
-        entry.rank = currentRank;
-      });
+        entry.rank = currentRank
+      })
 
-      setRankedEntries(entriesWithScores);
+      setRankedEntries(entriesWithScores)
     } catch (err) {
-      console.error('投票結果の計算エラー:', err);
+      console.error('投票結果の計算エラー:', err)
     }
-  };
+  }
 
   const calculateScoreResults = async () => {
     try {
-      const scoresRes = await judgeScoreApi.getScores();
-      const scores: JudgeScore[] = scoresRes.data;
+      const scoresRes = await judgeScoreApi.getScores()
+      const scores: JudgeScore[] = scoresRes.data
 
       // カテゴリーでフィルター
-      const filteredScores = scores.filter(s => 
-        selectedCategory === null || s.category === selectedCategory
-      );
+      const filteredScores = scores.filter(
+        s => selectedCategory === null || s.category === selectedCategory
+      )
 
       // エントリーごとの平均スコアを計算
-      const scoreMap: { [entryId: string]: { total: number; count: number } } = {};
+      const scoreMap: { [entryId: string]: { total: number; count: number } } = {}
       filteredScores.forEach(score => {
         if (!scoreMap[score.entry]) {
-          scoreMap[score.entry] = { total: 0, count: 0 };
+          scoreMap[score.entry] = { total: 0, count: 0 }
         }
-        scoreMap[score.entry].total += Number(score.total_score);
-        scoreMap[score.entry].count += 1;
-      });
+        scoreMap[score.entry].total += Number(score.total_score)
+        scoreMap[score.entry].count += 1
+      })
 
       // エントリーに平均スコアを追加してソート
       const entriesWithScores: EntryWithScore[] = entries.map(entry => {
-        const scoreData = scoreMap[entry.id];
+        const scoreData = scoreMap[entry.id]
         return {
           ...entry,
           totalScore: scoreData ? scoreData.total / scoreData.count : 0,
           judgeCount: scoreData?.count || 0,
-        };
-      });
+        }
+      })
 
-      entriesWithScores.sort((a, b) => b.totalScore - a.totalScore);
+      entriesWithScores.sort((a, b) => (b.totalScore ?? 0) - (a.totalScore ?? 0))
 
       // ランクを付ける
-      let currentRank = 1;
-      let previousScore = -1;
+      let currentRank = 1
+      let previousScore = -1
       entriesWithScores.forEach((entry, index) => {
-        if (entry.totalScore !== previousScore) {
-          currentRank = index + 1;
-          previousScore = entry.totalScore;
+        if ((entry.totalScore ?? 0) !== previousScore) {
+          currentRank = index + 1
+          previousScore = entry.totalScore ?? 0
         }
-        entry.rank = currentRank;
-      });
+        entry.rank = currentRank
+      })
 
-      setRankedEntries(entriesWithScores);
+      setRankedEntries(entriesWithScores)
     } catch (err) {
-      console.error('スコア結果の計算エラー:', err);
+      console.error('スコア結果の計算エラー:', err)
     }
-  };
+  }
 
   const getRankColor = (rank: number) => {
-    if (rank === 1) return 'text-yellow-600 dark:text-yellow-400';
-    if (rank === 2) return 'text-gray-400 dark:text-gray-300';
-    if (rank === 3) return 'text-amber-700 dark:text-amber-500';
-    return 'text-gray-600 dark:text-gray-400';
-  };
+    if (rank === 1) return 'text-yellow-600 dark:text-yellow-400'
+    if (rank === 2) return 'text-gray-400 dark:text-gray-300'
+    if (rank === 3) return 'text-amber-700 dark:text-amber-500'
+    return 'text-gray-600 dark:text-gray-400'
+  }
 
   const getRankBgColor = (rank: number) => {
-    if (rank === 1) return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
-    if (rank === 2) return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700';
-    if (rank === 3) return 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
-    return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
-  };
+    if (rank === 1)
+      return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+    if (rank === 2) return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+    if (rank === 3) return 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+    return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+  }
 
   if (loading) {
-    return <div className="text-center py-4">読み込み中...</div>;
+    return <div className="text-center py-4">読み込み中...</div>
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          結果発表
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">結果発表</h2>
       </div>
 
       {/* 部門選択 */}
@@ -186,11 +196,11 @@ export function ResultsDisplay({
           </label>
           <select
             value={selectedCategory || ''}
-            onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
+            onChange={e => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="">全体</option>
-            {categories.map((cat) => (
+            {categories.map(cat => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
@@ -212,13 +222,14 @@ export function ResultsDisplay({
         </div>
       ) : (
         <div className="space-y-4">
-          {rankedEntries.map((entry) => {
-            const isTopThree = entry.rank <= 3;
-            
+          {rankedEntries.map(entry => {
+            const rank = entry.rank ?? 0
+            const isTopThree = rank <= 3
+
             return (
               <div
                 key={entry.id}
-                className={`rounded-lg border-2 overflow-hidden transition-all ${getRankBgColor(entry.rank)} ${
+                className={`rounded-lg border-2 overflow-hidden transition-all ${getRankBgColor(rank)} ${
                   isTopThree ? 'shadow-lg' : ''
                 }`}
               >
@@ -226,11 +237,9 @@ export function ResultsDisplay({
                   <div className="flex items-start gap-6">
                     {/* ランク表示 */}
                     <div className="flex-shrink-0 text-center">
-                      <div className={`text-5xl font-bold ${getRankColor(entry.rank)} mb-2`}>
-                        {entry.rank <= 3 && (
-                          <TrophyIcon className="w-12 h-12 mx-auto mb-2" />
-                        )}
-                        {entry.rank}
+                      <div className={`text-5xl font-bold ${getRankColor(rank)} mb-2`}>
+                        {rank <= 3 && <TrophyIcon className="w-12 h-12 mx-auto mb-2" />}
+                        {rank}
                         <span className="text-xl">位</span>
                       </div>
                     </div>
@@ -271,17 +280,15 @@ export function ResultsDisplay({
                         {judgingType === 'vote' ? (
                           <div className="flex items-center gap-2">
                             <span className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                              {entry.voteCount}
+                              {entry.voteCount ?? 0}
                             </span>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              票
-                            </span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">票</span>
                           </div>
                         ) : (
                           <>
                             <div className="flex items-center gap-2">
                               <span className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                {entry.totalScore.toFixed(2)}
+                                {(entry.totalScore ?? 0).toFixed(2)}
                               </span>
                               <span className="text-sm text-gray-600 dark:text-gray-400">
                                 点（平均）
@@ -299,11 +306,10 @@ export function ResultsDisplay({
                   </div>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       )}
     </div>
-  );
+  )
 }
-

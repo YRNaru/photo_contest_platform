@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { userApi } from "@/lib/api";
-import { User } from "@/lib/types";
+import { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { userApi } from '@/lib/api'
+import { User } from '@/lib/types'
 
 interface JudgeSelectorProps {
-  selectedJudgeIds: string[];
-  onJudgesChange: (judgeIds: string[]) => void;
-  creatorAsJudge: boolean;
-  onCreatorAsJudgeChange: (value: boolean) => void;
+  selectedJudgeIds: string[]
+  onJudgesChange: (judgeIds: string[]) => void
+  creatorAsJudge: boolean
+  onCreatorAsJudgeChange: (value: boolean) => void
 }
 
 export function JudgeSelector({
@@ -18,55 +18,55 @@ export function JudgeSelector({
   creatorAsJudge,
   onCreatorAsJudgeChange,
 }: JudgeSelectorProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   // 現在のユーザー情報を取得
   const { data: currentUser } = useQuery({
-    queryKey: ["current-user"],
+    queryKey: ['current-user'],
     queryFn: async () => {
-      const response = await userApi.me();
-      return response.data;
+      const response = await userApi.me()
+      return response.data
     },
     staleTime: 5 * 60 * 1000, // 5分間キャッシュ
-  });
+  })
 
   // ユーザー一覧を取得
   const { data: usersData, isLoading } = useQuery({
-    queryKey: ["users"],
+    queryKey: ['users'],
     queryFn: async () => {
-      const response = await userApi.getUsers();
-      return response.data;
+      const response = await userApi.getUsers()
+      return response.data
     },
     staleTime: 2 * 60 * 1000, // 2分間キャッシュ
-  });
+  })
 
-  const allUsers = usersData?.results || [];
+  const allUsers = usersData?.results || []
 
   // 主催者（現在のユーザー）を除外し、検索フィルタを適用
   const filteredUsers = useMemo(() => {
-    let users = allUsers.filter((user: User) => user.id !== currentUser?.id);
-    
+    let users = allUsers.filter((user: User) => user.id !== currentUser?.id)
+
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      users = users.filter((user: User) => 
-        user.username.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query)
-      );
+      const query = searchQuery.toLowerCase()
+      users = users.filter(
+        (user: User) =>
+          user.username.toLowerCase().includes(query) || user.email.toLowerCase().includes(query)
+      )
     }
-    
-    return users;
-  }, [allUsers, currentUser, searchQuery]);
+
+    return users
+  }, [allUsers, currentUser, searchQuery])
 
   const handleAddJudge = (userId: string) => {
     if (!selectedJudgeIds.includes(userId)) {
-      onJudgesChange([...selectedJudgeIds, userId]);
+      onJudgesChange([...selectedJudgeIds, userId])
     }
-  };
+  }
 
   const handleRemoveJudge = (userId: string) => {
-    onJudgesChange(selectedJudgeIds.filter((id) => id !== userId));
-  };
+    onJudgesChange(selectedJudgeIds.filter(id => id !== userId))
+  }
 
   return (
     <div className="space-y-4">
@@ -76,7 +76,7 @@ export function JudgeSelector({
           <input
             type="checkbox"
             checked={creatorAsJudge}
-            onChange={(e) => onCreatorAsJudgeChange(e.target.checked)}
+            onChange={e => onCreatorAsJudgeChange(e.target.checked)}
             className="mt-1 mr-3 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
           />
           <div>
@@ -98,9 +98,7 @@ export function JudgeSelector({
           className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 flex items-center justify-between transition-colors"
         >
           <div className="flex items-center gap-2">
-            <span className="font-bold text-gray-900 dark:text-gray-100">
-              👨‍⚖️ 審査員を選択
-            </span>
+            <span className="font-bold text-gray-900 dark:text-gray-100">👨‍⚖️ 審査員を選択</span>
             {selectedJudgeIds.length > 0 && (
               <span className="px-2 py-1 bg-purple-600 text-white text-xs font-bold rounded-full">
                 {selectedJudgeIds.length}人選択中
@@ -108,19 +106,12 @@ export function JudgeSelector({
             )}
           </div>
           <svg
-            className={`w-5 h-5 transition-transform ${
-              isExpanded ? "rotate-180" : ""
-            }`}
+            className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
@@ -132,7 +123,7 @@ export function JudgeSelector({
                 type="text"
                 placeholder="ユーザー名またはメールアドレスで検索..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
@@ -146,7 +137,7 @@ export function JudgeSelector({
               ) : filteredUsers.length > 0 ? (
                 <div className="space-y-2">
                   {filteredUsers.map((user: User) => {
-                    const isSelected = selectedJudgeIds.includes(user.id);
+                    const isSelected = selectedJudgeIds.includes(user.id)
                     return (
                       <div
                         key={user.id}
@@ -172,9 +163,7 @@ export function JudgeSelector({
                             <p className="font-bold text-gray-900 dark:text-gray-100">
                               {user.username}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {user.email}
-                            </p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{user.email}</p>
                           </div>
                           {user.is_judge && (
                             <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold rounded">
@@ -200,7 +189,7 @@ export function JudgeSelector({
                           </button>
                         )}
                       </div>
-                    );
+                    )
                   })}
                 </div>
               ) : (
@@ -220,9 +209,9 @@ export function JudgeSelector({
             選択された審査員 ({selectedJudgeIds.length}人)
           </h4>
           <div className="flex flex-wrap gap-2">
-            {selectedJudgeIds.map((judgeId) => {
-              const judge = allUsers.find((u: User) => u.id === judgeId);
-              if (!judge) return null;
+            {selectedJudgeIds.map(judgeId => {
+              const judge = allUsers.find((u: User) => u.id === judgeId)
+              if (!judge) return null
               return (
                 <span
                   key={judgeId}
@@ -239,11 +228,11 @@ export function JudgeSelector({
                     ✕
                   </button>
                 </span>
-              );
+              )
             })}
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

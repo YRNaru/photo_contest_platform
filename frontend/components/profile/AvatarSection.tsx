@@ -1,15 +1,15 @@
-import { useRef } from 'react';
-import { FaUpload, FaCheck } from 'react-icons/fa';
-import { User, SocialAccount } from '@/lib/types';
+import { useRef } from 'react'
+import { FaUpload, FaCheck } from 'react-icons/fa'
+import { User, SocialAccount } from '@/lib/types'
 
 interface AvatarSectionProps {
-  user: User;
-  avatarPreview: string | null;
-  uploading: boolean;
-  uploadSuccess: boolean;
-  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSetTwitterIcon: () => void;
-  twitterAccount?: SocialAccount;
+  user: User
+  avatarPreview: string | null
+  uploading: boolean
+  uploadSuccess: boolean
+  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onSetTwitterIcon: () => void
+  twitterAccount?: SocialAccount
 }
 
 export function AvatarSection({
@@ -19,16 +19,16 @@ export function AvatarSection({
   uploadSuccess,
   onFileSelect,
   onSetTwitterIcon,
-  twitterAccount
+  twitterAccount,
 }: AvatarSectionProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   return (
     <div className="mb-8 animate-fadeInUp">
       <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-6 pb-3 border-b-2 border-gray-200 dark:border-gray-700">
         📸 プロフィール画像
       </h2>
-      
+
       <div className="flex flex-col md:flex-row items-center gap-8">
         {/* アバター表示 */}
         <div className="relative group">
@@ -66,7 +66,7 @@ export function AvatarSection({
             onChange={onFileSelect}
             className="hidden"
           />
-          
+
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
@@ -100,6 +100,5 @@ export function AvatarSection({
         </div>
       </div>
     </div>
-  );
+  )
 }
-

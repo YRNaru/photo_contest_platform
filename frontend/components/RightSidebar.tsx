@@ -1,27 +1,27 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useSidebar } from "@/lib/sidebar-context";
-import { contestApi } from "@/lib/api";
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useSidebar } from '@/lib/sidebar-context'
+import { contestApi } from '@/lib/api'
 
 interface TrendingContest {
-  slug: string;
-  title: string;
-  entry_count: number;
+  slug: string
+  title: string
+  entry_count: number
 }
 
 export function RightSidebar() {
-  const [trending, setTrending] = useState<TrendingContest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { isRightOpen } = useSidebar();
+  const [trending, setTrending] = useState<TrendingContest[]>([])
+  const [loading, setLoading] = useState(true)
+  const { isRightOpen } = useSidebar()
 
   useEffect(() => {
     const fetchTrendingContests = async () => {
       try {
-        const response = await contestApi.getContests();
-        const contests = response.data.results || response.data;
-        
+        const response = await contestApi.getContests()
+        const contests = response.data.results || response.data
+
         // エントリー数が多い順に並べ替えて上位5件を取得
         const sortedContests = contests
           .filter((c: any) => c.entry_count > 0) // エントリーがあるものだけ
@@ -31,34 +31,34 @@ export function RightSidebar() {
             slug: c.slug,
             title: c.title,
             entry_count: c.entry_count,
-          }));
-        
-        setTrending(sortedContests);
-      } catch (error) {
-        console.error('Failed to fetch trending contests:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+          }))
 
-    fetchTrendingContests();
-  }, []);
+        setTrending(sortedContests)
+      } catch (error) {
+        console.error('Failed to fetch trending contests:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTrendingContests()
+  }, [])
 
   return (
     <aside
       className={`bg-gray-50 dark:bg-black border-l-2 border-gray-200 dark:border-gray-800 h-[calc(100vh-4rem)] sticky top-16 transition-all duration-700 ease-in-out shadow-sm z-40 ${
-        isRightOpen ? "w-96 opacity-100" : "w-0 opacity-0"
+        isRightOpen ? 'w-96 opacity-100' : 'w-0 opacity-0'
       }`}
     >
       <div
         className={`h-full overflow-y-auto overflow-x-hidden p-5 space-y-6 w-96 transition-all duration-700 delay-150 scrollbar-custom ${
-          isRightOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          isRightOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
         }`}
       >
         {/* トレンディングコンテスト */}
-        <div 
+        <div
           className="transition-all duration-500"
-          style={{ 
+          style={{
             transitionDelay: isRightOpen ? '150ms' : '0ms',
             opacity: isRightOpen ? 1 : 0,
             transform: isRightOpen ? 'translateX(0)' : 'translateX(20px)',
@@ -72,8 +72,11 @@ export function RightSidebar() {
             {loading ? (
               // ローディング表示
               <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 animate-pulse">
+                {[1, 2, 3].map(i => (
+                  <div
+                    key={i}
+                    className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 animate-pulse"
+                  >
                     <div className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
                       <div className="flex-1 space-y-2">
@@ -90,13 +93,11 @@ export function RightSidebar() {
                 <Link
                   key={contest.slug}
                   href={`/contests/${contest.slug}`}
-                  style={{ 
+                  style={{
                     transitionDelay: isRightOpen ? `${150 + (index + 1) * 80}ms` : '0ms',
                   }}
                   className={`group block p-4 rounded-xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:scale-105 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-xl transform-gpu transition-all duration-500 ${
-                    isRightOpen 
-                      ? 'translate-x-0 opacity-100' 
-                      : 'translate-x-8 opacity-0'
+                    isRightOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -124,18 +125,18 @@ export function RightSidebar() {
           </div>
         </div>
 
-        <div 
+        <div
           className="border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
-          style={{ 
+          style={{
             transitionDelay: isRightOpen ? `${150 + (trending.length + 1) * 80}ms` : '0ms',
             opacity: isRightOpen ? 1 : 0,
           }}
         />
 
         {/* お知らせ */}
-        <div 
+        <div
           className="transition-all duration-500"
-          style={{ 
+          style={{
             transitionDelay: isRightOpen ? `${150 + (trending.length + 2) * 80}ms` : '0ms',
             opacity: isRightOpen ? 1 : 0,
             transform: isRightOpen ? 'translateX(0)' : 'translateX(20px)',
@@ -167,18 +168,18 @@ export function RightSidebar() {
           </div>
         </div>
 
-        <div 
+        <div
           className="border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
-          style={{ 
+          style={{
             transitionDelay: isRightOpen ? `${150 + (trending.length + 3) * 80}ms` : '0ms',
             opacity: isRightOpen ? 1 : 0,
           }}
         />
 
         {/* サポート情報 */}
-        <div 
+        <div
           className="transition-all duration-500"
-          style={{ 
+          style={{
             transitionDelay: isRightOpen ? `${150 + (trending.length + 4) * 80}ms` : '0ms',
             opacity: isRightOpen ? 1 : 0,
             transform: isRightOpen ? 'translateX(0)' : 'translateX(20px)',
@@ -221,5 +222,5 @@ export function RightSidebar() {
         </div>
       </div>
     </aside>
-  );
+  )
 }

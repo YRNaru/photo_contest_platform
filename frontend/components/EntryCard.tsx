@@ -1,16 +1,16 @@
-import Link from "next/link";
-import Image from "next/image";
-import { FaHeart, FaEye } from "react-icons/fa";
+import Link from 'next/link'
+import Image from 'next/image'
+import { FaHeart, FaEye } from 'react-icons/fa'
 
 interface Entry {
-  id: string;
-  title: string;
+  id: string
+  title: string
   author: {
-    username: string;
-  } | null;
-  vote_count: number;
-  view_count: number;
-  thumbnail?: string;
+    username: string
+  } | null
+  vote_count: number
+  view_count: number
+  thumbnail?: string
 }
 
 export function EntryCard({ entry }: { entry: Entry }) {
@@ -28,7 +28,9 @@ export function EntryCard({ entry }: { entry: Entry }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-8xl opacity-50 group-hover:scale-110 transition-transform duration-500">📷</span>
+              <span className="text-8xl opacity-50 group-hover:scale-110 transition-transform duration-500">
+                📷
+              </span>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -40,7 +42,10 @@ export function EntryCard({ entry }: { entry: Entry }) {
           </h3>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 flex items-center gap-1">
             <span className="text-purple-600 dark:text-purple-400">👤</span>
-            by <span className="font-semibold truncate">{entry.author?.username || "匿名ユーザー"}</span>
+            by{' '}
+            <span className="font-semibold truncate">
+              {entry.author?.username || '匿名ユーザー'}
+            </span>
           </p>
 
           <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm">
@@ -56,6 +61,5 @@ export function EntryCard({ entry }: { entry: Entry }) {
         </div>
       </div>
     </Link>
-  );
+  )
 }
-

@@ -1,51 +1,51 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function AuthCallbackPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const processCallback = () => {
       try {
         // URLパラメータからトークンを取得
-        const accessToken = searchParams.get('access_token');
-        const refreshToken = searchParams.get('refresh_token');
+        const accessToken = searchParams.get('access_token')
+        const refreshToken = searchParams.get('refresh_token')
 
         if (accessToken && refreshToken) {
           // トークンをlocalStorageに保存
-          localStorage.setItem('access_token', accessToken);
-          localStorage.setItem('refresh_token', refreshToken);
+          localStorage.setItem('access_token', accessToken)
+          localStorage.setItem('refresh_token', refreshToken)
 
-          console.log('ログイン成功: トークンを保存しました');
+          console.log('ログイン成功: トークンを保存しました')
 
           // プロフィールページにリダイレクト
-          router.push('/profile');
+          router.push('/profile')
         } else {
-          console.error('URLパラメータにトークンが見つかりません');
-          setError('認証情報が取得できませんでした');
-          
+          console.error('URLパラメータにトークンが見つかりません')
+          setError('認証情報が取得できませんでした')
+
           // 5秒後にホームにリダイレクト
           setTimeout(() => {
-            router.push('/');
-          }, 5000);
+            router.push('/')
+          }, 5000)
         }
       } catch (err: any) {
-        console.error('認証エラー:', err);
-        setError('認証処理中にエラーが発生しました');
-        
+        console.error('認証エラー:', err)
+        setError('認証処理中にエラーが発生しました')
+
         // 5秒後にホームにリダイレクト
         setTimeout(() => {
-          router.push('/');
-        }, 5000);
+          router.push('/')
+        }, 5000)
       }
-    };
+    }
 
-    processCallback();
-  }, [router, searchParams]);
+    processCallback()
+  }, [router, searchParams])
 
   if (error) {
     return (
@@ -55,13 +55,11 @@ export default function AuthCallbackPage() {
             <div className="text-6xl mb-4">❌</div>
             <h1 className="text-2xl font-bold text-red-600 mb-4">認証エラー</h1>
             <p className="text-gray-700 mb-6">{error}</p>
-            <div className="text-sm text-gray-500">
-              5秒後にホームページにリダイレクトします...
-            </div>
+            <div className="text-sm text-gray-500">5秒後にホームページにリダイレクトします...</div>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -74,6 +72,5 @@ export default function AuthCallbackPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
-

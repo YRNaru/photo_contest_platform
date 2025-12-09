@@ -1,26 +1,26 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
-import { SidebarProvider } from "@/lib/sidebar-context";
-import { ThemeProvider } from "@/lib/theme-context";
-import { Header } from "@/components/Header";
-import { LeftSidebar } from "@/components/LeftSidebar";
-import { RightSidebar } from "@/components/RightSidebar";
-import { Footer } from "@/components/Footer";
-import { Toaster } from "@/components/ui/Toaster";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { Providers } from './providers'
+import { SidebarProvider } from '@/lib/sidebar-context'
+import { ThemeProvider } from '@/lib/theme-context'
+import { Header } from '@/components/Header'
+import { LeftSidebar } from '@/components/LeftSidebar'
+import { RightSidebar } from '@/components/RightSidebar'
+import { Footer } from '@/components/Footer'
+import { Toaster } from '@/components/ui/Toaster'
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "VRChat フォトコンテスト",
-  description: "VRChatのフォトコンテストプラットフォーム",
-};
+  title: 'VRChat フォトコンテスト',
+  description: 'VRChatのフォトコンテストプラットフォーム',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
@@ -40,7 +40,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} bg-white dark:bg-black transition-colors duration-300`} suppressHydrationWarning>
+      <body
+        className={`${inter.className} bg-white dark:bg-black transition-colors duration-300`}
+        suppressHydrationWarning
+      >
         <Providers>
           <ThemeProvider>
             <SidebarProvider>
@@ -48,9 +51,7 @@ export default function RootLayout({
                 <Header />
                 <div className="flex flex-1 bg-white dark:bg-black transition-colors duration-300">
                   <LeftSidebar />
-                  <main className="flex-1 min-w-0 bg-white dark:bg-black">
-                    {children}
-                  </main>
+                  <main className="flex-1 min-w-0 bg-white dark:bg-black">{children}</main>
                   <RightSidebar />
                 </div>
                 <Footer />
@@ -61,6 +62,5 @@ export default function RootLayout({
         </Providers>
       </body>
     </html>
-  );
+  )
 }
-

@@ -4,9 +4,11 @@ import React from 'react'
 
 // Mock Next.js Link
 jest.mock('next/link', () => {
-  return ({ children, href }: { children: React.ReactNode; href: string }) => {
+  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
     return <a href={href}>{children}</a>
   }
+  MockLink.displayName = 'MockLink'
+  return MockLink
 })
 
 // Mock SidebarProvider and ThemeProvider
@@ -56,4 +58,3 @@ describe('Header', () => {
     expect(header).toBeInTheDocument()
   })
 })
-

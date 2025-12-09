@@ -1,21 +1,16 @@
-'use client';
+'use client'
 
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Category } from '@/types/judging';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { Category } from '@/types/judging'
 
 interface CategoryItemProps {
-  category: Category;
-  isOwner: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
+  category: Category
+  isOwner: boolean
+  onEdit: () => void
+  onDelete: () => void
 }
 
-export function CategoryItem({
-  category,
-  isOwner,
-  onEdit,
-  onDelete,
-}: CategoryItemProps) {
+export function CategoryItem({ category, isOwner, onEdit, onDelete }: CategoryItemProps) {
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
       <div className="flex items-start justify-between">
@@ -24,9 +19,7 @@ export function CategoryItem({
             {category.name}
           </h3>
           {category.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {category.description}
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{category.description}</p>
           )}
           <div className="flex gap-4 mt-2 text-sm text-gray-500">
             <span>エントリー数: {category.entry_count}</span>
@@ -55,6 +48,5 @@ export function CategoryItem({
         )}
       </div>
     </div>
-  );
+  )
 }
-

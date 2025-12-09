@@ -3,18 +3,24 @@ import { ContestCard } from '../ContestCard'
 
 // Mock Next.js components
 jest.mock('next/link', () => {
-  return ({ children, href }: { children: React.ReactNode; href: string }) => {
+  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
     return <a href={href}>{children}</a>
   }
+  MockLink.displayName = 'MockLink'
+  return MockLink
 })
 
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
+jest.mock('next/image', () => {
+  const MockImage = (props: any) => {
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     return <img {...props} />
-  },
-}))
+  }
+  MockImage.displayName = 'MockImage'
+  return {
+    __esModule: true,
+    default: MockImage,
+  }
+})
 
 describe('ContestCard', () => {
   const mockContest = {
@@ -89,9 +95,9 @@ describe('ContestCard', () => {
   it('truncates long description', () => {
     const longDescription = 'A'.repeat(200)
     const contestWithLongDesc = { ...mockContest, description: longDescription }
-    
+
     const { container } = render(<ContestCard contest={contestWithLongDesc} />)
-    
+
     // line-clamp-2 クラスが適用されていることを確認
     const descElement = container.querySelector('.line-clamp-2')
     expect(descElement).toBeInTheDocument()
@@ -103,4 +109,3 @@ describe('ContestCard', () => {
     expect(screen.getByText('Test Contest')).toBeInTheDocument()
   })
 })
-

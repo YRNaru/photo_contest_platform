@@ -1,29 +1,29 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import { contestApi } from "@/lib/api";
-import { useParams } from "next/navigation";
-import { formatDate, getPhaseLabel, getPhaseColor } from "@/lib/utils";
-import { EntryGrid } from "@/components/EntryGrid";
-import JudgeManager from "@/components/contest/JudgeManager";
-import { ContestStatistics } from "@/components/contest/ContestStatistics";
-import Link from "next/link";
-import { useAuth } from "@/lib/auth";
+import { useQuery } from '@tanstack/react-query'
+import { contestApi } from '@/lib/api'
+import { useParams } from 'next/navigation'
+import { formatDate, getPhaseLabel, getPhaseColor } from '@/lib/utils'
+import { EntryGrid } from '@/components/EntryGrid'
+import JudgeManager from '@/components/contest/JudgeManager'
+import { ContestStatistics } from '@/components/contest/ContestStatistics'
+import Link from 'next/link'
+import { useAuth } from '@/lib/auth'
 
 export default function ContestDetailPage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const { user } = useAuth();
+  const params = useParams()
+  const slug = params.slug as string
+  const { user } = useAuth()
 
   const { data: contest, isLoading } = useQuery({
-    queryKey: ["contest", slug],
+    queryKey: ['contest', slug],
     queryFn: async () => {
-      const response = await contestApi.getContest(slug);
-      return response.data;
+      const response = await contestApi.getContest(slug)
+      return response.data
     },
     staleTime: 1 * 60 * 1000, // 1分間キャッシュ
     refetchOnMount: true, // マウント時に再取得
-  });
+  })
 
   if (isLoading) {
     return (
@@ -34,7 +34,7 @@ export default function ContestDetailPage() {
           <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3" />
         </div>
       </div>
-    );
+    )
   }
 
   if (!contest) {
@@ -42,7 +42,7 @@ export default function ContestDetailPage() {
       <div className="container mx-auto px-4 py-8">
         <p className="text-center text-red-500 dark:text-red-400">コンテストが見つかりません</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -60,7 +60,9 @@ export default function ContestDetailPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             {/* バナー上のフェーズバッジ */}
             <div className="absolute top-4 left-4">
-              <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-white shadow-lg backdrop-blur-sm ${getPhaseColor(contest.phase)}`}>
+              <span
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-white shadow-lg backdrop-blur-sm ${getPhaseColor(contest.phase)}`}
+              >
                 {getPhaseLabel(contest.phase)}
               </span>
             </div>
@@ -82,7 +84,7 @@ export default function ContestDetailPage() {
                   ✏️ 編集
                 </Link>
               )}
-              {contest.phase === "submission" && (
+              {contest.phase === 'submission' && (
                 <Link
                   href={`/submit?contest=${slug}`}
                   className="px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600/90 hover:bg-blue-600 backdrop-blur-sm text-white font-bold text-xs sm:text-sm rounded-lg shadow-lg transition-all duration-300 hover:scale-105"
@@ -99,7 +101,9 @@ export default function ContestDetailPage() {
           {/* バナーがない場合のヘッダー */}
           {!contest.banner_image && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-              <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-white shadow-md ${getPhaseColor(contest.phase)}`}>
+              <span
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-white shadow-md ${getPhaseColor(contest.phase)}`}
+              >
                 {getPhaseLabel(contest.phase)}
               </span>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -119,7 +123,7 @@ export default function ContestDetailPage() {
                     ✏️ 編集
                   </Link>
                 )}
-                {contest.phase === "submission" && (
+                {contest.phase === 'submission' && (
                   <Link
                     href={`/submit?contest=${slug}`}
                     className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform-gpu text-center"
@@ -134,24 +138,36 @@ export default function ContestDetailPage() {
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent leading-tight">
             {contest.title}
           </h1>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-700 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">{contest.description}</p>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-700 dark:text-gray-300 mb-6 sm:mb-8 leading-relaxed">
+            {contest.description}
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 text-sm">
             <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border border-purple-200 dark:border-purple-800">
-              <span className="font-bold text-purple-900 dark:text-purple-300 block mb-1">📅 応募期間</span>
+              <span className="font-bold text-purple-900 dark:text-purple-300 block mb-1">
+                📅 応募期間
+              </span>
               <span className="text-gray-700 dark:text-gray-300">
                 {formatDate(contest.start_at)} 〜 {formatDate(contest.end_at)}
               </span>
             </div>
             {contest.voting_end_at && (
               <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl border border-blue-200 dark:border-blue-800">
-                <span className="font-bold text-blue-900 dark:text-blue-300 block mb-1">🗳️ 投票終了</span>
-                <span className="text-gray-700 dark:text-gray-300">{formatDate(contest.voting_end_at)}</span>
+                <span className="font-bold text-blue-900 dark:text-blue-300 block mb-1">
+                  🗳️ 投票終了
+                </span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  {formatDate(contest.voting_end_at)}
+                </span>
               </div>
             )}
             <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl border border-green-200 dark:border-green-800">
-              <span className="font-bold text-green-900 dark:text-green-300 block mb-1">📸 応募数</span>
-              <span className="text-2xl font-black text-gray-700 dark:text-gray-100">{contest.entry_count} <span className="text-sm font-normal">件</span></span>
+              <span className="font-bold text-green-900 dark:text-green-300 block mb-1">
+                📸 応募数
+              </span>
+              <span className="text-2xl font-black text-gray-700 dark:text-gray-100">
+                {contest.entry_count} <span className="text-sm font-normal">件</span>
+              </span>
             </div>
           </div>
 
@@ -161,7 +177,9 @@ export default function ContestDetailPage() {
               <div className="flex items-start gap-3">
                 <span className="text-2xl">𝕏</span>
                 <div>
-                  <span className="font-bold text-blue-900 dark:text-blue-300 block mb-1">X (Twitter) アカウント連携が必須</span>
+                  <span className="font-bold text-blue-900 dark:text-blue-300 block mb-1">
+                    X (Twitter) アカウント連携が必須
+                  </span>
                   <span className="text-sm text-gray-700 dark:text-gray-300">
                     このコンテストに投稿するには、X (Twitter) アカウントとの連携が必要です。
                   </span>
@@ -173,9 +191,7 @@ export default function ContestDetailPage() {
       </div>
 
       {/* 審査員管理 */}
-      {contest.is_owner && (
-        <JudgeManager contestSlug={slug} isOwner={contest.is_owner} />
-      )}
+      {contest.is_owner && <JudgeManager contestSlug={slug} isOwner={contest.is_owner} />}
 
       {/* 統計情報（コンテスト作成者のみ表示） */}
       {contest.is_owner && (
@@ -192,6 +208,5 @@ export default function ContestDetailPage() {
         <EntryGrid contestSlug={slug} />
       </div>
     </div>
-  );
+  )
 }
-

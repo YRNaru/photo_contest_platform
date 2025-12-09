@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useQuery } from "@tanstack/react-query";
-import { contestApi } from "@/lib/api";
+import { useQuery } from '@tanstack/react-query'
+import { contestApi } from '@/lib/api'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,9 +13,9 @@ import {
   Tooltip,
   Legend,
   Filler,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import { formatDate } from "@/lib/utils";
+} from 'chart.js'
+import { Line } from 'react-chartjs-2'
+import { formatDate } from '@/lib/utils'
 
 // Chart.jsの登録
 ChartJS.register(
@@ -28,34 +28,38 @@ ChartJS.register(
   Tooltip,
   Legend,
   Filler
-);
+)
 
 interface ContestStatisticsProps {
-  contestSlug: string;
+  contestSlug: string
 }
 
 interface DailyEntry {
-  date: string;
-  count: number;
+  date: string
+  count: number
 }
 
 interface StatisticsData {
-  daily_entries: DailyEntry[];
-  total_entries: number;
-  pending_entries: number;
-  total_votes: number;
-  unique_voters: number;
+  daily_entries: DailyEntry[]
+  total_entries: number
+  pending_entries: number
+  total_votes: number
+  unique_voters: number
 }
 
 export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
-  const { data: statistics, isLoading, error } = useQuery<StatisticsData>({
-    queryKey: ["contest-statistics", contestSlug],
+  const {
+    data: statistics,
+    isLoading,
+    error,
+  } = useQuery<StatisticsData>({
+    queryKey: ['contest-statistics', contestSlug],
     queryFn: async () => {
-      const response = await contestApi.getContestStatistics(contestSlug);
-      return response.data;
+      const response = await contestApi.getContestStatistics(contestSlug)
+      return response.data
     },
     staleTime: 5 * 60 * 1000, // 5分間キャッシュ
-  });
+  })
 
   if (isLoading) {
     return (
@@ -65,25 +69,25 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
           <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded" />
         </div>
       </div>
-    );
+    )
   }
 
   if (error || !statistics) {
-    return null;
+    return null
   }
 
   // グラフデータの準備
-  const labels = statistics.daily_entries.map((item) => {
-    const date = new Date(item.date);
-    return `${date.getMonth() + 1}/${date.getDate()}`;
-  });
+  const labels = statistics.daily_entries.map(item => {
+    const date = new Date(item.date)
+    return `${date.getMonth() + 1}/${date.getDate()}`
+  })
 
   const data = {
     labels,
     datasets: [
       {
         label: '応募数',
-        data: statistics.daily_entries.map((item) => item.count),
+        data: statistics.daily_entries.map(item => item.count),
         borderColor: 'rgb(147, 51, 234)',
         backgroundColor: 'rgba(147, 51, 234, 0.1)',
         fill: true,
@@ -95,7 +99,7 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
         pointBorderWidth: 2,
       },
     ],
-  };
+  }
 
   const options = {
     responsive: true,
@@ -117,10 +121,10 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
           size: 13,
         },
         callbacks: {
-          label: function(context: any) {
-            return `応募数: ${context.parsed.y}件`;
-          }
-        }
+          label: function (context: any) {
+            return `応募数: ${context.parsed.y}件`
+          },
+        },
       },
     },
     scales: {
@@ -143,7 +147,7 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
         },
       },
     },
-  };
+  }
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -214,6 +218,5 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
         )}
       </div>
     </div>
-  );
+  )
 }
-

@@ -1,8 +1,8 @@
-import { formatDate } from "@/lib/utils";
+import { formatDate } from '@/lib/utils'
 
 interface ContestDatesProps {
-  startAt: string;
-  endAt: string;
+  startAt: string
+  endAt: string
 }
 
 export function ContestDates({ startAt, endAt }: ContestDatesProps) {
@@ -19,6 +19,5 @@ export function ContestDates({ startAt, endAt }: ContestDatesProps) {
         <span className="truncate">{formatDate(endAt)}</span>
       </div>
     </div>
-  );
+  )
 }
-

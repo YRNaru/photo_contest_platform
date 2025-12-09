@@ -31,9 +31,8 @@ const nextConfig = {
         source: '/media/:path*',
         destination: 'http://localhost:18000/media/:path*',
       },
-    ];
+    ]
   },
 }
 
 module.exports = nextConfig
-

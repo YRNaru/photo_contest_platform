@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useState } from "react";
+import Link from 'next/link'
+import { useState } from 'react'
 
 export function SubmitDropdownMenu() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <div className="relative hidden md:block">
@@ -26,10 +26,7 @@ export function SubmitDropdownMenu() {
       {isOpen && (
         <>
           {/* 背景クリックで閉じる */}
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
 
           <div className="absolute top-full left-0 mt-2 w-48 glass dark:bg-gray-950 rounded-xl shadow-2xl border border-white/20 dark:border-gray-700 py-2 z-20 animate-fadeInUp">
             <Link
@@ -50,6 +47,5 @@ export function SubmitDropdownMenu() {
         </>
       )}
     </div>
-  );
+  )
 }
-

@@ -1,26 +1,26 @@
-import { useDropzone } from "react-dropzone";
-import { FaUpload, FaTimes } from "react-icons/fa";
+import { useDropzone } from 'react-dropzone'
+import { FaUpload, FaTimes } from 'react-icons/fa'
 
 interface ImageUploadSectionProps {
-  images: File[];
-  onImagesAdd: (files: File[]) => void;
-  onImageRemove: (index: number) => void;
-  maxImages?: number;
+  images: File[]
+  onImagesAdd: (files: File[]) => void
+  onImageRemove: (index: number) => void
+  maxImages?: number
 }
 
-export function ImageUploadSection({ 
-  images, 
-  onImagesAdd, 
-  onImageRemove, 
-  maxImages = 5 
+export function ImageUploadSection({
+  images,
+  onImagesAdd,
+  onImageRemove,
+  maxImages = 5,
 }: ImageUploadSectionProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/*": [".png", ".jpg", ".jpeg", ".webp"] },
+    accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] },
     maxFiles: maxImages,
-    onDrop: (acceptedFiles) => {
-      onImagesAdd(acceptedFiles);
+    onDrop: acceptedFiles => {
+      onImagesAdd(acceptedFiles)
     },
-  });
+  })
 
   return (
     <div>
@@ -31,28 +31,29 @@ export function ImageUploadSection({
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
-          isDragActive 
-            ? "border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30 scale-105" 
-            : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:border-purple-400 dark:hover:border-purple-600"
+          isDragActive
+            ? 'border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30 scale-105'
+            : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:border-purple-400 dark:hover:border-purple-600'
         }`}
       >
         <input {...getInputProps()} />
         <FaUpload className="mx-auto text-6xl text-purple-500 dark:text-purple-400 mb-6 animate-float" />
         <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">
           {isDragActive
-            ? "✨ ここにドロップしてください"
-            : "クリックまたはドラッグ＆ドロップで画像をアップロード"}
+            ? '✨ ここにドロップしてください'
+            : 'クリックまたはドラッグ＆ドロップで画像をアップロード'}
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-          PNG, JPG, JPEG, WEBP対応
-        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">PNG, JPG, JPEG, WEBP対応</p>
       </div>
 
       {/* プレビュー */}
       {images.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6">
           {images.map((file, index) => (
-            <div key={index} className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu">
+            <div
+              key={index}
+              className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu"
+            >
               <img
                 src={URL.createObjectURL(file)}
                 alt={`Preview ${index + 1}`}
@@ -75,6 +76,5 @@ export function ImageUploadSection({
         </div>
       )}
     </div>
-  );
+  )
 }
-

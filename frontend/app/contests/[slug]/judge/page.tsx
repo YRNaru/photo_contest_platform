@@ -1,71 +1,71 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { contestApi, entryApi, categoryApi } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
-import { VotingPanel } from '@/components/judging/VotingPanel';
-import { ScoringPanel } from '@/components/judging/ScoringPanel';
-import { CategoryManager } from '@/components/judging/CategoryManager';
-import { JudgingCriteriaManager } from '@/components/judging/JudgingCriteriaManager';
-import { Category } from '@/types/judging';
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { contestApi, entryApi, categoryApi } from '@/lib/api'
+import { useAuth } from '@/lib/auth'
+import { VotingPanel } from '@/components/judging/VotingPanel'
+import { ScoringPanel } from '@/components/judging/ScoringPanel'
+import { CategoryManager } from '@/components/judging/CategoryManager'
+import { JudgingCriteriaManager } from '@/components/judging/JudgingCriteriaManager'
+import { Category } from '@/types/judging'
 
 export default function JudgingPage() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
-  const { user, loading: authLoading } = useAuth();
-  
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'judge' | 'manage'>('judge');
-  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const params = useParams()
+  const router = useRouter()
+  const slug = params.slug as string
+  const { user, isLoading: authLoading } = useAuth()
+
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const [activeTab, setActiveTab] = useState<'judge' | 'manage'>('judge')
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null)
 
   // コンテスト情報を取得
   const { data: contest, isLoading: contestLoading } = useQuery({
     queryKey: ['contest', slug],
     queryFn: async () => {
-      const response = await contestApi.getContest(slug);
-      return response.data;
+      const response = await contestApi.getContest(slug)
+      return response.data
     },
-  });
+  })
 
   // エントリー一覧を取得
   const { data: entriesData, refetch: refetchEntries } = useQuery({
     queryKey: ['contest-entries', slug],
     queryFn: async () => {
-      const response = await contestApi.getContestEntries(slug);
-      return response.data;
+      const response = await contestApi.getContestEntries(slug)
+      return response.data
     },
     enabled: !!contest,
-  });
+  })
 
   // 部門一覧を取得
   const { data: categories } = useQuery({
     queryKey: ['categories', contest?.slug],
     queryFn: async () => {
-      if (!contest) return [];
-      const response = await categoryApi.getCategories(parseInt(contest.slug));
-      return response.data as Category[];
+      if (!contest) return []
+      const response = await categoryApi.getCategories(parseInt(contest.slug))
+      return response.data as Category[]
     },
     enabled: !!contest,
-  });
+  })
 
   // 審査員チェック
   useEffect(() => {
     if (!authLoading && !contestLoading && contest) {
       if (!contest.is_judge && !contest.is_owner) {
-        router.push(`/contests/${slug}`);
+        router.push(`/contests/${slug}`)
       }
     }
-  }, [authLoading, contestLoading, contest, router, slug]);
+  }, [authLoading, contestLoading, contest, router, slug])
 
   if (authLoading || contestLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">読み込み中...</div>
       </div>
-    );
+    )
   }
 
   if (!contest) {
@@ -73,11 +73,11 @@ export default function JudgingPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-500">コンテストが見つかりません</div>
       </div>
-    );
+    )
   }
 
-  const entries = entriesData?.results || entriesData || [];
-  const judgingType = contest.judging_type || 'vote';
+  const entries = entriesData?.results || entriesData || []
+  const judgingType = contest.judging_type || 'vote'
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -85,12 +85,8 @@ export default function JudgingPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              審査画面
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {contest.title}
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">審査画面</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">{contest.title}</p>
           </div>
           <button
             onClick={() => router.push(`/contests/${slug}`)}
@@ -152,11 +148,13 @@ export default function JudgingPage() {
               </label>
               <select
                 value={selectedCategory || ''}
-                onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
+                onChange={e =>
+                  setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)
+                }
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="">全体</option>
-                {categories.map((cat) => (
+                {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
                   </option>
@@ -228,8 +226,8 @@ export default function JudgingPage() {
                     categoryId={selectedCategory}
                     isJudge={contest.is_judge || false}
                     onScoreSubmit={() => {
-                      setSelectedEntryId(null);
-                      refetchEntries();
+                      setSelectedEntryId(null)
+                      refetchEntries()
                     }}
                   />
                 </div>
@@ -258,6 +256,5 @@ export default function JudgingPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
-

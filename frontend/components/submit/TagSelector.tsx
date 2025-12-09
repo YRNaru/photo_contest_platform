@@ -1,77 +1,56 @@
-"use client";
+'use client'
 
-import { useState } from "react";
+import { useState } from 'react'
 
 interface TagSelectorProps {
-  selectedTags: string[];
-  onTagsChange: (tags: string[]) => void;
+  selectedTags: string[]
+  onTagsChange: (tags: string[]) => void
 }
 
 // ジャンル別のタグ定義
 const TAG_CATEGORIES = {
-  "撮影スタイル": [
-    "ポートレート",
-    "風景",
-    "スナップ",
-    "ツーショット",
-    "グループ",
-    "セルフィー",
+  撮影スタイル: ['ポートレート', '風景', 'スナップ', 'ツーショット', 'グループ', 'セルフィー'],
+  雰囲気: ['かわいい', 'かっこいい', 'おもしろい', '幻想的', 'リアル', 'アート'],
+  使用アバター: [
+    'しなの',
+    'まめひなた',
+    '桔梗',
+    '萌',
+    'セレスティア',
+    'リーファ',
+    'ライム',
+    'オリジナル',
   ],
-  "雰囲気": [
-    "かわいい",
-    "かっこいい",
-    "おもしろい",
-    "幻想的",
-    "リアル",
-    "アート",
-  ],
-  "使用アバター": [
-    "しなの",
-    "まめひなた",
-    "桔梗",
-    "萌",
-    "セレスティア",
-    "リーファ",
-    "ライム",
-    "オリジナル",
-  ],
-  "テーマ": [
-    "ファッション",
-    "VRChat",
-    "ワールド",
-    "イベント",
-    "季節",
-    "日常",
-  ],
-};
+  テーマ: ['ファッション', 'VRChat', 'ワールド', 'イベント', '季節', '日常'],
+}
 
 export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
-  const [customTag, setCustomTag] = useState("");
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [customTag, setCustomTag] = useState('')
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
 
   const handleToggleTag = (tag: string) => {
     if (selectedTags.includes(tag)) {
-      onTagsChange(selectedTags.filter((t) => t !== tag));
+      onTagsChange(selectedTags.filter(t => t !== tag))
     } else {
-      onTagsChange([...selectedTags, tag]);
+      onTagsChange([...selectedTags, tag])
     }
-  };
+  }
 
   const handleAddCustomTag = () => {
-    const trimmedTag = customTag.trim();
+    const trimmedTag = customTag.trim()
     if (trimmedTag && !selectedTags.includes(trimmedTag)) {
-      onTagsChange([...selectedTags, trimmedTag]);
-      setCustomTag("");
+      onTagsChange([...selectedTags, trimmedTag])
+      setCustomTag('')
     }
-  };
+  }
 
   const handleRemoveTag = (tag: string) => {
-    onTagsChange(selectedTags.filter((t) => t !== tag));
-  };
+    onTagsChange(selectedTags.filter(t => t !== tag))
+  }
 
   const toggleCategory = (category: string) => {
-    setExpandedCategory(expandedCategory === category ? null : category);
-  };
+    setExpandedCategory(expandedCategory === category ? null : category)
+  }
 
   return (
     <div className="space-y-4">
@@ -81,7 +60,10 @@ export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
           ジャンルからタグを選択
         </h3>
         {Object.entries(TAG_CATEGORIES).map(([category, tags]) => (
-          <div key={category} className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div
+            key={category}
+            className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden"
+          >
             <button
               type="button"
               onClick={() => toggleCategory(category)}
@@ -90,7 +72,7 @@ export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
               <span className="font-semibold text-gray-900 dark:text-gray-100">{category}</span>
               <svg
                 className={`w-5 h-5 transition-transform ${
-                  expandedCategory === category ? "rotate-180" : ""
+                  expandedCategory === category ? 'rotate-180' : ''
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -108,8 +90,8 @@ export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
             {expandedCategory === category && (
               <div className="p-3 bg-white dark:bg-gray-900">
                 <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => {
-                    const isSelected = selectedTags.includes(tag);
+                  {tags.map(tag => {
+                    const isSelected = selectedTags.includes(tag)
                     return (
                       <button
                         key={tag}
@@ -117,13 +99,13 @@ export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
                         onClick={() => handleToggleTag(tag)}
                         className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                           isSelected
-                            ? "bg-purple-600 text-white shadow-md"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+                            ? 'bg-purple-600 text-white shadow-md'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30'
                         }`}
                       >
                         {tag}
                       </button>
-                    );
+                    )
                   })}
                 </div>
               </div>
@@ -141,11 +123,11 @@ export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
           <input
             type="text"
             value={customTag}
-            onChange={(e) => setCustomTag(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddCustomTag();
+            onChange={e => setCustomTag(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleAddCustomTag()
               }
             }}
             placeholder="カスタムタグを入力..."
@@ -169,7 +151,7 @@ export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
             選択されたタグ ({selectedTags.length})
           </h3>
           <div className="flex flex-wrap gap-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-            {selectedTags.map((tag) => (
+            {selectedTags.map(tag => (
               <span
                 key={tag}
                 className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-purple-300 dark:border-purple-700 rounded-full text-sm font-medium text-gray-900 dark:text-gray-100"
@@ -188,5 +170,5 @@ export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
         </div>
       )}
     </div>
-  );
+  )
 }

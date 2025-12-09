@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { JudgingCriteria } from '@/types/judging';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { JudgingCriteria } from '@/types/judging'
 
 interface JudgingCriteriaItemProps {
-  criterion: JudgingCriteria;
-  isOwner: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
+  criterion: JudgingCriteria
+  isOwner: boolean
+  onEdit: () => void
+  onDelete: () => void
 }
 
 export function JudgingCriteriaItem({
@@ -29,9 +29,7 @@ export function JudgingCriteriaItem({
             </span>
           </div>
           {criterion.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {criterion.description}
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{criterion.description}</p>
           )}
           <div className="flex gap-4 mt-2 text-sm text-gray-500">
             <span>表示順: {criterion.order}</span>
@@ -61,6 +59,5 @@ export function JudgingCriteriaItem({
         )}
       </div>
     </div>
-  );
+  )
 }
-

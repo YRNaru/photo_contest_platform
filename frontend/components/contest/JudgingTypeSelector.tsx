@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { JudgingType } from '@/types/judging';
+import { JudgingType } from '@/types/judging'
 
 interface JudgingTypeSelectorProps {
-  judgingType: JudgingType;
-  onJudgingTypeChange: (type: JudgingType) => void;
-  maxVotesPerJudge: number;
-  onMaxVotesChange: (value: number) => void;
+  judgingType: JudgingType
+  onJudgingTypeChange: (type: JudgingType) => void
+  maxVotesPerJudge: number
+  onMaxVotesChange: (value: number) => void
 }
 
 export function JudgingTypeSelector({
@@ -33,19 +33,17 @@ export function JudgingTypeSelector({
             }`}
           >
             <div className="flex items-start">
-              <div className={`mt-1 mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                judgingType === 'vote'
-                  ? 'border-purple-600'
-                  : 'border-gray-400'
-              }`}>
+              <div
+                className={`mt-1 mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  judgingType === 'vote' ? 'border-purple-600' : 'border-gray-400'
+                }`}
+              >
                 {judgingType === 'vote' && (
                   <div className="w-3 h-3 rounded-full bg-purple-600"></div>
                 )}
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                  投票方式
-                </h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">投票方式</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   審査員が気に入った作品に投票します。シンプルで分かりやすい方式です。
                 </p>
@@ -69,19 +67,17 @@ export function JudgingTypeSelector({
             }`}
           >
             <div className="flex items-start">
-              <div className={`mt-1 mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                judgingType === 'score'
-                  ? 'border-purple-600'
-                  : 'border-gray-400'
-              }`}>
+              <div
+                className={`mt-1 mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  judgingType === 'score' ? 'border-purple-600' : 'border-gray-400'
+                }`}
+              >
                 {judgingType === 'score' && (
                   <div className="w-3 h-3 rounded-full bg-purple-600"></div>
                 )}
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                  点数方式
-                </h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">点数方式</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   審査基準に基づいて各項目に点数をつけます。詳細な評価が可能です。
                 </p>
@@ -106,7 +102,7 @@ export function JudgingTypeSelector({
             type="number"
             min="1"
             value={maxVotesPerJudge}
-            onChange={(e) => onMaxVotesChange(parseInt(e.target.value) || 1)}
+            onChange={e => onMaxVotesChange(parseInt(e.target.value) || 1)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -119,7 +115,8 @@ export function JudgingTypeSelector({
       {judgingType === 'score' && (
         <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            <strong>次のステップ：</strong> コンテスト作成後、部門管理画面で審査基準（評価項目）を設定してください。
+            <strong>次のステップ：</strong>{' '}
+            コンテスト作成後、部門管理画面で審査基準（評価項目）を設定してください。
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
             例：構図（10点）、色彩（10点）、独創性（10点）など
@@ -127,6 +124,5 @@ export function JudgingTypeSelector({
         </div>
       )}
     </div>
-  );
+  )
 }
-

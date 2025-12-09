@@ -1,6 +1,6 @@
 /**
  * ユーティリティ関数のテスト
- * 
+ *
  * このファイルは汎用ユーティリティ関数のテストを含みます。
  * 現在はプレースホルダーとして基本的なテストを含んでいます。
  */
@@ -10,7 +10,7 @@ describe('Utility Functions', () => {
     it('should format ISO date string', () => {
       const isoDate = '2024-01-01T00:00:00Z'
       const date = new Date(isoDate)
-      
+
       expect(date.getFullYear()).toBe(2024)
       expect(date.getMonth()).toBe(0) // January is 0
       expect(date.getDate()).toBe(1)
@@ -85,4 +85,3 @@ describe('Utility Functions', () => {
     })
   })
 })
-

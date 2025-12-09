@@ -1,15 +1,23 @@
-import { User, SocialAccount } from '@/lib/types';
+import { User, SocialAccount } from '@/lib/types'
 
 interface ProfileActionsProps {
-  user: User;
-  twitterAccount?: SocialAccount;
-  googleAccount?: SocialAccount;
-  onLogout: () => void;
+  user: User
+  twitterAccount?: SocialAccount
+  googleAccount?: SocialAccount
+  onLogout: () => void
 }
 
-export function ProfileActions({ user, twitterAccount, googleAccount, onLogout }: ProfileActionsProps) {
+export function ProfileActions({
+  user,
+  twitterAccount,
+  googleAccount,
+  onLogout,
+}: ProfileActionsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fadeInUp" style={{ animationDelay: '250ms' }}>
+    <div
+      className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fadeInUp"
+      style={{ animationDelay: '250ms' }}
+    >
       {user.is_staff && (
         <a
           href="http://localhost:18000/admin/"
@@ -50,6 +58,5 @@ export function ProfileActions({ user, twitterAccount, googleAccount, onLogout }
         ログアウト
       </button>
     </div>
-  );
+  )
 }
-

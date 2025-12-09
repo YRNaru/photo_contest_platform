@@ -3,18 +3,24 @@ import { EntryCard } from '../EntryCard'
 
 // Mock Next.js Link
 jest.mock('next/link', () => {
-  return ({ children, href }: { children: React.ReactNode; href: string }) => {
+  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
     return <a href={href}>{children}</a>
   }
+  MockLink.displayName = 'MockLink'
+  return MockLink
 })
 
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
+jest.mock('next/image', () => {
+  const MockImage = (props: any) => {
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     return <img {...props} />
-  },
-}))
+  }
+  MockImage.displayName = 'MockImage'
+  return {
+    __esModule: true,
+    default: MockImage,
+  }
+})
 
 describe('EntryCard', () => {
   const mockEntry = {
@@ -28,7 +34,7 @@ describe('EntryCard', () => {
       avatar_url: null,
       is_judge: false,
       is_moderator: false,
-      created_at: '2024-01-01T00:00:00Z'
+      created_at: '2024-01-01T00:00:00Z',
     },
     contest: 'test-contest',
     tags: 'test,photo',
@@ -52,4 +58,3 @@ describe('EntryCard', () => {
     expect(link).toHaveAttribute('href', '/entries/123')
   })
 })
-
