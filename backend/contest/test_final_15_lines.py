@@ -256,7 +256,7 @@ class TwitterIntegrationFinalLinesTest(TestCase):
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client
 
-        result = fetch_all_active_contests()
+        fetch_all_active_contests()
 
         # 最終取得日時が更新される（行246-248）
         contest.refresh_from_db()

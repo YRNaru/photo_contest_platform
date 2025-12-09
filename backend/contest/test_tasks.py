@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch
 from .models import Contest, Entry, EntryImage
 from .tasks import (
     process_entry_images,

@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APIRequestFactory
 from django.utils import timezone
 from datetime import timedelta
-from .models import Contest, Entry, EntryImage, Vote
+from .models import Contest, Entry, EntryImage
 from .serializers import (
     ContestCreateSerializer,
     EntryCreateSerializer,
@@ -392,10 +392,10 @@ class EntrySerializerTest(TestCase):
 
         # サムネイルなし画像を作成
         # image = Entry  # unusedImage.objects.create(
-            entry=entry,
-            image=create_test_image('image.png'),
-            order=0
-        )
+        #     entry=entry,
+        #     image=create_test_image('image.png'),
+        #     order=0
+        # )
 
         request = self.factory.get('/api/entries/')
         request.user = self.user
@@ -486,7 +486,6 @@ class EntrySerializerTest(TestCase):
         """開発モード（DEBUG=True）でのバリデーション警告"""
         from django.conf import settings
         from unittest.mock import patch
-        import logging
 
         # 終了したコンテスト
         closed_contest = Contest.objects.create(

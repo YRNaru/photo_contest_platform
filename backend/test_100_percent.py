@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from contest.models import Contest, Entry, EntryImage
 from contest.serializers import ContestCreateSerializer
 from accounts.adapter import CustomSocialAccountAdapter
@@ -48,7 +48,7 @@ class Line543And946TestsTest(TestCase):
         """行543: contests = response.data (elseブランチ)"""
         from django.test import Client
 
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='user1',
             email='user1@example.com',
             password='pass123'
@@ -75,7 +75,7 @@ class Line543And946TestsTest(TestCase):
         """行946: entries = response.data (elseブランチ)"""
         from django.test import Client
 
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='moderator',
             email='mod@example.com',
             password='pass123',
@@ -118,7 +118,7 @@ class Line132And133TestAdminTest(TestCase):
         site = AdminSite()
         admin = EntryAdmin(Entry, site)
 
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='user',
             email='user@example.com',
             password='pass123'
@@ -162,7 +162,7 @@ class Line88And89TasksTest(TestCase):
         from PIL import Image as PILImage
         from django.core.files.uploadedfile import SimpleUploadedFile
 
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='user',
             email='user@example.com'
         )

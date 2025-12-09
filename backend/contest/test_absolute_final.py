@@ -122,7 +122,7 @@ class AbsoluteFinalTwitterTest(TestCase):
         mock_client_class.return_value = mock_client
 
         # fetch_all_active_contestsを実行
-        result = fetch_all_active_contests()
+        fetch_all_active_contests()
 
         # 両方のコンテストのtwitter_last_fetchが更新される（行246-248）
         contest1.refresh_from_db()

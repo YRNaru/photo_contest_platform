@@ -3,7 +3,7 @@ from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from .models import Contest  # Entry, EntryImage unused
 from .twitter_integration import TwitterFetcher, fetch_all_active_contests
 # from io import BytesIO  # noqa: F401
@@ -44,7 +44,6 @@ class TwitterFetcherCompleteTest(TestCase):
 
         # since_timeが渡されたことを確認
         call_kwargs = mock_client.search_recent_tweets.call_args[1]
-        result = fetch_all_active_contests()
         self.assertIn('start_time', call_kwargs)
 
     @override_settings(TWITTER_BEARER_TOKEN='test_token')
@@ -58,9 +57,8 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_client_class.return_value = mock_client
 
         fetcher = TwitterFetcher()
-        fetcher.fetch_tweets_by_hashtag('test')
+        result = fetcher.fetch_tweets_by_hashtag('test')
 
-        result = fetch_all_active_contests()
         self.assertEqual(result, [])
 
     @override_settings(TWITTER_BEARER_TOKEN='test_token')
@@ -103,7 +101,7 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_client_class.return_value = mock_client
 
         fetcher = TwitterFetcher()
-        fetcher.fetch_tweets_by_hashtag('test')
+        result = fetcher.fetch_tweets_by_hashtag('test')
 
         # メディアURLが含まれることを確認
         self.assertEqual(len(result), 1)
@@ -165,7 +163,7 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_client_class.return_value = mock_client
 
         fetcher = TwitterFetcher()
-        fetcher.fetch_tweets_by_hashtag('test')
+        result = fetcher.fetch_tweets_by_hashtag('test')
 
         # 例外がキャッチされ、空リストが返る
         self.assertEqual(result, [])
@@ -187,7 +185,7 @@ class TwitterFetcherCompleteTest(TestCase):
         mock_fetcher.fetch_and_create_entries.return_value = 10
         mock_fetcher_class.return_value = mock_fetcher
 
-        fetch_all_active_contests()
+        result = fetch_all_active_contests()
 
         # 結果が辞書であることを確認
         self.assertIsInstance(result, dict)

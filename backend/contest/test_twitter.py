@@ -3,7 +3,7 @@ from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from .models import Contest  # Entry unused
 from .twitter_integration import TwitterFetcher, fetch_all_active_contests
 
@@ -82,7 +82,7 @@ class TwitterFetchTweetsTest(TestCase):
         mock_client_class.return_value = mock_client
 
         fetcher = TwitterFetcher()
-        fetcher.fetch_tweets_by_hashtag('test')
+        result = fetcher.fetch_tweets_by_hashtag('test')
 
         self.assertEqual(result, [])
 
@@ -117,7 +117,7 @@ class FetchAllActiveContestsTest(TestCase):
         # すべてのコンテストを無効化
         Contest.objects.all().update(twitter_auto_fetch=False)
 
-        fetch_all_active_contests()
+        result = fetch_all_active_contests()
 
         # 空の結果が返る
         self.assertIsInstance(result, dict)

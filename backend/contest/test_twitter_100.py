@@ -6,6 +6,7 @@ from datetime import timedelta
 from unittest.mock import Mock, patch
 from .models import Contest, Entry
 from .twitter_integration import TwitterFetcher
+from allauth.socialaccount.models import SocialAccount
 
 User = get_user_model()
 
@@ -186,13 +187,13 @@ class TwitterIntegration100Test(TestCase):
         mock_tweet1 = Mock(id='111', text='Tweet1 #test', author_id='1', created_at=timezone.now())
         mock_tweet2 = Mock(id='222', text='Tweet2 #test', author_id='2', created_at=timezone.now())
         mock_response.data = [mock_tweet1, mock_tweet2]
-            profile_url = 'https://pbs.twimg.com/profile_images/123_normal.jpg'
-            SocialAccount.objects.create(
-                user=self.user,
-                provider='twitter_oauth2',
-                uid='123456789',
-                extra_data={'profile_image_url': profile_url}
-            )
+        profile_url = 'https://pbs.twimg.com/profile_images/123_normal.jpg'
+        SocialAccount.objects.create(
+            user=self.user,
+            provider='twitter_oauth2',
+            uid='123456789',
+            extra_data={'profile_image_url': profile_url}
+        )
 
         mock_client.search_recent_tweets.return_value = mock_response
         mock_client_class.return_value = mock_client

@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 from unittest.mock import Mock, patch
 from .models import Contest, Entry, Flag
-from .admin import ContestAdmin, EntryAdmin, FlagAdmin
+from .admin import ContestAdmin, FlagAdmin
 
 User = get_user_model()
 

@@ -74,7 +74,7 @@ def generate_thumbnail(entry_image_id):
 def moderate_image(entry_image_id):
     """画像モデレーション（外部API連携）"""
     try:
-        img_obj = EntryImage.objects.get(pk=entry_image_id)
+        EntryImage.objects.get(pk=entry_image_id)  # noqa: F841
 
         # TODO: 外部モデレーションAPI（Google Vision, AWS Rekognition等）
         # を呼び出す

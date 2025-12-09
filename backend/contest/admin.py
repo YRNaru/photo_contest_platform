@@ -65,7 +65,7 @@ class ContestAdmin(admin.ModelAdmin):
                 count = fetcher.fetch_and_create_entries(contest)
                 total += count
         self.message_user(request, f'{total}件のエントリーを取得しました')
-    fetch_twitter_now.short_description = '選択したコンテストのTwitter投稿を取得'
+    fetch_twitter_now.short_description = '選択したコンテストのTwitter投稿を取得'  # type: ignore
 
 
 @admin.register(Entry)
@@ -101,15 +101,15 @@ class EntryAdmin(admin.ModelAdmin):
             return f"@{obj.twitter_username} (Twitter)"
         else:
             return "(投稿者不明)"
-    get_author_display.short_description = '投稿者'
+    get_author_display.short_description = '投稿者'  # type: ignore
 
     def approve_entries(self, request, queryset):
         queryset.update(approved=True, flagged=False)
-    approve_entries.short_description = '選択したエントリーを承認'
+    approve_entries.short_description = '選択したエントリーを承認'  # type: ignore
 
     def reject_entries(self, request, queryset):
         queryset.update(approved=False)
-    reject_entries.short_description = '選択したエントリーを非承認'
+    reject_entries.short_description = '選択したエントリーを非承認'  # type: ignore
 
 
 @admin.register(EntryImage)
@@ -146,7 +146,7 @@ class FlagAdmin(admin.ModelAdmin):
 
     def mark_resolved(self, request, queryset):
         queryset.update(resolved=True)
-    mark_resolved.short_description = '選択した通報を解決済みにする'
+    mark_resolved.short_description = '選択した通報を解決済みにする'  # type: ignore
 
 
 @admin.register(Category)

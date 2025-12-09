@@ -30,7 +30,7 @@ class ContestModelTest(TestCase):
             email='test@example.com',
             password='testpass123'
         )
-        self.contest = private_contest = Contest.objects.create(
+        self.contest = Contest.objects.create(
             slug='test-contest',
             title='Test Contest',
             description='Test Description',
@@ -110,7 +110,7 @@ class EntryModelTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        self.entry = entry = Entry.objects.create(
+        self.entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -631,7 +631,7 @@ class ContestAPITest(APITestCase):
 
     def test_get_private_contest_as_creator(self):
         """非公開コンテストを作成者として取得"""
-        Contest.objects.create(
+        private_contest = Contest.objects.create(
             slug='private-contest',
             title='Private Contest',
             creator=self.user,
@@ -670,7 +670,7 @@ class EntryAPITest(APITestCase):
 
     def test_get_entry_detail(self):
         """エントリー詳細を取得して閲覧数が増加"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -687,7 +687,7 @@ class EntryAPITest(APITestCase):
 
     def test_vote_api_authenticated(self):
         """認証済みユーザーが投票"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -712,7 +712,7 @@ class EntryAPITest(APITestCase):
             start_at=timezone.now() - timedelta(days=60),
             end_at=timezone.now() - timedelta(days=30),
         )
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=closed_contest,
             author=self.user,
             title='Test Entry',
@@ -731,7 +731,7 @@ class EntryAPITest(APITestCase):
 
     def test_duplicate_vote_api(self):
         """重複投票のAPIテスト"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -754,7 +754,7 @@ class EntryAPITest(APITestCase):
 
     def test_unvote_api(self):
         """投票取消のAPIテスト"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -777,7 +777,7 @@ class EntryAPITest(APITestCase):
 
     def test_unvote_not_voted(self):
         """投票していないエントリーの投票取消"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -797,7 +797,7 @@ class EntryAPITest(APITestCase):
 
     def test_flag_entry(self):
         """エントリーの通報"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -817,7 +817,7 @@ class EntryAPITest(APITestCase):
 
     def test_flag_entry_without_reason(self):
         """理由なしでエントリーを通報"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -837,7 +837,7 @@ class EntryAPITest(APITestCase):
 
     def test_judge_score_invalid_score(self):
         """無効なスコアの審査"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -859,7 +859,7 @@ class EntryAPITest(APITestCase):
 
     def test_judge_score_update_existing(self):
         """既存のスコアを更新"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -891,7 +891,7 @@ class EntryAPITest(APITestCase):
 
     def test_moderator_reject_entry(self):
         """モデレーターがエントリーを非承認"""
-        Entry.objects.create(
+        entry = Entry.objects.create(
             contest=self.contest,
             author=self.user,
             title='Test Entry',
@@ -950,7 +950,7 @@ class EntryAPITest(APITestCase):
         self.assertGreaterEqual(len(entries), 1)
         if isinstance(entries, list):
             for entry_data in entries:
-                Entry.objects.get(id=entry_data['id'])
+                entry = Entry.objects.get(id=entry_data['id'])
                 self.assertFalse(entry.approved)
 
     def test_moderator_view_unapproved_entries(self):

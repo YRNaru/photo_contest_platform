@@ -153,6 +153,6 @@ class Complete100PercentTest(TestCase):
 
         # 例外がキャッチされ、0が設定される（行247-248）
         self.assertIsInstance(result, dict)
-        for slug, count in result.items():
+        for _, count in result.items():
             # エラーの場合は0になる
             self.assertIsInstance(count, int)
