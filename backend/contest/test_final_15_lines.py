@@ -4,18 +4,20 @@
 このテストで完全な100%カバレッジを達成します！
 """
 
-from django.test import TestCase, override_settings, Client
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
+from io import BytesIO
 from unittest.mock import Mock, patch
+
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase, override_settings
+from django.utils import timezone
+from PIL import Image as PILImage
+
 from .models import Contest, Entry, EntryImage
 from .serializers import ContestCreateSerializer
-from .twitter_integration import TwitterFetcher, fetch_all_active_contests
 from .tasks import moderate_image
-from io import BytesIO
-from PIL import Image as PILImage
-from django.core.files.uploadedfile import SimpleUploadedFile
+from .twitter_integration import TwitterFetcher, fetch_all_active_contests
 
 User = get_user_model()
 
@@ -123,8 +125,9 @@ class TestAdminLine132And133FinalTest(TestCase):
 
     def test_vote_count_method_branch(self):
         """行132-133: vote_countメソッドの分岐"""
-        from contest.admin import EntryAdmin
         from django.contrib.admin.sites import AdminSite
+
+        from contest.admin import EntryAdmin
         from contest.models import Vote
 
         admin = EntryAdmin(Entry, AdminSite())

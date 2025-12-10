@@ -3,11 +3,10 @@
 既存のメールアドレスがある場合、自動的にアカウントを接続する
 """
 
-from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.exceptions import ImmediateHttpResponse
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth import get_user_model, login
 from django.http import HttpResponseRedirect
-
 
 User = get_user_model()
 

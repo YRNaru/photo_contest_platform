@@ -4,16 +4,17 @@
 このファイルは残りのすべての未カバー行を確実にカバーします。
 """
 
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
 from unittest.mock import Mock, patch
+
+from allauth.exceptions import ImmediateHttpResponse
+from django.contrib.auth import get_user_model
+from django.test import RequestFactory, TestCase
+from django.utils import timezone
+
+from accounts.adapter import CustomSocialAccountAdapter
 from contest.models import Contest, Entry, EntryImage
 from contest.serializers import ContestCreateSerializer
-from accounts.adapter import CustomSocialAccountAdapter
-from allauth.exceptions import ImmediateHttpResponse
-from django.test import RequestFactory
 
 User = get_user_model()
 
@@ -103,8 +104,9 @@ class Line132And133TestAdminTest(TestCase):
 
     def test_line_132_133_vote_count_exists(self):
         """行132-133: vote_countメソッドが存在する場合"""
-        from contest.admin import EntryAdmin
         from django.contrib.admin.sites import AdminSite
+
+        from contest.admin import EntryAdmin
         from contest.models import Vote
 
         site = AdminSite()
@@ -136,10 +138,12 @@ class Line88And89TasksTest(TestCase):
 
     def test_line_88_89_moderate_image_exception(self):
         """行88-89: moderate_imageのExceptionハンドリング"""
-        from contest.tasks import moderate_image
         from io import BytesIO
-        from PIL import Image as PILImage
+
         from django.core.files.uploadedfile import SimpleUploadedFile
+        from PIL import Image as PILImage
+
+        from contest.tasks import moderate_image
 
         user = User.objects.create_user(username="user", email="user@example.com")
 

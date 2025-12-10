@@ -1,19 +1,21 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from rest_framework.test import APIRequestFactory
-from django.utils import timezone
+import hashlib
 from datetime import timedelta
+from io import BytesIO
+
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.utils import timezone
+from PIL import Image
+from rest_framework.test import APIRequestFactory
+
 from .models import Contest, Entry, EntryImage
 from .serializers import (
     ContestCreateSerializer,
-    EntryCreateSerializer,
-    ContestListSerializer,
     ContestDetailSerializer,
+    ContestListSerializer,
+    EntryCreateSerializer,
 )
-from io import BytesIO
-from PIL import Image
-from django.core.files.uploadedfile import SimpleUploadedFile
-import hashlib
 
 User = get_user_model()
 
@@ -356,8 +358,8 @@ class EntrySerializerTest(TestCase):
 
     def test_entry_detail_serializer_user_voted(self):
         """ユーザーの投票状態を確認"""
-        from .serializers import EntryDetailSerializer
         from .models import Vote
+        from .serializers import EntryDetailSerializer
 
         entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
@@ -398,8 +400,9 @@ class EntrySerializerTest(TestCase):
 
     def test_entry_production_mode_validation(self):
         """本番モード（DEBUG=False）でのバリデーション"""
-        from django.conf import settings
         from unittest.mock import patch
+
+        from django.conf import settings
 
         # 終了したコンテスト
         closed_contest = Contest.objects.create(
@@ -425,8 +428,9 @@ class EntrySerializerTest(TestCase):
 
     def test_entry_dev_mode_validation_warning(self):
         """開発モード（DEBUG=True）でのバリデーション警告"""
-        from django.conf import settings
         from unittest.mock import patch
+
+        from django.conf import settings
 
         # 終了したコンテスト
         closed_contest = Contest.objects.create(

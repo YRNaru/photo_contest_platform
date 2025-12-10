@@ -1,5 +1,6 @@
-from rest_framework import serializers
 from allauth.socialaccount.models import SocialAccount
+from rest_framework import serializers
+
 from .models import User
 
 

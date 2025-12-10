@@ -1,6 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, twitter_login, profile, get_session_token
+
+from .views import UserViewSet, get_session_token, profile, twitter_login
 
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")

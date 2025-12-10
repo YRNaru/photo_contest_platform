@@ -1,15 +1,16 @@
-from rest_framework import viewsets, permissions, status
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import (
     action,
     api_view,
-    permission_classes as perm_classes,
 )
+from rest_framework.decorators import permission_classes as perm_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
+
 from .models import User
-from .serializers import UserSerializer, UserDetailSerializer
+from .serializers import UserDetailSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -50,10 +51,11 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def set_twitter_icon(self, request):
         """Twitterのプロフィール画像をアバターに設定"""
-        from allauth.socialaccount.models import SocialAccount
-        import requests
-        from django.core.files.base import ContentFile
         import os
+
+        import requests
+        from allauth.socialaccount.models import SocialAccount
+        from django.core.files.base import ContentFile
 
         user = request.user
 

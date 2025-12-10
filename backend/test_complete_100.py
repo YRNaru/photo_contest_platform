@@ -4,20 +4,22 @@
 このテストで残り12行を完全にカバーし、100%を達成します。
 """
 
-from django.test import TestCase, Client, override_settings
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
+from io import BytesIO
 from unittest.mock import Mock, patch
+
+from django.contrib.admin.sites import AdminSite
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase, override_settings
+from django.utils import timezone
+from PIL import Image as PILImage
+
+from contest.admin import EntryAdmin
 from contest.models import Contest, Entry, EntryImage, Vote
 from contest.serializers import ContestCreateSerializer
-from contest.twitter_integration import fetch_all_active_contests
 from contest.tasks import moderate_image
-from contest.admin import EntryAdmin
-from django.contrib.admin.sites import AdminSite
-from io import BytesIO
-from PIL import Image as PILImage
-from django.core.files.uploadedfile import SimpleUploadedFile
+from contest.twitter_integration import fetch_all_active_contests
 
 User = get_user_model()
 

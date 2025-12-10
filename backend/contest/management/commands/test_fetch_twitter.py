@@ -1,12 +1,14 @@
 """fetch_twitter管理コマンドのテスト"""
 
-from django.test import TestCase
-from django.core.management import call_command
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
-from unittest.mock import patch, Mock
 from io import StringIO
+from unittest.mock import Mock, patch
+
+from django.contrib.auth import get_user_model
+from django.core.management import call_command
+from django.test import TestCase
+from django.utils import timezone
+
 from contest.models import Contest
 
 User = get_user_model()

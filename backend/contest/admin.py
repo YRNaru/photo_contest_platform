@@ -1,14 +1,15 @@
 from django.contrib import admin
+
 from .models import (
+    Category,
     Contest,
+    DetailedScore,
     Entry,
     EntryImage,
-    Vote,
-    JudgeScore,
     Flag,
-    Category,
+    JudgeScore,
     JudgingCriteria,
-    DetailedScore,
+    Vote,
 )
 
 

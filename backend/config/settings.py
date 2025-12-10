@@ -3,8 +3,9 @@ Django settings for photo_contest_platform project.
 """
 
 import os
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
+
 import dj_database_url
 from celery.schedules import crontab
 

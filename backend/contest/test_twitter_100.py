@@ -1,13 +1,15 @@
 """Twitter連携100%カバレッジ達成テスト"""
 
-from django.test import TestCase, override_settings
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
 from unittest.mock import Mock, patch
+
+from allauth.socialaccount.models import SocialAccount
+from django.contrib.auth import get_user_model
+from django.test import TestCase, override_settings
+from django.utils import timezone
+
 from .models import Contest, Entry
 from .twitter_integration import TwitterFetcher
-from allauth.socialaccount.models import SocialAccount
 
 User = get_user_model()
 

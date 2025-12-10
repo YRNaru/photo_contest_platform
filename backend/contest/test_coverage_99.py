@@ -2,11 +2,13 @@
 カバレッジを99%に上げるための追加テスト
 """
 
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from .models import Contest, Entry, Category, JudgeScore, DetailedScore, JudgingCriteria
-from django.utils import timezone
 from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.utils import timezone
+
+from .models import Category, Contest, DetailedScore, Entry, JudgeScore, JudgingCriteria
 
 User = get_user_model()
 
@@ -137,9 +139,11 @@ class AdminCoverageTest(TestCase):
 
     def test_contest_admin_fetch_twitter_action(self):
         """ContestAdmin fetch_twitter_nowアクション"""
-        from django.contrib import admin
-        from contest.admin import ContestAdmin
         from unittest.mock import Mock
+
+        from django.contrib import admin
+
+        from contest.admin import ContestAdmin
 
         site = admin.AdminSite()
         contest_admin = ContestAdmin(Contest, site)

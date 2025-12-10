@@ -2,12 +2,14 @@
 Celeryタスク - 画像処理とモデレーション
 """
 
-from celery import shared_task
-from PIL import Image
-from django.core.files.base import ContentFile
-from .models import Entry, EntryImage
 import io
 import logging
+
+from celery import shared_task
+from django.core.files.base import ContentFile
+from PIL import Image
+
+from .models import Entry, EntryImage
 
 logger = logging.getLogger(__name__)
 

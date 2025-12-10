@@ -1,25 +1,26 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from .models import Contest, Entry, Vote, JudgeScore, Flag, Category, JudgingCriteria
-from .serializers import (
-    ContestCreateSerializer,
-    ContestListSerializer,
-    ContestDetailSerializer,
-    EntryListSerializer,
-    EntryDetailSerializer,
-    EntryCreateSerializer,
-    VoteSerializer,
-    FlagSerializer,
-    CategorySerializer,
-    JudgingCriteriaSerializer,
-    JudgeScoreDetailSerializer,
-    JudgeScoreCreateSerializer,
-)
+from rest_framework.response import Response
+
+from .models import Category, Contest, Entry, Flag, JudgeScore, JudgingCriteria, Vote
 from .permissions import IsJudge, IsModerator
+from .serializers import (
+    CategorySerializer,
+    ContestCreateSerializer,
+    ContestDetailSerializer,
+    ContestListSerializer,
+    EntryCreateSerializer,
+    EntryDetailSerializer,
+    EntryListSerializer,
+    FlagSerializer,
+    JudgeScoreCreateSerializer,
+    JudgeScoreDetailSerializer,
+    JudgingCriteriaSerializer,
+    VoteSerializer,
+)
 
 
 class ContestViewSet(viewsets.ModelViewSet):
@@ -239,7 +240,6 @@ class ContestViewSet(viewsets.ModelViewSet):
         from django.db.models.functions import TruncDate
 
         # from django.utils import timezone
-
         # 日別応募数を集計
         daily_entries = (
             Entry.objects.filter(contest=contest)

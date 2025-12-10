@@ -4,12 +4,14 @@
 このファイルは残りの未カバー行を確実にカバーするために作成されました。
 """
 
+from datetime import timedelta
+
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
-from datetime import timedelta
+
 from .models import Contest
 from .serializers import ContestCreateSerializer
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 

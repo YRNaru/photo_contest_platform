@@ -3,8 +3,9 @@
 データベース設定ロジックの直接テスト
 settings.pyの該当部分を抽出してテスト
 """
-import dj_database_url
 import os
+
+import dj_database_url
 
 
 def test_database_options_logic():

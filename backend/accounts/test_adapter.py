@@ -1,12 +1,14 @@
 """CustomSocialAccountAdapterのテスト"""
 
-from django.test import TestCase, RequestFactory
-from django.contrib.auth import get_user_model
-from allauth.socialaccount.models import SocialLogin, SocialAccount  # noqa: F401
-from allauth.socialaccount.models import EmailAddress  # noqa: F401
+from unittest.mock import Mock, patch  # noqa: F401
+
 from allauth.account.models import EmailAddress as AllauthEmailAddress  # noqa: F401
 from allauth.exceptions import ImmediateHttpResponse
-from unittest.mock import Mock, patch  # noqa: F401
+from allauth.socialaccount.models import EmailAddress  # noqa: F401
+from allauth.socialaccount.models import SocialAccount, SocialLogin  # noqa: F401
+from django.contrib.auth import get_user_model
+from django.test import RequestFactory, TestCase
+
 from .adapter import CustomSocialAccountAdapter
 
 User = get_user_model()

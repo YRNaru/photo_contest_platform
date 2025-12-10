@@ -1,17 +1,20 @@
+import hashlib
+
 from rest_framework import serializers
+
+from accounts.serializers import UserSerializer
+
 from .models import (
+    Category,
     Contest,
+    DetailedScore,
     Entry,
     EntryImage,
-    Vote,
-    JudgeScore,
     Flag,
-    Category,
+    JudgeScore,
     JudgingCriteria,
-    DetailedScore,
+    Vote,
 )
-from accounts.serializers import UserSerializer
-import hashlib
 
 
 class EntryImageSerializer(serializers.ModelSerializer):
@@ -301,8 +304,8 @@ class EntryCreateSerializer(serializers.ModelSerializer):
         return sha256.hexdigest()
 
     def validate(self, data):
-        from django.conf import settings
         from allauth.socialaccount.models import SocialAccount
+        from django.conf import settings
 
         contest = data.get("contest")
         request = self.context["request"]

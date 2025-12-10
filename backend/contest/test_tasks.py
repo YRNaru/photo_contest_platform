@@ -1,21 +1,23 @@
 """Celeryタスクのテスト"""
 
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
+from io import BytesIO
 from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.utils import timezone
+from PIL import Image
+
 from .models import Contest, Entry, EntryImage
 from .tasks import (
-    process_entry_images,
-    generate_thumbnail,
-    moderate_image,
     cleanup_old_thumbnails,
     fetch_twitter_entries,
+    generate_thumbnail,
+    moderate_image,
+    process_entry_images,
 )
-from io import BytesIO
-from PIL import Image
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
 

@@ -3,6 +3,7 @@ Twitterから投稿を取得する管理コマンド
 """
 
 from django.core.management.base import BaseCommand
+
 from contest.twitter_integration import fetch_all_active_contests
 
 

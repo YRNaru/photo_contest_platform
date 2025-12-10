@@ -1,13 +1,15 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
-from .models import Contest, Entry, Vote, EntryImage, JudgeScore, Flag
-from django.utils import timezone
 from datetime import timedelta
-from django.core.files.uploadedfile import SimpleUploadedFile
 from io import BytesIO
+
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.utils import timezone
 from PIL import Image
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+
+from .models import Contest, Entry, EntryImage, Flag, JudgeScore, Vote
 
 User = get_user_model()
 
@@ -477,12 +479,12 @@ class ContestAPITest(APITestCase):
 
     def test_entry_viewset_get_serializer_class(self):
         """EntryViewSetのシリアライザークラス選択"""
-        from contest.views import EntryViewSet
         from contest.serializers import (
             EntryCreateSerializer,
             EntryDetailSerializer,
             EntryListSerializer,
         )
+        from contest.views import EntryViewSet
 
         viewset = EntryViewSet()
 
@@ -878,9 +880,11 @@ class PermissionsDetailTest(TestCase):
 
     def test_is_owner_or_readonly_permission(self):
         """IsOwnerOrReadOnly権限のテスト"""
-        from contest.permissions import IsOwnerOrReadOnly
-        from rest_framework.test import APIRequestFactory
         from unittest.mock import Mock
+
+        from rest_framework.test import APIRequestFactory
+
+        from contest.permissions import IsOwnerOrReadOnly
 
         permission = IsOwnerOrReadOnly()
         factory = APIRequestFactory()

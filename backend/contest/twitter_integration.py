@@ -2,15 +2,16 @@
 Twitter API統合
 """
 
-import tweepy
+# from accounts.models import User  # noqa: F401
+import logging
+
 import requests
+import tweepy
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils import timezone
-from .models import Contest, Entry, EntryImage
 
-# from accounts.models import User  # noqa: F401
-import logging
+from .models import Contest, Entry, EntryImage
 
 # from datetime import timedelta
 

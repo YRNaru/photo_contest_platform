@@ -1,9 +1,10 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
 from allauth.socialaccount.models import SocialAccount
-from .serializers import UserSerializer, UserDetailSerializer
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+
+from .serializers import UserDetailSerializer, UserSerializer
 
 User = get_user_model()
 
@@ -127,9 +128,11 @@ class UserSerializerTest(TestCase):
 
     def test_user_detail_serializer_entry_count(self):
         """エントリー数のカウント"""
-        from contest.models import Contest, Entry
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
+
+        from contest.models import Contest, Entry
 
         contest = Contest.objects.create(
             slug="test-contest",
@@ -152,9 +155,11 @@ class UserSerializerTest(TestCase):
 
     def test_user_detail_serializer_vote_count(self):
         """投票数のカウント"""
-        from contest.models import Contest, Entry, Vote
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
+
+        from contest.models import Contest, Entry, Vote
 
         contest = Contest.objects.create(
             slug="test-contest",
@@ -281,7 +286,7 @@ class UserAPITest(APITestCase):
 
     def test_set_twitter_icon_success(self):
         """Twitterアイコン設定の成功ケース"""
-        from unittest.mock import patch, Mock
+        from unittest.mock import Mock, patch
 
         self.client.force_authenticate(user=self.user)
 
@@ -312,6 +317,7 @@ class UserAPITest(APITestCase):
     def test_set_twitter_icon_download_error(self):
         """Twitter画像ダウンロード失敗"""
         from unittest.mock import patch
+
         import requests
 
         self.client.force_authenticate(user=self.user)
@@ -339,6 +345,7 @@ class UserAPITest(APITestCase):
         """セッション認証からJWTトークン取得"""
         from django.contrib.sessions.middleware import SessionMiddleware
         from rest_framework.test import APIRequestFactory
+
         from accounts.views import get_session_token
 
         factory = APIRequestFactory()
@@ -361,8 +368,9 @@ class UserAPITest(APITestCase):
 
     def test_get_session_token_unauthenticated(self):
         """未認証でセッショントークン取得"""
-        from rest_framework.test import APIRequestFactory
         from django.contrib.auth.models import AnonymousUser
+        from rest_framework.test import APIRequestFactory
+
         from accounts.views import get_session_token
 
         factory = APIRequestFactory()
@@ -375,8 +383,9 @@ class UserAPITest(APITestCase):
 
     def test_twitter_login_redirect(self):
         """Twitter OAuth2ログインへのリダイレクト"""
-        from accounts.views import twitter_login
         from django.test import RequestFactory
+
+        from accounts.views import twitter_login
 
         factory = RequestFactory()
         request = factory.get("/api/twitter-login/")
@@ -388,9 +397,10 @@ class UserAPITest(APITestCase):
 
     def test_profile_redirect_authenticated(self):
         """認証済みユーザーのプロフィールリダイレクト"""
-        from accounts.views import profile
-        from django.test import RequestFactory
         from django.contrib.sessions.middleware import SessionMiddleware
+        from django.test import RequestFactory
+
+        from accounts.views import profile
 
         factory = RequestFactory()
         request = factory.get("/profile/")

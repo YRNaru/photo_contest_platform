@@ -1,14 +1,16 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from rest_framework.test import APIRequestFactory
-from django.utils import timezone
+import hashlib
 from datetime import timedelta
+from io import BytesIO
+
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.utils import timezone
+from PIL import Image
+from rest_framework.test import APIRequestFactory
+
 from .models import Contest, Entry, EntryImage
 from .serializers import ContestCreateSerializer, EntryCreateSerializer
-from io import BytesIO
-from PIL import Image
-from django.core.files.uploadedfile import SimpleUploadedFile
-import hashlib
 
 User = get_user_model()
 

@@ -1,11 +1,13 @@
-from django.test import TestCase, RequestFactory
-from django.contrib.admin.sites import AdminSite
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
 from unittest.mock import Mock, patch
-from .models import Contest, Entry, Flag
+
+from django.contrib.admin.sites import AdminSite
+from django.contrib.auth import get_user_model
+from django.test import RequestFactory, TestCase
+from django.utils import timezone
+
 from .admin import ContestAdmin, FlagAdmin
+from .models import Contest, Entry, Flag
 
 User = get_user_model()
 

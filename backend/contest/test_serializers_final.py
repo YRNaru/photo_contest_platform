@@ -1,7 +1,9 @@
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.utils import timezone
+
 from .models import Contest
 from .serializers import ContestCreateSerializer
 

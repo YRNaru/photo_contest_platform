@@ -1,17 +1,19 @@
-from django.test import TestCase
+from datetime import timedelta
+
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 from django.utils import timezone
-from datetime import timedelta
-from .models import Contest, Entry, EntryImage, Vote, JudgeScore, Flag
+
 from .admin import (
     ContestAdmin,
     EntryAdmin,
     EntryImageAdmin,
-    VoteAdmin,
-    JudgeScoreAdmin,
     FlagAdmin,
+    JudgeScoreAdmin,
+    VoteAdmin,
 )
+from .models import Contest, Entry, EntryImage, Flag, JudgeScore, Vote
 
 User = get_user_model()
 

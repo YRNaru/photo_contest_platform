@@ -1,10 +1,12 @@
 """Twitter連携の完全カバレッジテスト"""
 
-from django.test import TestCase, override_settings
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
 from unittest.mock import Mock, patch
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase, override_settings
+from django.utils import timezone
+
 from .models import Contest  # Entry, EntryImage unused
 from .twitter_integration import TwitterFetcher, fetch_all_active_contests
 
