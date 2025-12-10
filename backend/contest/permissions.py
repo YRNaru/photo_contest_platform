@@ -5,8 +5,10 @@ class IsJudge(permissions.BasePermission):
     """審査員権限"""
 
     def has_permission(self, request, _view):
-        return request.user and request.user.is_authenticated and (
-            request.user.is_judge or request.user.is_staff
+        return (
+            request.user
+            and request.user.is_authenticated
+            and (request.user.is_judge or request.user.is_staff)
         )
 
 
@@ -14,8 +16,10 @@ class IsModerator(permissions.BasePermission):
     """モデレーター権限"""
 
     def has_permission(self, request, _view):
-        return request.user and request.user.is_authenticated and (
-            request.user.is_moderator or request.user.is_staff
+        return (
+            request.user
+            and request.user.is_authenticated
+            and (request.user.is_moderator or request.user.is_staff)
         )
 
 

@@ -7,8 +7,10 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from .models import Contest, Entry, EntryImage
+
 # from accounts.models import User  # noqa: F401
 import logging
+
 # from datetime import timedelta
 
 logger = logging.getLogger(__name__)
@@ -51,16 +53,16 @@ class TwitterFetcher:
 
             # since_timeがある場合は追加
             kwargs = {
-                'query': query,
-                'max_results': min(max_results, 100),
-                'tweet_fields': ['created_at', 'author_id', 'text', 'attachments'],
-                'expansions': ['author_id', 'attachments.media_keys'],
-                'media_fields': ['url', 'preview_image_url', 'type'],
-                'user_fields': ['username', 'name'],
+                "query": query,
+                "max_results": min(max_results, 100),
+                "tweet_fields": ["created_at", "author_id", "text", "attachments"],
+                "expansions": ["author_id", "attachments.media_keys"],
+                "media_fields": ["url", "preview_image_url", "type"],
+                "user_fields": ["username", "name"],
             }
 
             if since_time:
-                kwargs['start_time'] = since_time.isoformat()
+                kwargs["start_time"] = since_time.isoformat()
 
             # ツイート検索
             response = self.client.search_recent_tweets(**kwargs)
@@ -70,8 +72,8 @@ class TwitterFetcher:
                 return []
 
             # ユーザー情報とメディア情報を取得
-            users = {user.id: user for user in (response.includes.get('users', []))}
-            media = {m.media_key: m for m in (response.includes.get('media', []))}
+            users = {user.id: user for user in (response.includes.get("users", []))}
+            media = {m.media_key: m for m in (response.includes.get("media", []))}
 
             tweets = []
             for tweet in response.data:
@@ -80,22 +82,24 @@ class TwitterFetcher:
 
                 # メディア情報取得
                 media_urls = []
-                if hasattr(tweet, 'attachments') and 'media_keys' in tweet.attachments:
-                    for media_key in tweet.attachments['media_keys']:
+                if hasattr(tweet, "attachments") and "media_keys" in tweet.attachments:
+                    for media_key in tweet.attachments["media_keys"]:
                         media_obj = media.get(media_key)
-                        if media_obj and media_obj.type == 'photo':
+                        if media_obj and media_obj.type == "photo":
                             media_urls.append(media_obj.url)
 
-                tweets.append({
-                    'id': tweet.id,
-                    'text': tweet.text,
-                    'created_at': tweet.created_at,
-                    'author_id': tweet.author_id,
-                    'author_username': user.username if user else None,
-                    'author_name': user.name if user else None,
-                    'media_urls': media_urls,
-                    'url': f"https://twitter.com/{user.username if user else 'i'}/status/{tweet.id}"
-                })
+                tweets.append(
+                    {
+                        "id": tweet.id,
+                        "text": tweet.text,
+                        "created_at": tweet.created_at,
+                        "author_id": tweet.author_id,
+                        "author_username": user.username if user else None,
+                        "author_name": user.name if user else None,
+                        "media_urls": media_urls,
+                        "url": f"https://twitter.com/{user.username if user else 'i'}/status/{tweet.id}",
+                    }
+                )
 
             logger.info(f"Found {len(tweets)} tweets for hashtag #{hashtag}")
             return tweets
@@ -117,7 +121,7 @@ class TwitterFetcher:
         """
         try:
             # 既に同じツイートIDのエントリーが存在するかチェック
-            if Entry.objects.filter(twitter_tweet_id=str(tweet_data['id'])).exists():
+            if Entry.objects.filter(twitter_tweet_id=str(tweet_data["id"])).exists():
                 logger.info(f"Entry already exists for tweet {tweet_data['id']}")
                 return None
 
@@ -127,7 +131,7 @@ class TwitterFetcher:
             author = None
 
             # ツイート本文からタイトルと説明を抽出
-            text = tweet_data['text']
+            text = tweet_data["text"]
             # ハッシュタグを除去
             title = text.replace(f"#{contest.twitter_hashtag}", "").strip()
             if len(title) > 200:
@@ -142,16 +146,18 @@ class TwitterFetcher:
                 title=title,
                 description=text,
                 tags=contest.twitter_hashtag,
-                source='twitter',
-                twitter_tweet_id=str(tweet_data['id']),
-                twitter_user_id=str(tweet_data['author_id']),
-                twitter_username=tweet_data['author_username'],
-                twitter_url=tweet_data['url'],
+                source="twitter",
+                twitter_tweet_id=str(tweet_data["id"]),
+                twitter_user_id=str(tweet_data["author_id"]),
+                twitter_username=tweet_data["author_username"],
+                twitter_url=tweet_data["url"],
                 approved=contest.twitter_auto_approve,
             )
 
             # 画像をダウンロードして保存
-            for idx, media_url in enumerate(tweet_data['media_urls'][:contest.max_images_per_entry]):
+            for idx, media_url in enumerate(
+                tweet_data["media_urls"][: contest.max_images_per_entry]
+            ):
                 try:
                     response = requests.get(media_url, timeout=10)
                     if response.status_code == 200:
@@ -161,12 +167,12 @@ class TwitterFetcher:
                         # EntryImage作成
                         entry_image = EntryImage(entry=entry, order=idx)
                         entry_image.image.save(
-                            filename,
-                            ContentFile(response.content),
-                            save=True
+                            filename, ContentFile(response.content), save=True
                         )
 
-                        logger.info(f"Downloaded image {idx + 1} for tweet {tweet_data['id']}")
+                        logger.info(
+                            f"Downloaded image {idx + 1} for tweet {tweet_data['id']}"
+                        )
                 except Exception as e:
                     logger.error(f"Error downloading image from {media_url}: {str(e)}")
 
@@ -188,7 +194,9 @@ class TwitterFetcher:
             int: 作成されたエントリー数
         """
         if not contest.twitter_hashtag or not contest.twitter_auto_fetch:
-            logger.info(f"Contest {contest.slug} does not have Twitter auto-fetch enabled")
+            logger.info(
+                f"Contest {contest.slug} does not have Twitter auto-fetch enabled"
+            )
             return 0
 
         # 最終取得時刻から取得、なければコンテスト開始時刻から
@@ -202,8 +210,7 @@ class TwitterFetcher:
 
         # ツイート取得
         tweets = self.fetch_tweets_by_hashtag(
-            contest.twitter_hashtag,
-            since_time=since_time
+            contest.twitter_hashtag, since_time=since_time
         )
 
         # エントリー作成
@@ -215,7 +222,7 @@ class TwitterFetcher:
 
         # 最終取得時刻を更新
         contest.twitter_last_fetch = timezone.now()
-        contest.save(update_fields=['twitter_last_fetch'])
+        contest.save(update_fields=["twitter_last_fetch"])
 
         logger.info(f"Created {created_count} entries for contest {contest.slug}")
         return created_count
@@ -236,7 +243,7 @@ def fetch_all_active_contests():
         twitter_auto_fetch=True,
         is_public=True,
         start_at__lte=timezone.now(),
-        end_at__gte=timezone.now()
+        end_at__gte=timezone.now(),
     )
 
     for contest in contests:

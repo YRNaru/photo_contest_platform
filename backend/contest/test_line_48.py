@@ -19,12 +19,12 @@ class Line48CoverageTest(TestCase):
         - self.instance が存在する (行47の右側が真)
         → 行48が実行される: end_at = self.instance.end_at
         """
-        user = User.objects.create_user(username='user', email='user@example.com')
+        user = User.objects.create_user(username="user", email="user@example.com")
 
         # インスタンスを作成
         contest = Contest.objects.create(
-            slug='contest',
-            title='Contest',
+            slug="contest",
+            title="Contest",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -34,14 +34,12 @@ class Line48CoverageTest(TestCase):
         # これにより、行47の条件 "if not end_at and self.instance:" が真になり
         # 行48 "end_at = self.instance.end_at" が実行される
         data = {
-            'voting_end_at': timezone.now() + timedelta(days=45),  # instanceのend_atより後
+            "voting_end_at": timezone.now() + timedelta(days=45),  # instanceのend_atより後
         }
 
         # partial=Trueで部分更新
         serializer = ContestCreateSerializer(
-            instance=contest,  # instanceを渡す
-            data=data,
-            partial=True
+            instance=contest, data=data, partial=True  # instanceを渡す
         )
 
         # バリデーション実行（行48が実行される）
@@ -52,11 +50,11 @@ class Line48CoverageTest(TestCase):
 
     def test_line_48_with_error_case(self):
         """行48カバー + エラーケース"""
-        user = User.objects.create_user(username='user2', email='user2@example.com')
+        user = User.objects.create_user(username="user2", email="user2@example.com")
 
         contest = Contest.objects.create(
-            slug='contest2',
-            title='Contest 2',
+            slug="contest2",
+            title="Contest 2",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -64,16 +62,12 @@ class Line48CoverageTest(TestCase):
 
         # voting_end_atがinstanceのend_atより前（エラーケース）
         data = {
-            'voting_end_at': timezone.now() + timedelta(days=5),  # 30日より前
+            "voting_end_at": timezone.now() + timedelta(days=5),  # 30日より前
         }
 
-        serializer = ContestCreateSerializer(
-            instance=contest,
-            data=data,
-            partial=True
-        )
+        serializer = ContestCreateSerializer(instance=contest, data=data, partial=True)
 
         # 行48でinstanceのend_atが取得され、行49で比較してエラー
         is_valid = serializer.is_valid()
         self.assertFalse(is_valid)
-        self.assertIn('投票終了日時', str(serializer.errors))
+        self.assertIn("投票終了日時", str(serializer.errors))

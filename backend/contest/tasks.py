@@ -29,7 +29,7 @@ def generate_thumbnail(entry_image_id):
     try:
         img_obj = EntryImage.objects.get(pk=entry_image_id)
 
-        with img_obj.image.open('rb') as f:
+        with img_obj.image.open("rb") as f:
             img = Image.open(f)
 
             # 画像サイズを保存
@@ -46,12 +46,9 @@ def generate_thumbnail(entry_image_id):
 
             # ファイル名を生成
             thumb_name = (
-                f"{img_obj.image.name.split('/')[-1].split('.')[0]}"
-                f"_thumb.webp"
+                f"{img_obj.image.name.split('/')[-1].split('.')[0]}" f"_thumb.webp"
             )
-            img_obj.thumbnail.save(
-                thumb_name, ContentFile(buf.read()), save=False
-            )
+            img_obj.thumbnail.save(thumb_name, ContentFile(buf.read()), save=False)
 
             img_obj.is_thumbnail_ready = True
             img_obj.save()
@@ -65,8 +62,7 @@ def generate_thumbnail(entry_image_id):
         logger.error(f"EntryImage {entry_image_id} not found")
     except Exception as e:
         logger.error(
-            f"Error generating thumbnail for image {entry_image_id}: "
-            f"{str(e)}"
+            f"Error generating thumbnail for image {entry_image_id}: " f"{str(e)}"
         )
 
 
@@ -94,9 +90,7 @@ def moderate_image(entry_image_id):
     except EntryImage.DoesNotExist:
         logger.error(f"EntryImage {entry_image_id} not found")
     except Exception as e:
-        logger.error(
-            f"Error moderating image {entry_image_id}: {str(e)}"
-        )
+        logger.error(f"Error moderating image {entry_image_id}: {str(e)}")
 
 
 @shared_task

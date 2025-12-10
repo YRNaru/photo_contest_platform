@@ -25,15 +25,13 @@ class SerializersLine48Test(TestCase):
         → 行48が実行: end_at = self.instance.end_at
         """
         user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='test123'
+            username="testuser", email="test@example.com", password="test123"
         )
 
         # Step 1: インスタンスを作成
         existing_contest = Contest.objects.create(
-            slug='existing-contest',
-            title='Existing Contest',
+            slug="existing-contest",
+            title="Existing Contest",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),  # これがinstance.end_at
@@ -42,14 +40,14 @@ class SerializersLine48Test(TestCase):
         # Step 2: voting_end_atのみを持つdataで更新を試みる
         # 重要: end_atをdataに含めない！
         update_data = {
-            'voting_end_at': timezone.now() + timedelta(days=45),  # end_atより後
+            "voting_end_at": timezone.now() + timedelta(days=45),  # end_atより後
         }
 
         # Step 3: partial=Trueで部分更新（instanceを渡す）
         serializer = ContestCreateSerializer(
             instance=existing_contest,  # instanceを渡す（行47の条件を満たす）
             data=update_data,  # voting_end_atのみ、end_atなし
-            partial=True
+            partial=True,
         )
 
         # Step 4: バリデーション実行
@@ -63,15 +61,13 @@ class SerializersLine48Test(TestCase):
     def test_line_48_triggers_validation_error(self):
         """行48実行後、行49でバリデーションエラーになるケース"""
         user = User.objects.create_user(
-            username='user2',
-            email='user2@example.com',
-            password='test123'
+            username="user2", email="user2@example.com", password="test123"
         )
 
         # インスタンスを作成
         existing_contest = Contest.objects.create(
-            slug='contest-2',
-            title='Contest 2',
+            slug="contest-2",
+            title="Contest 2",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -79,20 +75,18 @@ class SerializersLine48Test(TestCase):
 
         # voting_end_atをinstance.end_atより前に設定（エラーケース）
         update_data = {
-            'voting_end_at': timezone.now() + timedelta(days=10),  # 30日より前
+            "voting_end_at": timezone.now() + timedelta(days=10),  # 30日より前
         }
 
         serializer = ContestCreateSerializer(
-            instance=existing_contest,
-            data=update_data,
-            partial=True
+            instance=existing_contest, data=update_data, partial=True
         )
 
         # 行48でend_atがinstanceから取得され
         # 行49で voting_end_at <= end_at となりエラー
         is_valid = serializer.is_valid()
         self.assertFalse(is_valid)
-        self.assertIn('投票終了日時', str(serializer.errors))
+        self.assertIn("投票終了日時", str(serializer.errors))
 
 
 class TestsAndAdminRemainingLines(TestCase):

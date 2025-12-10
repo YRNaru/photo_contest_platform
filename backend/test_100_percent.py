@@ -22,11 +22,11 @@ class Line48SerializerTest(TestCase):
 
     def test_line_48_end_at_from_instance_branch(self):
         """行48: end_at = self.instance.end_at をカバー"""
-        user = User.objects.create_user(username='user', email='user@example.com')
+        user = User.objects.create_user(username="user", email="user@example.com")
 
         contest = Contest.objects.create(
-            slug='c1',
-            title='C1',
+            slug="c1",
+            title="C1",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -35,8 +35,8 @@ class Line48SerializerTest(TestCase):
         # voting_end_atのみ、end_atなし → instanceから取得(行48)
         serializer = ContestCreateSerializer(
             instance=contest,
-            data={'voting_end_at': timezone.now() + timedelta(days=45)},
-            partial=True
+            data={"voting_end_at": timezone.now() + timedelta(days=45)},
+            partial=True,
         )
         self.assertTrue(serializer.is_valid())
 
@@ -49,14 +49,12 @@ class Line543And946TestsTest(TestCase):
         from django.test import Client
 
         user = User.objects.create_user(
-            username='user1',
-            email='user1@example.com',
-            password='pass123'
+            username="user1", email="user1@example.com", password="pass123"
         )
 
         Contest.objects.create(
-            slug='c1',
-            title='C1',
+            slug="c1",
+            title="C1",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -67,7 +65,7 @@ class Line543And946TestsTest(TestCase):
 
         # ページネーションなしの設定で実行
         with self.settings(REST_FRAMEWORK={}):
-            response = client.get('/api/contests/my_contests/')
+            response = client.get("/api/contests/my_contests/")
             # elseブランチ（行543）を通る
             self.assertEqual(response.status_code, 200)
 
@@ -76,24 +74,21 @@ class Line543And946TestsTest(TestCase):
         from django.test import Client
 
         user = User.objects.create_user(
-            username='moderator',
-            email='mod@example.com',
-            password='pass123',
-            is_moderator=True
+            username="moderator",
+            email="mod@example.com",
+            password="pass123",
+            is_moderator=True,
         )
 
         contest = Contest.objects.create(
-            slug='c2',
-            title='C2',
+            slug="c2",
+            title="C2",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
 
         Entry.objects.create(
-            contest=contest,
-            author=user,
-            title='Pending',
-            approved=False
+            contest=contest, author=user, title="Pending", approved=False
         )
 
         client = Client()
@@ -101,7 +96,7 @@ class Line543And946TestsTest(TestCase):
 
         # ページネーションなしの設定で実行
         with self.settings(REST_FRAMEWORK={}):
-            response = client.get('/api/entries/pending/')
+            response = client.get("/api/entries/pending/")
             # elseブランチ（行946）を通る
             self.assertEqual(response.status_code, 200)
 
@@ -119,35 +114,28 @@ class Line132And133TestAdminTest(TestCase):
         admin = EntryAdmin(Entry, site)
 
         user = User.objects.create_user(
-            username='user',
-            email='user@example.com',
-            password='pass123'
+            username="user", email="user@example.com", password="pass123"
         )
 
         contest = Contest.objects.create(
-            slug='c1',
-            title='C1',
+            slug="c1",
+            title="C1",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
 
         entry = Entry.objects.create(
-            contest=contest,
-            author=user,
-            title='Entry',
-            approved=True
+            contest=contest, author=user, title="Entry", approved=True
         )
 
         voter = User.objects.create_user(
-            username='voter',
-            email='voter@example.com',
-            password='pass123'
+            username="voter", email="voter@example.com", password="pass123"
         )
 
         Vote.objects.create(entry=entry, user=voter)
 
         # vote_countメソッドが存在する場合の分岐（行131-133）
-        if hasattr(admin, 'vote_count'):
+        if hasattr(admin, "vote_count"):
             count = admin.vote_count(entry)
             self.assertEqual(count, 1)
 
@@ -162,35 +150,29 @@ class Line88And89TasksTest(TestCase):
         from PIL import Image as PILImage
         from django.core.files.uploadedfile import SimpleUploadedFile
 
-        user = User.objects.create_user(
-            username='user',
-            email='user@example.com'
-        )
+        user = User.objects.create_user(username="user", email="user@example.com")
 
         contest = Contest.objects.create(
-            slug='c1',
-            title='C1',
+            slug="c1",
+            title="C1",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
 
         entry = Entry.objects.create(
-            contest=contest,
-            author=user,
-            title='Entry',
-            approved=True
+            contest=contest, author=user, title="Entry", approved=True
         )
 
         # 実際の画像を作成
         file = BytesIO()
-        img = PILImage.new('RGB', (100, 100), color='red')
-        img.save(file, 'PNG')
+        img = PILImage.new("RGB", (100, 100), color="red")
+        img.save(file, "PNG")
         file.seek(0)
 
         entry_image = EntryImage.objects.create(
             entry=entry,
-            image=SimpleUploadedFile('test.png', file.read(), content_type='image/png'),
-            order=0
+            image=SimpleUploadedFile("test.png", file.read(), content_type="image/png"),
+            order=0,
         )
 
         image_id = entry_image.id
@@ -210,13 +192,10 @@ class Line42And52To59AdapterTest(TestCase):
 
     def test_line_42_extra_data_email_branch(self):
         """行42: extra_dataからメールアドレスを取得"""
-        User.objects.create_user(
-            username='existing',
-            email='extra@example.com'
-        )
+        User.objects.create_user(username="existing", email="extra@example.com")
 
         factory = RequestFactory()
-        request = factory.get('/')
+        request = factory.get("/")
         request.user = Mock()
         request.user.is_authenticated = False
         request.session = {}
@@ -230,12 +209,12 @@ class Line42And52To59AdapterTest(TestCase):
 
         # extra_dataにメールアドレス（行41-42を通る）
         sociallogin.account = Mock()
-        sociallogin.account.extra_data = {'email': 'EXTRA@EXAMPLE.COM'}  # 大文字
+        sociallogin.account.extra_data = {"email": "EXTRA@EXAMPLE.COM"}  # 大文字
 
         # connectとloginをモック
         sociallogin.connect = Mock()
 
-        with patch('accounts.adapter.login'):
+        with patch("accounts.adapter.login"):
             try:
                 adapter.pre_social_login(request, sociallogin)
             except ImmediateHttpResponse:

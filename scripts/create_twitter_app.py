@@ -3,7 +3,7 @@
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
 from django.contrib.sites.models import Site  # noqa: E402
@@ -15,8 +15,7 @@ print("=" * 60)
 
 # Siteを取得または作成
 site, created = Site.objects.get_or_create(
-    domain='127.0.0.1:18000',
-    defaults={'name': 'VRChat Photo Contest'}
+    domain="127.0.0.1:18000", defaults={"name": "VRChat Photo Contest"}
 )
 if created:
     print(f"✅ 新しいSiteを作成: {site.domain}")
@@ -25,12 +24,10 @@ else:
 
 # 環境変数から認証情報を取得
 client_id = os.environ.get(
-    'TWITTER_OAUTH_CLIENT_ID',
-    'T09GVEFkUVljOFlSTFBveHN5eE46MTpjaQ'
+    "TWITTER_OAUTH_CLIENT_ID", "T09GVEFkUVljOFlSTFBveHN5eE46MTpjaQ"
 )
 client_secret = os.environ.get(
-    'TWITTER_OAUTH_CLIENT_SECRET',
-    '2lS85HZbV-nFliK0wFvkxz6BgQm0oqBniPSTf_aVz-VdImkaMe'
+    "TWITTER_OAUTH_CLIENT_SECRET", "2lS85HZbV-nFliK0wFvkxz6BgQm0oqBniPSTf_aVz-VdImkaMe"
 )
 
 print(f"\nClient ID: {client_id}")
@@ -38,12 +35,12 @@ print(f"Client Secret: {client_secret[:20]}...")
 
 # Twitter OAuth2アプリを取得または作成
 twitter_app, created = SocialApp.objects.get_or_create(
-    provider='twitter_oauth2',
+    provider="twitter_oauth2",
     defaults={
-        'name': 'Twitter OAuth2',
-        'client_id': client_id,
-        'secret': client_secret,
-    }
+        "name": "Twitter OAuth2",
+        "client_id": client_id,
+        "secret": client_secret,
+    },
 )
 
 if not created:

@@ -4,7 +4,7 @@ import os
 import sys
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
 from allauth.socialaccount.models import SocialApp  # noqa: E402
@@ -25,7 +25,7 @@ print("Google OAuth認証情報の更新")
 print("=" * 60)
 
 try:
-    google_app = SocialApp.objects.get(provider='google')
+    google_app = SocialApp.objects.get(provider="google")
     google_app.client_id = client_id
     google_app.secret = client_secret
     google_app.save()

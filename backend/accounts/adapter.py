@@ -30,16 +30,14 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
         # ユーザーが既にログイン済みの場合、そのユーザーにソーシャルアカウントを接続
         if request.user.is_authenticated:
             sociallogin.connect(request, request.user)
-            raise ImmediateHttpResponse(
-                HttpResponseRedirect('/accounts/profile/')
-            )
+            raise ImmediateHttpResponse(HttpResponseRedirect("/accounts/profile/"))
 
         # メールアドレスを取得
         email = None
         if sociallogin.email_addresses:
             email = sociallogin.email_addresses[0].email.lower()
-        elif sociallogin.account.extra_data.get('email'):
-            email = sociallogin.account.extra_data.get('email').lower()
+        elif sociallogin.account.extra_data.get("email"):
+            email = sociallogin.account.extra_data.get("email").lower()
 
         if not email:
             return
@@ -56,13 +54,11 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             login(
                 request,
                 existing_user,
-                backend='django.contrib.auth.backends.ModelBackend'
+                backend="django.contrib.auth.backends.ModelBackend",
             )
 
             # プロフィールページにリダイレクト
-            raise ImmediateHttpResponse(
-                HttpResponseRedirect('/accounts/profile/')
-            )
+            raise ImmediateHttpResponse(HttpResponseRedirect("/accounts/profile/"))
 
     def save_user(self, request, sociallogin, form=None):
         """
@@ -72,7 +68,8 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
         """
         email = (
             sociallogin.email_addresses[0].email
-            if sociallogin.email_addresses else None
+            if sociallogin.email_addresses
+            else None
         )
 
         if email:

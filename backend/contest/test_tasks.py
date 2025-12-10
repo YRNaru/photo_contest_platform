@@ -10,7 +10,7 @@ from .tasks import (
     generate_thumbnail,
     moderate_image,
     cleanup_old_thumbnails,
-    fetch_twitter_entries
+    fetch_twitter_entries,
 )
 from io import BytesIO
 from PIL import Image
@@ -22,10 +22,10 @@ User = get_user_model()
 def create_test_image():
     """テスト用画像を作成"""
     file = BytesIO()
-    image = Image.new('RGB', (200, 200), color='blue')
-    image.save(file, 'PNG')
+    image = Image.new("RGB", (200, 200), color="blue")
+    image.save(file, "PNG")
     file.seek(0)
-    return SimpleUploadedFile('test.png', file.read(), content_type='image/png')
+    return SimpleUploadedFile("test.png", file.read(), content_type="image/png")
 
 
 class ProcessEntryImagesTaskTest(TestCase):
@@ -33,37 +33,25 @@ class ProcessEntryImagesTaskTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com'
+            username="testuser", email="test@example.com"
         )
         self.contest = Contest.objects.create(
-            slug='test-contest',
-            title='Test Contest',
+            slug="test-contest",
+            title="Test Contest",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
 
-    @patch('contest.tasks.generate_thumbnail.delay')
+    @patch("contest.tasks.generate_thumbnail.delay")
     def test_process_entry_images_success(self, mock_generate):
         """エントリー画像処理の成功ケース"""
         entry = Entry.objects.create(
-            contest=self.contest,
-            author=self.user,
-            title='Test Entry',
-            approved=True
+            contest=self.contest, author=self.user, title="Test Entry", approved=True
         )
 
         # 画像を追加
-        EntryImage.objects.create(
-            entry=entry,
-            image=create_test_image(),
-            order=0
-        )
-        EntryImage.objects.create(
-            entry=entry,
-            image=create_test_image(),
-            order=1
-        )
+        EntryImage.objects.create(entry=entry, image=create_test_image(), order=0)
+        EntryImage.objects.create(entry=entry, image=create_test_image(), order=1)
 
         # タスクを実行
         process_entry_images(str(entry.id))
@@ -74,7 +62,7 @@ class ProcessEntryImagesTaskTest(TestCase):
     def test_process_entry_images_entry_not_found(self):
         """存在しないエントリーIDの場合"""
         # 存在しないIDで実行
-        process_entry_images('99999999-9999-9999-9999-999999999999')
+        process_entry_images("99999999-9999-9999-9999-999999999999")
         # エラーログが出るが例外は発生しない
         self.assertTrue(True)
 
@@ -84,29 +72,23 @@ class GenerateThumbnailTaskTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com'
+            username="testuser", email="test@example.com"
         )
         self.contest = Contest.objects.create(
-            slug='test-contest',
-            title='Test Contest',
+            slug="test-contest",
+            title="Test Contest",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
         self.entry = Entry.objects.create(
-            contest=self.contest,
-            author=self.user,
-            title='Test Entry',
-            approved=True
+            contest=self.contest, author=self.user, title="Test Entry", approved=True
         )
 
-    @patch('contest.tasks.moderate_image.delay')
+    @patch("contest.tasks.moderate_image.delay")
     def test_generate_thumbnail_success(self, mock_moderate):
         """サムネイル生成の成功ケース"""
         entry_image = EntryImage.objects.create(
-            entry=self.entry,
-            image=create_test_image(),
-            order=0
+            entry=self.entry, image=create_test_image(), order=0
         )
 
         # タスクを実行
@@ -128,13 +110,11 @@ class GenerateThumbnailTaskTest(TestCase):
         # エラーログが出るが例外は発生しない
         self.assertTrue(True)
 
-    @patch('contest.tasks.moderate_image.delay')
+    @patch("contest.tasks.moderate_image.delay")
     def test_generate_thumbnail_handles_error(self, mock_moderate):
         """サムネイル生成中のエラーハンドリング"""
         entry_image = EntryImage.objects.create(
-            entry=self.entry,
-            image=create_test_image(),
-            order=0
+            entry=self.entry, image=create_test_image(), order=0
         )
 
         # 画像を削除してエラーを発生させる
@@ -152,28 +132,22 @@ class ModerateImageTaskTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com'
+            username="testuser", email="test@example.com"
         )
         self.contest = Contest.objects.create(
-            slug='test-contest',
-            title='Test Contest',
+            slug="test-contest",
+            title="Test Contest",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
         self.entry = Entry.objects.create(
-            contest=self.contest,
-            author=self.user,
-            title='Test Entry',
-            approved=True
+            contest=self.contest, author=self.user, title="Test Entry", approved=True
         )
 
     def test_moderate_image_success(self):
         """画像モデレーションの成功ケース"""
         entry_image = EntryImage.objects.create(
-            entry=self.entry,
-            image=create_test_image(),
-            order=0
+            entry=self.entry, image=create_test_image(), order=0
         )
 
         # タスクを実行
@@ -192,9 +166,7 @@ class ModerateImageTaskTest(TestCase):
     def test_moderate_image_exception_handling(self):
         """モデレーション中の例外ハンドリング"""
         entry_image = EntryImage.objects.create(
-            entry=self.entry,
-            image=create_test_image(),
-            order=0
+            entry=self.entry, image=create_test_image(), order=0
         )
 
         # 画像を削除してエラーを発生させる
@@ -210,20 +182,20 @@ class ModerateImageTaskTest(TestCase):
 class FetchTwitterEntriesTaskTest(TestCase):
     """fetch_twitter_entriesタスクのテスト"""
 
-    @patch('contest.twitter_integration.fetch_all_active_contests')
+    @patch("contest.twitter_integration.fetch_all_active_contests")
     def test_fetch_twitter_entries_success(self, mock_fetch):
         """Twitter取得の成功ケース"""
-        mock_fetch.return_value = {'fetched': 10, 'created': 5}
+        mock_fetch.return_value = {"fetched": 10, "created": 5}
 
         result = fetch_twitter_entries()
 
-        self.assertEqual(result, {'fetched': 10, 'created': 5})
+        self.assertEqual(result, {"fetched": 10, "created": 5})
         mock_fetch.assert_called_once()
 
-    @patch('contest.twitter_integration.fetch_all_active_contests')
+    @patch("contest.twitter_integration.fetch_all_active_contests")
     def test_fetch_twitter_entries_error(self, mock_fetch):
         """Twitter取得のエラーケース"""
-        mock_fetch.side_effect = Exception('API Error')
+        mock_fetch.side_effect = Exception("API Error")
 
         result = fetch_twitter_entries()
 

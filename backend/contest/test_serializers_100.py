@@ -13,15 +13,12 @@ class Serializer100PercentTest(TestCase):
 
     def test_voting_end_validation_line_48_coverage(self):
         """行48のカバレッジ: voting_end_atがあり、end_atがdataになく、instanceから取得"""
-        user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com'
-        )
+        user = User.objects.create_user(username="testuser", email="test@example.com")
 
         # 既存のコンテストを作成
         contest = Contest.objects.create(
-            slug='test-contest',
-            title='Test Contest',
+            slug="test-contest",
+            title="Test Contest",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -30,14 +27,10 @@ class Serializer100PercentTest(TestCase):
         # voting_end_atのみを含むデータ（end_atはなし）
         # この時、行47の条件が真になり、行48が実行される
         data = {
-            'voting_end_at': timezone.now() + timedelta(days=45),
+            "voting_end_at": timezone.now() + timedelta(days=45),
         }
 
-        serializer = ContestCreateSerializer(
-            instance=contest,
-            data=data,
-            partial=True
-        )
+        serializer = ContestCreateSerializer(instance=contest, data=data, partial=True)
 
         # バリデーション成功（end_atがinstanceから取得され、voting_end_at > end_atなので正常）
         is_valid = serializer.is_valid()
@@ -45,13 +38,11 @@ class Serializer100PercentTest(TestCase):
 
         # 同様に、無効なケースもテスト
         data_invalid = {
-            'voting_end_at': timezone.now() + timedelta(days=10),  # end_atより前
+            "voting_end_at": timezone.now() + timedelta(days=10),  # end_atより前
         }
 
         serializer_invalid = ContestCreateSerializer(
-            instance=contest,
-            data=data_invalid,
-            partial=True
+            instance=contest, data=data_invalid, partial=True
         )
 
         # バリデーションエラー（end_atがinstanceから取得され、voting_end_at <= end_atなのでエラー）
@@ -60,14 +51,11 @@ class Serializer100PercentTest(TestCase):
 
     def test_voting_end_none_end_at_from_instance(self):
         """end_atがNoneでインスタンスから取得するケース"""
-        user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com'
-        )
+        user = User.objects.create_user(username="testuser", email="test@example.com")
 
         contest = Contest.objects.create(
-            slug='test-contest2',
-            title='Test Contest 2',
+            slug="test-contest2",
+            title="Test Contest 2",
             creator=user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -78,10 +66,10 @@ class Serializer100PercentTest(TestCase):
         serializer = ContestCreateSerializer(
             instance=contest,
             data={
-                'title': 'Updated Title',  # 他のフィールドも更新
-                'voting_end_at': timezone.now() + timedelta(days=50),
+                "title": "Updated Title",  # 他のフィールドも更新
+                "voting_end_at": timezone.now() + timedelta(days=50),
             },
-            partial=True
+            partial=True,
         )
 
         # 成功（instanceのend_atが使用される）

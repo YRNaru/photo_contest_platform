@@ -16,13 +16,11 @@ class ViewSetPaginationTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpass123'
+            username="testuser", email="test@example.com", password="testpass123"
         )
         self.contest = Contest.objects.create(
-            slug='test-contest',
-            title='Test Contest',
+            slug="test-contest",
+            title="Test Contest",
             creator=self.user,
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
@@ -35,14 +33,14 @@ class ViewSetPaginationTest(APITestCase):
         # 複数のコンテストを作成
         for i in range(5):
             Contest.objects.create(
-                slug=f'contest-{i}',
-                title=f'Contest {i}',
+                slug=f"contest-{i}",
+                title=f"Contest {i}",
                 creator=self.user,
                 start_at=timezone.now(),
                 end_at=timezone.now() + timedelta(days=30),
             )
 
-        response = self.client.get('/api/contests/my_contests/')
+        response = self.client.get("/api/contests/my_contests/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_contest_entries_with_pagination(self):
@@ -52,20 +50,20 @@ class ViewSetPaginationTest(APITestCase):
             Entry.objects.create(
                 contest=self.contest,
                 author=self.user,
-                title=f'Entry {i}',
-                approved=True
+                title=f"Entry {i}",
+                approved=True,
             )
 
-        response = self.client.get(f'/api/contests/{self.contest.slug}/entries/')
+        response = self.client.get(f"/api/contests/{self.contest.slug}/entries/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_pending_entries_with_pagination(self):
         """承認待ちエントリーのページネーション有り"""
         moderator = User.objects.create_user(
-            username='moderator',
-            email='moderator@example.com',
-            password='testpass123',
-            is_moderator=True
+            username="moderator",
+            email="moderator@example.com",
+            password="testpass123",
+            is_moderator=True,
         )
         self.client.force_authenticate(user=moderator)
 
@@ -74,11 +72,11 @@ class ViewSetPaginationTest(APITestCase):
             Entry.objects.create(
                 contest=self.contest,
                 author=self.user,
-                title=f'Pending Entry {i}',
-                approved=False
+                title=f"Pending Entry {i}",
+                approved=False,
             )
 
-        response = self.client.get('/api/entries/pending/')
+        response = self.client.get("/api/entries/pending/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_my_contests_force_no_pagination(self):
@@ -88,8 +86,8 @@ class ViewSetPaginationTest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         # paginate_queryset が None を返すようにモック
-        with patch.object(ContestViewSet, 'paginate_queryset', return_value=None):
-            response = self.client.get('/api/contests/my_contests/')
+        with patch.object(ContestViewSet, "paginate_queryset", return_value=None):
+            response = self.client.get("/api/contests/my_contests/")
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             # ページネーションなしの場合、直接リストが返される
             self.assertIsInstance(response.data, list)
@@ -99,14 +97,11 @@ class ViewSetPaginationTest(APITestCase):
         from unittest.mock import patch
 
         Entry.objects.create(
-            contest=self.contest,
-            author=self.user,
-            title='Entry 1',
-            approved=True
+            contest=self.contest, author=self.user, title="Entry 1", approved=True
         )
 
-        with patch.object(ContestViewSet, 'paginate_queryset', return_value=None):
-            response = self.client.get(f'/api/contests/{self.contest.slug}/entries/')
+        with patch.object(ContestViewSet, "paginate_queryset", return_value=None):
+            response = self.client.get(f"/api/contests/{self.contest.slug}/entries/")
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_pending_entries_force_no_pagination(self):
@@ -114,22 +109,22 @@ class ViewSetPaginationTest(APITestCase):
         from unittest.mock import patch
 
         moderator = User.objects.create_user(
-            username='moderator',
-            email='moderator@example.com',
-            password='testpass123',
-            is_moderator=True
+            username="moderator",
+            email="moderator@example.com",
+            password="testpass123",
+            is_moderator=True,
         )
         self.client.force_authenticate(user=moderator)
 
         Entry.objects.create(
             contest=self.contest,
             author=self.user,
-            title='Pending Entry',
-            approved=False
+            title="Pending Entry",
+            approved=False,
         )
 
-        with patch.object(EntryViewSet, 'paginate_queryset', return_value=None):
-            response = self.client.get('/api/entries/pending/')
+        with patch.object(EntryViewSet, "paginate_queryset", return_value=None):
+            response = self.client.get("/api/entries/pending/")
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             # ページネーションなしの場合、直接リストが返される
             self.assertIsInstance(response.data, list)
@@ -143,7 +138,7 @@ class ContestViewSetTest(TestCase):
         from .serializers import ContestCreateSerializer
 
         viewset = ContestViewSet()
-        viewset.action = 'create'
+        viewset.action = "create"
 
         self.assertEqual(viewset.get_serializer_class(), ContestCreateSerializer)
 
@@ -152,7 +147,7 @@ class ContestViewSetTest(TestCase):
         from .serializers import ContestCreateSerializer
 
         viewset = ContestViewSet()
-        viewset.action = 'update'
+        viewset.action = "update"
 
         self.assertEqual(viewset.get_serializer_class(), ContestCreateSerializer)
 
@@ -161,7 +156,7 @@ class ContestViewSetTest(TestCase):
         from .serializers import ContestDetailSerializer
 
         viewset = ContestViewSet()
-        viewset.action = 'retrieve'
+        viewset.action = "retrieve"
 
         self.assertEqual(viewset.get_serializer_class(), ContestDetailSerializer)
 
@@ -170,7 +165,7 @@ class ContestViewSetTest(TestCase):
         from .serializers import ContestListSerializer
 
         viewset = ContestViewSet()
-        viewset.action = 'list'
+        viewset.action = "list"
 
         self.assertEqual(viewset.get_serializer_class(), ContestListSerializer)
 
@@ -183,7 +178,7 @@ class EntryViewSetTest(TestCase):
         from .serializers import EntryCreateSerializer
 
         viewset = EntryViewSet()
-        viewset.action = 'create'
+        viewset.action = "create"
 
         self.assertEqual(viewset.get_serializer_class(), EntryCreateSerializer)
 
@@ -192,7 +187,7 @@ class EntryViewSetTest(TestCase):
         from .serializers import EntryDetailSerializer
 
         viewset = EntryViewSet()
-        viewset.action = 'retrieve'
+        viewset.action = "retrieve"
 
         self.assertEqual(viewset.get_serializer_class(), EntryDetailSerializer)
 
@@ -201,6 +196,6 @@ class EntryViewSetTest(TestCase):
         from .serializers import EntryListSerializer
 
         viewset = EntryViewSet()
-        viewset.action = 'list'
+        viewset.action = "list"
 
         self.assertEqual(viewset.get_serializer_class(), EntryListSerializer)
