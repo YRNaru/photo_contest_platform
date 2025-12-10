@@ -89,9 +89,11 @@ DATABASES = {
 }
 
 # MySQLで絵文字などの4バイトUTF-8文字を扱えるようにする
-DATABASES['default']['OPTIONS'] = {
-    'charset': 'utf8mb4',
-}
+# PostgreSQLの場合は不要なのでエンジンをチェック
+if 'mysql' in DATABASES['default']['ENGINE']:
+    DATABASES['default']['OPTIONS'] = {
+        'charset': 'utf8mb4',
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
