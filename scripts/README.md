@@ -1,8 +1,45 @@
 # ユーティリティスクリプト
 
-このディレクトリには、OAuth認証の設定を簡単にするためのユーティリティスクリプトが含まれています。
+このディレクトリには、OAuth認証の設定やテスト実行を簡単にするためのユーティリティスクリプトが含まれています。
 
 ## スクリプト一覧
+
+### 🧪 テストスクリプト
+
+#### test_all.sh
+
+バックエンドとフロントエンドの全テストを実行します。
+
+**使用方法**:
+```bash
+./scripts/test_all.sh
+./scripts/test_all.sh --coverage  # カバレッジレポート付き
+```
+
+#### test_backend.sh
+
+バックエンド（Django）のテストを実行します。
+
+**使用方法**:
+```bash
+./scripts/test_backend.sh
+./scripts/test_backend.sh --coverage  # カバレッジレポート付き
+./scripts/test_backend.sh --verbose   # 詳細表示
+./scripts/test_backend.sh --failed    # 前回失敗したテストのみ
+```
+
+#### test_frontend.sh
+
+フロントエンド（Next.js）のテストを実行します。
+
+**使用方法**:
+```bash
+./scripts/test_frontend.sh
+./scripts/test_frontend.sh --coverage  # カバレッジレポート付き
+./scripts/test_frontend.sh --watch     # ウォッチモード
+```
+
+### 🔐 OAuth設定スクリプト
 
 ### create_twitter_app.py
 

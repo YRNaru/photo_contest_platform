@@ -73,7 +73,7 @@ docker-compose exec backend python manage.py createsuperuser
 # 管理画面: http://localhost:18000/admin
 ```
 
-📖 **詳細**: [GETTING_STARTED.md](./GETTING_STARTED.md)
+📖 **詳細**: [GETTING_STARTED.md](./docs/GETTING_STARTED.md)
 
 ## 開発
 
@@ -187,11 +187,25 @@ photo_contest_platform/
 │   ├── lib/              # ユーティリティ・API
 │   ├── package.json
 │   └── Dockerfile
+├── docs/                  # 📚 ドキュメント
+│   ├── INDEX.md          # ドキュメント索引
+│   ├── GETTING_STARTED.md # セットアップガイド
+│   ├── TWITTER_SETUP.md  # Twitter連携
+│   ├── DEPLOYMENT.md     # デプロイガイド
+│   └── ...
+├── scripts/               # 🛠️ ユーティリティスクリプト
+│   ├── test_all.sh       # 全テスト実行
+│   ├── test_backend.sh   # バックエンドテスト
+│   ├── test_frontend.sh  # フロントエンドテスト
+│   └── ...
 ├── .github/
 │   └── workflows/        # GitHub Actions
 ├── docker-compose.yml
+├── Makefile
 └── README.md
 ```
+
+📖 **詳細**: [docs/PROJECT_STRUCTURE.md](./docs/PROJECT_STRUCTURE.md)
 
 ## API仕様
 
@@ -284,7 +298,7 @@ docker-compose exec backend python manage.py fetch_twitter
 docker-compose exec backend python manage.py fetch_twitter --contest=contest-slug
 ```
 
-詳細は[TWITTER_SETUP.md](./TWITTER_SETUP.md)を参照してください。
+詳細は[TWITTER_SETUP.md](./docs/TWITTER_SETUP.md)を参照してください。
 
 ## ロードマップ
 

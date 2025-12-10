@@ -372,7 +372,7 @@ make migrate     # マイグレーション
 
 ## 📚 関連ドキュメント
 
-- [README.md](./README.md) - プロジェクト概要
+- [README.md](../README.md) - プロジェクト概要
 - [TWITTER_SETUP.md](./TWITTER_SETUP.md) - Twitter連携詳細
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番環境デプロイ
 - [TESTING.md](./TESTING.md) - テストガイド

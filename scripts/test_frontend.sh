@@ -10,7 +10,7 @@ echo "========================================="
 echo ""
 
 # プロジェクトのフロントエンドディレクトリに移動
-cd "$(dirname "$0")/frontend"
+cd "$(dirname "$0")/../frontend"
 
 # node_modulesの確認
 if [ ! -d "node_modules" ]; then
