@@ -16,7 +16,9 @@
 - [PORT_CONFIG.md](./PORT_CONFIG.md) - ポート設定
 
 ### 🚢 デプロイ・運用
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番環境デプロイ
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番環境デプロイ（Render推奨）
+- [CLOUDFLARE_VERCEL_SETUP.md](./CLOUDFLARE_VERCEL_SETUP.md) - Cloudflare + Vercel セットアップガイド【NEW】
+- [CLOUDFLARE_OPTIMIZATION.md](./CLOUDFLARE_OPTIMIZATION.md) - Cloudflare 最適化設定ガイド【NEW】
 
 ### 👥 開発・貢献
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - 開発ガイドライン
