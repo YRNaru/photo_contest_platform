@@ -90,12 +90,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
             # Twitter情報
             if sa.provider == "twitter_oauth2":
-                account_data["username"] = sa.extra_data.get(
-                    "username"
-                ) or sa.extra_data.get("screen_name")
-                account_data["profile_image_url"] = sa.extra_data.get(
-                    "profile_image_url"
-                )
+                account_data["username"] = sa.extra_data.get("username") or sa.extra_data.get("screen_name")
+                account_data["profile_image_url"] = sa.extra_data.get("profile_image_url")
 
             # Google情報
             elif sa.provider == "google":

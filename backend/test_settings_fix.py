@@ -64,9 +64,7 @@ def test_mysql_settings():
     print("=" * 60)
 
     # MySQL環境変数を設定
-    os.environ[
-        "DATABASE_URL"
-    ] = "mysql://contestuser:contestpass@localhost:3307/contest"
+    os.environ["DATABASE_URL"] = "mysql://contestuser:contestpass@localhost:3307/contest"
     os.environ["REDIS_URL"] = "redis://localhost:6379/0"
     os.environ["SECRET_KEY"] = "test-secret-key"
     os.environ["DEBUG"] = "True"

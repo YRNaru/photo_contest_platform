@@ -41,9 +41,7 @@ class Serializer100PercentTest(TestCase):
             "voting_end_at": timezone.now() + timedelta(days=10),  # end_atより前
         }
 
-        serializer_invalid = ContestCreateSerializer(
-            instance=contest, data=data_invalid, partial=True
-        )
+        serializer_invalid = ContestCreateSerializer(instance=contest, data=data_invalid, partial=True)
 
         # バリデーションエラー（end_atがinstanceから取得され、voting_end_at <= end_atなのでエラー）
         is_valid_invalid = serializer_invalid.is_valid()

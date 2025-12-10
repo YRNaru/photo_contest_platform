@@ -15,9 +15,7 @@ class Contest(models.Model):
     slug = models.SlugField(unique=True, verbose_name="スラッグ")
     title = models.CharField(max_length=200, verbose_name="タイトル")
     description = models.TextField(blank=True, verbose_name="説明")
-    banner_image = models.ImageField(
-        upload_to="contests/banners/", blank=True, null=True, verbose_name="バナー画像"
-    )
+    banner_image = models.ImageField(upload_to="contests/banners/", blank=True, null=True, verbose_name="バナー画像")
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -64,12 +62,8 @@ class Contest(models.Model):
         help_text="例: フォトコンテスト (# は不要)",
     )
     twitter_auto_fetch = models.BooleanField(default=False, verbose_name="Twitter自動取得")
-    twitter_auto_approve = models.BooleanField(
-        default=False, verbose_name="Twitter投稿の自動承認"
-    )
-    twitter_last_fetch = models.DateTimeField(
-        null=True, blank=True, verbose_name="最終取得日時"
-    )
+    twitter_auto_approve = models.BooleanField(default=False, verbose_name="Twitter投稿の自動承認")
+    twitter_last_fetch = models.DateTimeField(null=True, blank=True, verbose_name="最終取得日時")
 
     # Twitter連携必須設定
     require_twitter_account = models.BooleanField(
@@ -110,9 +104,7 @@ class Entry(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    contest = models.ForeignKey(
-        Contest, on_delete=models.CASCADE, related_name="entries", verbose_name="コンテスト"
-    )
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name="entries", verbose_name="コンテスト")
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -123,23 +115,13 @@ class Entry(models.Model):
     )
     title = models.CharField(max_length=200, verbose_name="タイトル")
     description = models.TextField(blank=True, verbose_name="説明")
-    tags = models.CharField(
-        max_length=500, blank=True, verbose_name="タグ", help_text="カンマ区切り"
-    )
+    tags = models.CharField(max_length=500, blank=True, verbose_name="タグ", help_text="カンマ区切り")
 
     # Twitter連携フィールド
-    source = models.CharField(
-        max_length=20, choices=SOURCE_CHOICES, default="manual", verbose_name="投稿元"
-    )
-    twitter_tweet_id = models.CharField(
-        max_length=100, blank=True, null=True, unique=True, verbose_name="ツイートID"
-    )
-    twitter_user_id = models.CharField(
-        max_length=100, blank=True, null=True, verbose_name="TwitterユーザーID"
-    )
-    twitter_username = models.CharField(
-        max_length=100, blank=True, null=True, verbose_name="Twitterユーザー名"
-    )
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default="manual", verbose_name="投稿元")
+    twitter_tweet_id = models.CharField(max_length=100, blank=True, null=True, unique=True, verbose_name="ツイートID")
+    twitter_user_id = models.CharField(max_length=100, blank=True, null=True, verbose_name="TwitterユーザーID")
+    twitter_username = models.CharField(max_length=100, blank=True, null=True, verbose_name="Twitterユーザー名")
     twitter_url = models.URLField(blank=True, null=True, verbose_name="ツイートURL")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -183,9 +165,7 @@ class Category(models.Model):
         related_name="categories",
         verbose_name="コンテスト",
     )
-    name = models.CharField(
-        max_length=100, verbose_name="賞名", help_text="例: グランプリ、風景賞、人物賞、技術賞"
-    )
+    name = models.CharField(max_length=100, verbose_name="賞名", help_text="例: グランプリ、風景賞、人物賞、技術賞")
     description = models.TextField(blank=True, verbose_name="説明")
     order = models.IntegerField(default=0, verbose_name="表示順")
     max_votes_per_judge = models.IntegerField(
@@ -208,19 +188,13 @@ class Category(models.Model):
 
     def get_max_votes(self):
         """この賞の最大投票数を取得（未設定の場合はコンテストの設定）"""
-        return (
-            self.max_votes_per_judge
-            if self.max_votes_per_judge is not None
-            else self.contest.max_votes_per_judge
-        )
+        return self.max_votes_per_judge if self.max_votes_per_judge is not None else self.contest.max_votes_per_judge
 
 
 class EntryImage(models.Model):
     """エントリー画像モデル"""
 
-    entry = models.ForeignKey(
-        Entry, on_delete=models.CASCADE, related_name="images", verbose_name="エントリー"
-    )
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="images", verbose_name="エントリー")
     image = models.ImageField(upload_to="entries/%Y/%m/%d/", verbose_name="画像")
     thumbnail = models.ImageField(
         upload_to="entries/thumbs/%Y/%m/%d/",
@@ -254,9 +228,7 @@ class EntryImage(models.Model):
 class Vote(models.Model):
     """投票モデル - 投票方式用"""
 
-    entry = models.ForeignKey(
-        Entry, on_delete=models.CASCADE, related_name="votes", verbose_name="エントリー"
-    )
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="votes", verbose_name="エントリー")
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
@@ -308,13 +280,9 @@ class JudgingCriteria(models.Model):
         blank=True,
         help_text="部門固有の基準。未設定の場合は全部門共通",
     )
-    name = models.CharField(
-        max_length=100, verbose_name="評価項目名", help_text="例: 構図、色彩、独創性"
-    )
+    name = models.CharField(max_length=100, verbose_name="評価項目名", help_text="例: 構図、色彩、独創性")
     description = models.TextField(blank=True, verbose_name="説明")
-    max_score = models.IntegerField(
-        default=10, verbose_name="最大点数", help_text="この項目の最大点数"
-    )
+    max_score = models.IntegerField(default=10, verbose_name="最大点数", help_text="この項目の最大点数")
     order = models.IntegerField(default=0, verbose_name="表示順")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -333,9 +301,7 @@ class JudgingCriteria(models.Model):
 class JudgeScore(models.Model):
     """審査員スコアモデル - 点数方式用（総合スコア）"""
 
-    entry = models.ForeignKey(
-        Entry, on_delete=models.CASCADE, related_name="scores", verbose_name="エントリー"
-    )
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="scores", verbose_name="エントリー")
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
@@ -400,9 +366,7 @@ class DetailedScore(models.Model):
         related_name="detailed_scores",
         verbose_name="審査基準",
     )
-    score = models.DecimalField(
-        max_digits=5, decimal_places=2, verbose_name="点数", help_text="この評価項目の点数"
-    )
+    score = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="点数", help_text="この評価項目の点数")
     comment = models.TextField(blank=True, verbose_name="コメント")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -430,9 +394,7 @@ class DetailedScore(models.Model):
 class Flag(models.Model):
     """通報モデル"""
 
-    entry = models.ForeignKey(
-        Entry, on_delete=models.CASCADE, related_name="flags", verbose_name="エントリー"
-    )
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="flags", verbose_name="エントリー")
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

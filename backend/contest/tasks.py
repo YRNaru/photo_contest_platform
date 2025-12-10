@@ -1,6 +1,7 @@
 """
 Celeryタスク - 画像処理とモデレーション
 """
+
 from celery import shared_task
 from PIL import Image
 from django.core.files.base import ContentFile
@@ -45,9 +46,7 @@ def generate_thumbnail(entry_image_id):
             buf.seek(0)
 
             # ファイル名を生成
-            thumb_name = (
-                f"{img_obj.image.name.split('/')[-1].split('.')[0]}" f"_thumb.webp"
-            )
+            thumb_name = f"{img_obj.image.name.split('/')[-1].split('.')[0]}" f"_thumb.webp"
             img_obj.thumbnail.save(thumb_name, ContentFile(buf.read()), save=False)
 
             img_obj.is_thumbnail_ready = True
@@ -61,9 +60,7 @@ def generate_thumbnail(entry_image_id):
     except EntryImage.DoesNotExist:
         logger.error(f"EntryImage {entry_image_id} not found")
     except Exception as e:
-        logger.error(
-            f"Error generating thumbnail for image {entry_image_id}: " f"{str(e)}"
-        )
+        logger.error(f"Error generating thumbnail for image {entry_image_id}: " f"{str(e)}")
 
 
 @shared_task

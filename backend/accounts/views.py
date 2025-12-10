@@ -24,9 +24,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             return UserDetailSerializer
         return UserSerializer
 
-    @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
         """現在のユーザー情報を取得"""
         serializer = UserDetailSerializer(request.user, context={"request": request})
@@ -49,9 +47,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = UserDetailSerializer(user, context={"request": request})
         return Response(serializer.data)
 
-    @action(
-        detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def set_twitter_icon(self, request):
         """Twitterのプロフィール画像をアバターに設定"""
         from allauth.socialaccount.models import SocialAccount
@@ -63,20 +59,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Twitterアカウントを取得
         try:
-            twitter_account = SocialAccount.objects.get(
-                user=user, provider="twitter_oauth2"
-            )
+            twitter_account = SocialAccount.objects.get(user=user, provider="twitter_oauth2")
         except SocialAccount.DoesNotExist:
-            return Response(
-                {"error": "Twitterアカウントが連携されていません"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Twitterアカウントが連携されていません"}, status=status.HTTP_400_BAD_REQUEST)
 
         # プロフィール画像URLを取得
         profile_image_url = twitter_account.extra_data.get("profile_image_url")
         if not profile_image_url:
-            return Response(
-                {"error": "Twitterプロフィール画像が見つかりません"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Twitterプロフィール画像が見つかりません"}, status=status.HTTP_400_BAD_REQUEST)
 
         # 高解像度版のURLに変更（_normal を _400x400 に）
         profile_image_url = profile_image_url.replace("_normal", "_400x400")
@@ -126,10 +116,7 @@ def profile(request):
     refresh_token = str(refresh)
 
     # フロントエンドのプロフィールページにリダイレクト（トークン付き）
-    redirect_url = (
-        f"http://localhost:13000/profile?access_token={access_token}"
-        f"&refresh_token={refresh_token}"
-    )
+    redirect_url = f"http://localhost:13000/profile?access_token={access_token}" f"&refresh_token={refresh_token}"
     return redirect(redirect_url)
 
 
@@ -138,9 +125,7 @@ def profile(request):
 def get_session_token(request):
     """セッション認証からJWTトークンを取得"""
     if not request.user.is_authenticated:
-        return Response(
-            {"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED
-        )
+        return Response({"error": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
     # JWTトークンを生成
     refresh = RefreshToken.for_user(request.user)

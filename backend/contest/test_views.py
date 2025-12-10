@@ -15,9 +15,7 @@ class ViewSetPaginationTest(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
@@ -96,9 +94,7 @@ class ViewSetPaginationTest(APITestCase):
         """ページネーションを無効化してコンテストエントリーを取得"""
         from unittest.mock import patch
 
-        Entry.objects.create(
-            contest=self.contest, author=self.user, title="Entry 1", approved=True
-        )
+        Entry.objects.create(contest=self.contest, author=self.user, title="Entry 1", approved=True)
 
         with patch.object(ContestViewSet, "paginate_queryset", return_value=None):
             response = self.client.get(f"/api/contests/{self.contest.slug}/entries/")

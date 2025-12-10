@@ -1,4 +1,5 @@
 """Twitter連携100%カバレッジ達成テスト"""
+
 from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -15,9 +16,7 @@ class TwitterIntegration100Test(TestCase):
     """Twitter連携の100%カバレッジ達成"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.contest = Contest.objects.create(
             slug="twitter-contest",
             title="Twitter Contest",
@@ -31,9 +30,7 @@ class TwitterIntegration100Test(TestCase):
     @override_settings(TWITTER_BEARER_TOKEN="token")
     @patch("contest.twitter_integration.tweepy.Client")
     @patch("contest.twitter_integration.requests.get")
-    def test_create_entry_from_tweet_duplicate_check(
-        self, mock_requests, mock_client_class
-    ):
+    def test_create_entry_from_tweet_duplicate_check(self, mock_requests, mock_client_class):
         """重複ツイートのチェック（行120-122）"""
         # 既存のエントリーを作成
         Entry.objects.create(
@@ -86,9 +83,7 @@ class TwitterIntegration100Test(TestCase):
     @override_settings(TWITTER_BEARER_TOKEN="token")
     @patch("contest.twitter_integration.tweepy.Client")
     @patch("contest.twitter_integration.requests.get")
-    def test_create_entry_download_images_success(
-        self, mock_requests, mock_client_class
-    ):
+    def test_create_entry_download_images_success(self, mock_requests, mock_client_class):
         """画像ダウンロード成功（行156-169）"""
         mock_img_response = Mock()
         mock_img_response.status_code = 200
@@ -164,9 +159,7 @@ class TwitterIntegration100Test(TestCase):
     @override_settings(TWITTER_BEARER_TOKEN="token")
     @patch("contest.twitter_integration.tweepy.Client")
     @patch("contest.twitter_integration.requests.get")
-    def test_fetch_and_create_entries_since_time(
-        self, mock_requests, mock_client_class
-    ):
+    def test_fetch_and_create_entries_since_time(self, mock_requests, mock_client_class):
         """since_timeを使用したfetch_and_create_entries（行191-192）"""
         # 既存の最終取得日時を設定
         self.contest.twitter_last_fetch = timezone.now() - timedelta(hours=1)
@@ -192,12 +185,8 @@ class TwitterIntegration100Test(TestCase):
 
         # 複数のツイートを返す
         mock_response = Mock()
-        mock_tweet1 = Mock(
-            id="111", text="Tweet1 #test", author_id="1", created_at=timezone.now()
-        )
-        mock_tweet2 = Mock(
-            id="222", text="Tweet2 #test", author_id="2", created_at=timezone.now()
-        )
+        mock_tweet1 = Mock(id="111", text="Tweet1 #test", author_id="1", created_at=timezone.now())
+        mock_tweet2 = Mock(id="222", text="Tweet2 #test", author_id="2", created_at=timezone.now())
         mock_response.data = [mock_tweet1, mock_tweet2]
         profile_url = "https://pbs.twimg.com/profile_images/123_normal.jpg"
         SocialAccount.objects.create(

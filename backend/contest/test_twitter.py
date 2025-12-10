@@ -1,4 +1,5 @@
 """Twitter連携機能の包括的テスト"""
+
 from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -32,9 +33,7 @@ class TwitterFetchTweetsTest(TestCase):
     """ツイート取得機能のテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.contest = Contest.objects.create(
             slug="twitter-contest",
             title="Twitter Contest",

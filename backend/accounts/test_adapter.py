@@ -1,4 +1,5 @@
 """CustomSocialAccountAdapterのテスト"""
+
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from allauth.socialaccount.models import SocialLogin, SocialAccount  # noqa: F401
@@ -33,9 +34,7 @@ class CustomSocialAccountAdapterTest(TestCase):
 
     def test_pre_social_login_authenticated_user(self):
         """既にログイン済みのユーザーの場合"""
-        user = User.objects.create_user(
-            username="existinguser", email="existing@example.com"
-        )
+        user = User.objects.create_user(username="existinguser", email="existing@example.com")
 
         request = self.factory.get("/")
         request.user = user
@@ -90,9 +89,7 @@ class CustomSocialAccountAdapterTest(TestCase):
 
     def test_save_user_with_existing_email(self):
         """既存のメールアドレスがある場合のsave_user"""
-        existing_user = User.objects.create_user(
-            username="existing", email="existing@example.com"
-        )
+        existing_user = User.objects.create_user(username="existing", email="existing@example.com")
 
         request = self.factory.get("/")
 
@@ -120,9 +117,7 @@ class CustomSocialAccountAdapterTest(TestCase):
         sociallogin.email_addresses = [email_obj]
 
         # superクラスのsave_userをモック
-        with patch.object(
-            CustomSocialAccountAdapter.__bases__[0], "save_user"
-        ) as mock_super:
+        with patch.object(CustomSocialAccountAdapter.__bases__[0], "save_user") as mock_super:
             mock_super.return_value = Mock(id=123, email="newuser@example.com")
 
             self.adapter.save_user(request, sociallogin)
@@ -139,9 +134,7 @@ class CustomSocialAccountAdapterTest(TestCase):
         sociallogin.email_addresses = []
 
         # superクラスのsave_userをモック
-        with patch.object(
-            CustomSocialAccountAdapter.__bases__[0], "save_user"
-        ) as mock_super:
+        with patch.object(CustomSocialAccountAdapter.__bases__[0], "save_user") as mock_super:
             mock_super.return_value = Mock(id=123)
 
             self.adapter.save_user(request, sociallogin)

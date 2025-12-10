@@ -26,9 +26,7 @@ class SerializerEdgeCaseTest(TestCase):
     """シリアライザーのエッジケーステスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.factory = APIRequestFactory()
 
     def test_voting_end_date_validation_with_instance_end_at(self):
@@ -103,16 +101,12 @@ class SerializerEdgeCaseTest(TestCase):
         image_hash = hashlib.sha256(exact_image_data).hexdigest()
 
         # 最初のエントリーを直接作成
-        entry1 = Entry.objects.create(
-            contest=contest1, author=self.user, title="First Entry", approved=True
-        )
+        entry1 = Entry.objects.create(contest=contest1, author=self.user, title="First Entry", approved=True)
 
         # 画像を手動で作成（ハッシュ付き）
         EntryImage.objects.create(
             entry=entry1,
-            image=SimpleUploadedFile(
-                "first.png", exact_image_data, content_type="image/png"
-            ),
+            image=SimpleUploadedFile("first.png", exact_image_data, content_type="image/png"),
             image_hash=image_hash,
             order=0,
         )
@@ -126,17 +120,13 @@ class SerializerEdgeCaseTest(TestCase):
         )
 
         # 別ユーザーを作成
-        user2 = User.objects.create_user(
-            username="user2", email="user2@example.com", password="testpass123"
-        )
+        user2 = User.objects.create_user(username="user2", email="user2@example.com", password="testpass123")
 
         # 同じ画像データで新規エントリーを試みる
         request = self.factory.post("/api/entries/")
         request.user = user2
 
-        duplicate_image = SimpleUploadedFile(
-            "duplicate.png", exact_image_data, content_type="image/png"
-        )
+        duplicate_image = SimpleUploadedFile("duplicate.png", exact_image_data, content_type="image/png")
 
         data = {
             "contest": contest2.slug,
@@ -172,9 +162,7 @@ class SerializerEdgeCaseTest(TestCase):
         images = []
         for i in range(4):
             img_data = create_exact_test_image()
-            images.append(
-                SimpleUploadedFile(f"img{i}.png", img_data, content_type="image/png")
-            )
+            images.append(SimpleUploadedFile(f"img{i}.png", img_data, content_type="image/png"))
 
         data = {
             "contest": contest.slug,

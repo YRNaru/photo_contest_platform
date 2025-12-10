@@ -53,9 +53,7 @@ class SerializerCoverageCompleteTest(TestCase):
         data1 = {
             "voting_end_at": timezone.now() + timedelta(days=5),  # end_atより前
         }
-        serializer1 = ContestCreateSerializer(
-            instance=contest, data=data1, partial=True
-        )
+        serializer1 = ContestCreateSerializer(instance=contest, data=data1, partial=True)
         self.assertFalse(serializer1.is_valid())
 
         # ケース2: voting_end_atがあり、end_atもdataにある
@@ -64,16 +62,12 @@ class SerializerCoverageCompleteTest(TestCase):
             "voting_end_at": timezone.now() + timedelta(days=5),
             "end_at": timezone.now() + timedelta(days=10),
         }
-        serializer2 = ContestCreateSerializer(
-            instance=contest, data=data2, partial=True
-        )
+        serializer2 = ContestCreateSerializer(instance=contest, data=data2, partial=True)
         self.assertFalse(serializer2.is_valid())
 
         # ケース3: voting_end_atが正しい値
         data3 = {
             "voting_end_at": timezone.now() + timedelta(days=45),  # end_atより後
         }
-        serializer3 = ContestCreateSerializer(
-            instance=contest, data=data3, partial=True
-        )
+        serializer3 = ContestCreateSerializer(instance=contest, data=data3, partial=True)
         self.assertTrue(serializer3.is_valid())

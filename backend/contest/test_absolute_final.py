@@ -3,6 +3,7 @@
 
 これで完全な100%カバレッジを達成します！
 """
+
 from django.test import TestCase, override_settings, Client
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -137,9 +138,7 @@ class AbsoluteFinalTestsPyTest(TestCase):
 
     def test_line_543_exact_else_branch(self):
         """行543: contests = response.data (elseブランチ)"""
-        user = User.objects.create_user(
-            username="user543", email="user543@example.com", password="pass"
-        )
+        user = User.objects.create_user(username="user543", email="user543@example.com", password="pass")
 
         Contest.objects.create(
             slug="c543",
@@ -176,9 +175,7 @@ class AbsoluteFinalTestsPyTest(TestCase):
             end_at=timezone.now() + timedelta(days=30),
         )
 
-        Entry.objects.create(
-            contest=contest, author=user, title="Pending946", approved=False
-        )
+        Entry.objects.create(contest=contest, author=user, title="Pending946", approved=False)
 
         client = Client()
         client.force_login(user)

@@ -59,9 +59,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class JudgingCriteriaSerializer(serializers.ModelSerializer):
     """審査基準シリアライザー"""
 
-    category_name = serializers.CharField(
-        source="category.name", read_only=True, allow_null=True
-    )
+    category_name = serializers.CharField(source="category.name", read_only=True, allow_null=True)
 
     class Meta:
         model = JudgingCriteria
@@ -282,12 +280,8 @@ class EntryDetailSerializer(serializers.ModelSerializer):
 class EntryCreateSerializer(serializers.ModelSerializer):
     """エントリー作成シリアライザー"""
 
-    contest = serializers.SlugRelatedField(
-        slug_field="slug", queryset=Contest.objects.all()
-    )
-    images = serializers.ListField(
-        child=serializers.ImageField(), write_only=True, required=True, max_length=5
-    )
+    contest = serializers.SlugRelatedField(slug_field="slug", queryset=Contest.objects.all())
+    images = serializers.ListField(child=serializers.ImageField(), write_only=True, required=True, max_length=5)
 
     class Meta:
         model = Entry
@@ -332,19 +326,13 @@ class EntryCreateSerializer(serializers.ModelSerializer):
 
         # Twitter連携必須チェック
         if contest.require_twitter_account:
-            has_twitter = SocialAccount.objects.filter(
-                user=request.user, provider="twitter_oauth2"
-            ).exists()
+            has_twitter = SocialAccount.objects.filter(user=request.user, provider="twitter_oauth2").exists()
             if not has_twitter:
-                raise serializers.ValidationError(
-                    "このコンテストに投稿するには、Twitterアカウントとの連携が必要です。"
-                )
+                raise serializers.ValidationError("このコンテストに投稿するには、Twitterアカウントとの連携が必要です。")
 
         # 応募数制限チェック（0の場合は無制限）
         if contest.max_entries_per_user > 0:
-            user_entries = Entry.objects.filter(
-                contest=contest, author=request.user
-            ).count()
+            user_entries = Entry.objects.filter(contest=contest, author=request.user).count()
             if user_entries >= contest.max_entries_per_user:
                 msg = f"このコンテストへの応募は最大" f"{contest.max_entries_per_user}件までです。"
                 raise serializers.ValidationError(msg)
@@ -377,16 +365,12 @@ class EntryCreateSerializer(serializers.ModelSerializer):
         # コンテストの自動承認設定に従う。設定がない場合はDEBUGモード
         auto_approve = contest.auto_approve_entries if contest else settings.DEBUG
 
-        entry = Entry.objects.create(
-            **validated_data, author=self.context["request"].user, approved=auto_approve
-        )
+        entry = Entry.objects.create(**validated_data, author=self.context["request"].user, approved=auto_approve)
 
         # 画像を作成（ハッシュ値も保存）
         for idx, img in enumerate(images):
             image_hash = self._calculate_image_hash(img)
-            EntryImage.objects.create(
-                entry=entry, image=img, order=idx, image_hash=image_hash
-            )
+            EntryImage.objects.create(entry=entry, image=img, order=idx, image_hash=image_hash)
 
         # Celeryタスクで画像処理をキック（後で実装）
         # from .tasks import process_entry_images
@@ -410,9 +394,7 @@ class EntryCreateSerializer(serializers.ModelSerializer):
 class VoteSerializer(serializers.ModelSerializer):
     """投票シリアライザー"""
 
-    category_name = serializers.CharField(
-        source="category.name", read_only=True, allow_null=True
-    )
+    category_name = serializers.CharField(source="category.name", read_only=True, allow_null=True)
 
     class Meta:
         model = Vote
@@ -445,12 +427,8 @@ class VoteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"現在は投票期間ではありません（現在: {phase}）")
 
         # 最大投票数チェック
-        max_votes = (
-            category.get_max_votes() if category else contest.max_votes_per_judge
-        )
-        current_votes = Vote.objects.filter(
-            user=request.user, category=category, entry__contest=contest
-        ).count()
+        max_votes = category.get_max_votes() if category else contest.max_votes_per_judge
+        current_votes = Vote.objects.filter(user=request.user, category=category, entry__contest=contest).count()
 
         if current_votes >= max_votes:
             msg = f"この部門での最大投票数（{max_votes}票）に達しています"
@@ -474,9 +452,7 @@ class DetailedScoreSerializer(serializers.ModelSerializer):
     """詳細スコアシリアライザー"""
 
     criteria_name = serializers.CharField(source="criteria.name", read_only=True)
-    criteria_max_score = serializers.IntegerField(
-        source="criteria.max_score", read_only=True
-    )
+    criteria_max_score = serializers.IntegerField(source="criteria.max_score", read_only=True)
 
     class Meta:
         model = DetailedScore
@@ -500,9 +476,7 @@ class DetailedScoreSerializer(serializers.ModelSerializer):
 
         if criteria and score is not None:
             if score > criteria.max_score:
-                raise serializers.ValidationError(
-                    f"スコアは最大{criteria.max_score}点を超えることはできません"
-                )
+                raise serializers.ValidationError(f"スコアは最大{criteria.max_score}点を超えることはできません")
             if score < 0:
                 raise serializers.ValidationError("スコアは0点未満にはできません")
 
@@ -512,9 +486,7 @@ class DetailedScoreSerializer(serializers.ModelSerializer):
 class DetailedScoreCreateSerializer(serializers.Serializer):
     """詳細スコア作成用シリアライザー（judge_scoreなし）"""
 
-    criteria = serializers.PrimaryKeyRelatedField(
-        queryset=JudgingCriteria.objects.all()
-    )
+    criteria = serializers.PrimaryKeyRelatedField(queryset=JudgingCriteria.objects.all())
     score = serializers.DecimalField(max_digits=5, decimal_places=2)
     comment = serializers.CharField(required=False, allow_blank=True)
 
@@ -525,9 +497,7 @@ class DetailedScoreCreateSerializer(serializers.Serializer):
 
         if criteria and score is not None:
             if score > criteria.max_score:
-                raise serializers.ValidationError(
-                    f"スコアは最大{criteria.max_score}点を超えることはできません"
-                )
+                raise serializers.ValidationError(f"スコアは最大{criteria.max_score}点を超えることはできません")
             if score < 0:
                 raise serializers.ValidationError("スコアは0点未満にはできません")
 
@@ -539,9 +509,7 @@ class JudgeScoreDetailSerializer(serializers.ModelSerializer):
 
     judge = UserSerializer(read_only=True)
     detailed_scores = DetailedScoreSerializer(many=True, read_only=True)
-    category_name = serializers.CharField(
-        source="category.name", read_only=True, allow_null=True
-    )
+    category_name = serializers.CharField(source="category.name", read_only=True, allow_null=True)
 
     class Meta:
         model = JudgeScore

@@ -3,6 +3,7 @@
 
 このテストで完全な100%カバレッジを達成します！
 """
+
 from django.test import TestCase, override_settings, Client
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -56,9 +57,7 @@ class TasksLine88And89FinalTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        entry = Entry.objects.create(
-            contest=contest, author=user, title="E", approved=True
-        )
+        entry = Entry.objects.create(contest=contest, author=user, title="E", approved=True)
 
         file = BytesIO()
         img = PILImage.new("RGB", (50, 50), color="red")
@@ -102,9 +101,7 @@ class TestsLine543And946FinalTest(TestCase):
 
     def test_line_946_no_pagination(self):
         """行946: entries = response.data のelseブランチ"""
-        user = User.objects.create_user(
-            username="m", email="m@ex.com", password="p", is_moderator=True
-        )
+        user = User.objects.create_user(username="m", email="m@ex.com", password="p", is_moderator=True)
         contest = Contest.objects.create(
             slug="c",
             title="C",
@@ -139,9 +136,7 @@ class TestAdminLine132And133FinalTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        entry = Entry.objects.create(
-            contest=contest, author=user, title="E", approved=True
-        )
+        entry = Entry.objects.create(contest=contest, author=user, title="E", approved=True)
 
         Vote.objects.create(entry=entry, user=user)
 

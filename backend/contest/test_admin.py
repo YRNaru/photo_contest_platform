@@ -28,9 +28,7 @@ class ContestAdminTest(TestCase):
     def setUp(self):
         self.site = AdminSite()
         self.admin = ContestAdmin(Contest, self.site)
-        self.user = User.objects.create_superuser(
-            username="admin", email="admin@example.com", password="admin123"
-        )
+        self.user = User.objects.create_superuser(username="admin", email="admin@example.com", password="admin123")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
@@ -74,18 +72,14 @@ class EntryAdminTest(TestCase):
     def setUp(self):
         self.site = AdminSite()
         self.admin = EntryAdmin(Entry, self.site)
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="test123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="test123")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        self.entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=False
-        )
+        self.entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=False)
 
     def test_list_display(self):
         """リスト表示のフィールド確認"""

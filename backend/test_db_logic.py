@@ -53,9 +53,7 @@ def test_database_options_logic():
     print("テストケース2: MySQL (ローカル環境)")
     print("-" * 70)
 
-    os.environ[
-        "DATABASE_URL"
-    ] = "mysql://contestuser:contestpass@localhost:3307/contest"
+    os.environ["DATABASE_URL"] = "mysql://contestuser:contestpass@localhost:3307/contest"
 
     # settings.pyのロジックを再現
     DATABASES = {

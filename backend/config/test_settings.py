@@ -1,4 +1,5 @@
 """テスト用の設定"""
+
 from .settings import *  # noqa: F403, F401
 
 # テスト用にSQLiteを使用

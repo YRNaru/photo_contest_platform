@@ -38,9 +38,7 @@ class Line48CoverageTest(TestCase):
         }
 
         # partial=Trueで部分更新
-        serializer = ContestCreateSerializer(
-            instance=contest, data=data, partial=True  # instanceを渡す
-        )
+        serializer = ContestCreateSerializer(instance=contest, data=data, partial=True)  # instanceを渡す
 
         # バリデーション実行（行48が実行される）
         is_valid = serializer.is_valid()

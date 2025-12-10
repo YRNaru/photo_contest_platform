@@ -1,4 +1,5 @@
 """Celeryタスクのテスト"""
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -32,9 +33,7 @@ class ProcessEntryImagesTaskTest(TestCase):
     """process_entry_imagesタスクのテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
@@ -45,9 +44,7 @@ class ProcessEntryImagesTaskTest(TestCase):
     @patch("contest.tasks.generate_thumbnail.delay")
     def test_process_entry_images_success(self, mock_generate):
         """エントリー画像処理の成功ケース"""
-        entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
         # 画像を追加
         EntryImage.objects.create(entry=entry, image=create_test_image(), order=0)
@@ -71,25 +68,19 @@ class GenerateThumbnailTaskTest(TestCase):
     """generate_thumbnailタスクのテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        self.entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=True
-        )
+        self.entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
     @patch("contest.tasks.moderate_image.delay")
     def test_generate_thumbnail_success(self, mock_moderate):
         """サムネイル生成の成功ケース"""
-        entry_image = EntryImage.objects.create(
-            entry=self.entry, image=create_test_image(), order=0
-        )
+        entry_image = EntryImage.objects.create(entry=self.entry, image=create_test_image(), order=0)
 
         # タスクを実行
         generate_thumbnail(entry_image.id)
@@ -113,9 +104,7 @@ class GenerateThumbnailTaskTest(TestCase):
     @patch("contest.tasks.moderate_image.delay")
     def test_generate_thumbnail_handles_error(self, mock_moderate):
         """サムネイル生成中のエラーハンドリング"""
-        entry_image = EntryImage.objects.create(
-            entry=self.entry, image=create_test_image(), order=0
-        )
+        entry_image = EntryImage.objects.create(entry=self.entry, image=create_test_image(), order=0)
 
         # 画像を削除してエラーを発生させる
         entry_image.image.delete()
@@ -131,24 +120,18 @@ class ModerateImageTaskTest(TestCase):
     """moderate_imageタスクのテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        self.entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=True
-        )
+        self.entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
     def test_moderate_image_success(self):
         """画像モデレーションの成功ケース"""
-        entry_image = EntryImage.objects.create(
-            entry=self.entry, image=create_test_image(), order=0
-        )
+        entry_image = EntryImage.objects.create(entry=self.entry, image=create_test_image(), order=0)
 
         # タスクを実行
         moderate_image(entry_image.id)
@@ -165,9 +148,7 @@ class ModerateImageTaskTest(TestCase):
 
     def test_moderate_image_exception_handling(self):
         """モデレーション中の例外ハンドリング"""
-        entry_image = EntryImage.objects.create(
-            entry=self.entry, image=create_test_image(), order=0
-        )
+        entry_image = EntryImage.objects.create(entry=self.entry, image=create_test_image(), order=0)
 
         # 画像を削除してエラーを発生させる
         entry_image.image.delete()

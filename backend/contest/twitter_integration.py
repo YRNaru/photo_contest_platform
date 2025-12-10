@@ -1,6 +1,7 @@
 """
 Twitter API統合
 """
+
 import tweepy
 import requests
 from django.conf import settings
@@ -155,9 +156,7 @@ class TwitterFetcher:
             )
 
             # 画像をダウンロードして保存
-            for idx, media_url in enumerate(
-                tweet_data["media_urls"][: contest.max_images_per_entry]
-            ):
+            for idx, media_url in enumerate(tweet_data["media_urls"][: contest.max_images_per_entry]):
                 try:
                     response = requests.get(media_url, timeout=10)
                     if response.status_code == 200:
@@ -166,13 +165,9 @@ class TwitterFetcher:
 
                         # EntryImage作成
                         entry_image = EntryImage(entry=entry, order=idx)
-                        entry_image.image.save(
-                            filename, ContentFile(response.content), save=True
-                        )
+                        entry_image.image.save(filename, ContentFile(response.content), save=True)
 
-                        logger.info(
-                            f"Downloaded image {idx + 1} for tweet {tweet_data['id']}"
-                        )
+                        logger.info(f"Downloaded image {idx + 1} for tweet {tweet_data['id']}")
                 except Exception as e:
                     logger.error(f"Error downloading image from {media_url}: {str(e)}")
 
@@ -194,9 +189,7 @@ class TwitterFetcher:
             int: 作成されたエントリー数
         """
         if not contest.twitter_hashtag or not contest.twitter_auto_fetch:
-            logger.info(
-                f"Contest {contest.slug} does not have Twitter auto-fetch enabled"
-            )
+            logger.info(f"Contest {contest.slug} does not have Twitter auto-fetch enabled")
             return 0
 
         # 最終取得時刻から取得、なければコンテスト開始時刻から
@@ -209,9 +202,7 @@ class TwitterFetcher:
             return 0
 
         # ツイート取得
-        tweets = self.fetch_tweets_by_hashtag(
-            contest.twitter_hashtag, since_time=since_time
-        )
+        tweets = self.fetch_tweets_by_hashtag(contest.twitter_hashtag, since_time=since_time)
 
         # エントリー作成
         created_count = 0

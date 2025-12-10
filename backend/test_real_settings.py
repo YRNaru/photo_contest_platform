@@ -61,9 +61,7 @@ def test_settings_with_mysql():
 
     # 新しいプロセスで実行する必要があるため、環境変数を変更してサブプロセスで実行
     # ここでは、設定のロジックだけを確認
-    os.environ[
-        "DATABASE_URL"
-    ] = "mysql://contestuser:contestpass@localhost:3307/contest"
+    os.environ["DATABASE_URL"] = "mysql://contestuser:contestpass@localhost:3307/contest"
     os.environ["REDIS_URL"] = "redis://localhost:6379/0"
     os.environ["SECRET_KEY"] = "test-secret-key-for-local"
     os.environ["DEBUG"] = "True"

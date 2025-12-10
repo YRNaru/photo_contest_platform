@@ -3,6 +3,7 @@
 
 このテストで残り12行を完全にカバーし、100%を達成します。
 """
+
 from django.test import TestCase, Client, override_settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -51,18 +52,14 @@ class Complete100PercentTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        entry = Entry.objects.create(
-            contest=contest, author=user, title="E", approved=True
-        )
+        entry = Entry.objects.create(contest=contest, author=user, title="E", approved=True)
 
         file = BytesIO()
         img = PILImage.new("RGB", (10, 10))
         img.save(file, "PNG")
         file.seek(0)
 
-        ei = EntryImage.objects.create(
-            entry=entry, image=SimpleUploadedFile("t.png", file.read()), order=0
-        )
+        ei = EntryImage.objects.create(entry=entry, image=SimpleUploadedFile("t.png", file.read()), order=0)
 
         ei.image.delete()
         moderate_image(ei.id)
@@ -78,9 +75,7 @@ class Complete100PercentTest(TestCase):
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        entry = Entry.objects.create(
-            contest=contest, author=user, title="E", approved=True
-        )
+        entry = Entry.objects.create(contest=contest, author=user, title="E", approved=True)
         Vote.objects.create(entry=entry, user=user)
 
         if hasattr(admin, "vote_count"):
@@ -88,9 +83,7 @@ class Complete100PercentTest(TestCase):
 
     def test_tests_py_line_543_946(self):
         """tests.py 行543と946"""
-        user = User.objects.create_user(
-            username="u4", email="u4@ex.com", password="p", is_moderator=True
-        )
+        user = User.objects.create_user(username="u4", email="u4@ex.com", password="p", is_moderator=True)
         contest = Contest.objects.create(
             slug="c4",
             title="C4",

@@ -1,6 +1,7 @@
 """
 URL configuration for photo_contest_platform project.
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings

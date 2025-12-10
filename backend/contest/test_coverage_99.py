@@ -1,6 +1,7 @@
 """
 カバレッジを99%に上げるための追加テスト
 """
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from .models import Contest, Entry, Category, JudgeScore, DetailedScore, JudgingCriteria
@@ -14,9 +15,7 @@ class ModelCoverageTest(TestCase):
     """モデルの未カバー行をカバー"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
@@ -55,32 +54,20 @@ class ModelCoverageTest(TestCase):
 
     def test_judge_score_calculate_total(self):
         """審査員スコアの総合点計算"""
-        entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
-        judge = User.objects.create_user(
-            username="judge", email="judge@example.com", password="pass", is_judge=True
-        )
+        judge = User.objects.create_user(username="judge", email="judge@example.com", password="pass", is_judge=True)
 
         judge_score = JudgeScore.objects.create(entry=entry, judge=judge, total_score=0)
 
         # 詳細スコアを追加
-        criteria1 = JudgingCriteria.objects.create(
-            contest=self.contest, name="構図", max_score=30, order=1
-        )
+        criteria1 = JudgingCriteria.objects.create(contest=self.contest, name="構図", max_score=30, order=1)
 
-        criteria2 = JudgingCriteria.objects.create(
-            contest=self.contest, name="色彩", max_score=30, order=2
-        )
+        criteria2 = JudgingCriteria.objects.create(contest=self.contest, name="色彩", max_score=30, order=2)
 
-        DetailedScore.objects.create(
-            judge_score=judge_score, criteria=criteria1, score=25
-        )
+        DetailedScore.objects.create(judge_score=judge_score, criteria=criteria1, score=25)
 
-        DetailedScore.objects.create(
-            judge_score=judge_score, criteria=criteria2, score=28
-        )
+        DetailedScore.objects.create(judge_score=judge_score, criteria=criteria2, score=28)
 
         # 総合点が自動計算される
         judge_score.refresh_from_db()
@@ -88,9 +75,7 @@ class ModelCoverageTest(TestCase):
 
     def test_detailed_score_validation(self):
         """詳細スコアのバリデーション"""
-        entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
         judge = User.objects.create_user(
             username="judge2",
@@ -101,31 +86,23 @@ class ModelCoverageTest(TestCase):
 
         judge_score = JudgeScore.objects.create(entry=entry, judge=judge, total_score=0)
 
-        criteria = JudgingCriteria.objects.create(
-            contest=self.contest, name="技術", max_score=20, order=1
-        )
+        criteria = JudgingCriteria.objects.create(contest=self.contest, name="技術", max_score=20, order=1)
 
         # 最大スコアを超える
         with self.assertRaises(ValueError):
-            detailed = DetailedScore(
-                judge_score=judge_score, criteria=criteria, score=25  # 最大20を超える
-            )
+            detailed = DetailedScore(judge_score=judge_score, criteria=criteria, score=25)  # 最大20を超える
             detailed.save()
 
         # 負のスコア
         with self.assertRaises(ValueError):
-            detailed = DetailedScore(
-                judge_score=judge_score, criteria=criteria, score=-5
-            )
+            detailed = DetailedScore(judge_score=judge_score, criteria=criteria, score=-5)
             detailed.save()
 
     def test_judging_criteria_str(self):
         """審査基準の文字列表現"""
         category = Category.objects.create(contest=self.contest, name="風景賞")
 
-        criteria = JudgingCriteria.objects.create(
-            contest=self.contest, category=category, name="構図", max_score=30, order=1
-        )
+        criteria = JudgingCriteria.objects.create(contest=self.contest, category=category, name="構図", max_score=30, order=1)
 
         str_repr = str(criteria)
         self.assertIn("Test Contest", str_repr)
@@ -136,9 +113,7 @@ class ModelCoverageTest(TestCase):
         """エントリーとカテゴリーの関連をテスト"""
         category = Category.objects.create(contest=self.contest, name="風景賞")
 
-        entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
         # カテゴリーとエントリーが正常に関連付けられることを確認
         self.assertEqual(entry.contest, self.contest)
@@ -149,9 +124,7 @@ class AdminCoverageTest(TestCase):
     """adminの未カバー行をカバー"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
@@ -186,9 +159,7 @@ class EntryWithoutAuthorTest(TestCase):
     """投稿者なしのエントリー（Twitterエントリー）のテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
@@ -213,9 +184,7 @@ class EntryWithoutAuthorTest(TestCase):
 
     def test_entry_str_no_author(self):
         """投稿者不明のエントリー文字列表現"""
-        entry = Entry.objects.create(
-            contest=self.contest, author=None, title="Unknown Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=self.contest, author=None, title="Unknown Entry", approved=True)
 
         str_repr = str(entry)
         self.assertIn("(投稿者不明)", str_repr)

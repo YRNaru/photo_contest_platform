@@ -2,6 +2,7 @@
 
 既存のメールアドレスがある場合、自動的にアカウントを接続する
 """
+
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.exceptions import ImmediateHttpResponse
 from django.contrib.auth import get_user_model, login
@@ -66,11 +67,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
 
         既存のメールアドレスがあれば、新規作成せずに既存ユーザーに接続
         """
-        email = (
-            sociallogin.email_addresses[0].email
-            if sociallogin.email_addresses
-            else None
-        )
+        email = sociallogin.email_addresses[0].email if sociallogin.email_addresses else None
 
         if email:
             existing_users = User.objects.filter(email__iexact=email)

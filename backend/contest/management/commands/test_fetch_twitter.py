@@ -1,4 +1,5 @@
 """fetch_twitter管理コマンドのテスト"""
+
 from django.test import TestCase
 from django.core.management import call_command
 from django.contrib.auth import get_user_model

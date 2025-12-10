@@ -17,9 +17,7 @@ class ContestAdminActionsTest(TestCase):
         self.site = AdminSite()
         self.admin = ContestAdmin(Contest, self.site)
         self.factory = RequestFactory()
-        self.user = User.objects.create_superuser(
-            username="admin", email="admin@example.com", password="admin123"
-        )
+        self.user = User.objects.create_superuser(username="admin", email="admin@example.com", password="admin123")
 
     def test_fetch_twitter_action_with_auto_fetch(self):
         """Twitter自動取得が有効なコンテストでアクション実行"""
@@ -109,24 +107,18 @@ class FlagAdminActionsTest(TestCase):
         self.site = AdminSite()
         self.admin = FlagAdmin(Flag, self.site)
         self.factory = RequestFactory()
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com")
         self.contest = Contest.objects.create(
             slug="test-contest",
             title="Test Contest",
             start_at=timezone.now(),
             end_at=timezone.now() + timedelta(days=30),
         )
-        self.entry = Entry.objects.create(
-            contest=self.contest, author=self.user, title="Test Entry", approved=True
-        )
+        self.entry = Entry.objects.create(contest=self.contest, author=self.user, title="Test Entry", approved=True)
 
     def test_mark_resolved_action(self):
         """通報を解決済みにするアクション"""
-        flag = Flag.objects.create(
-            entry=self.entry, user=self.user, reason="Test reason", resolved=False
-        )
+        flag = Flag.objects.create(entry=self.entry, user=self.user, reason="Test reason", resolved=False)
 
         request = self.factory.get("/")
         request._messages = Mock()

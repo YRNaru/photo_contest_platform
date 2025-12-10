@@ -33,11 +33,7 @@ class ContestViewSet(viewsets.ModelViewSet):
     search_fields = ["title", "description"]
 
     def get_serializer_class(self):
-        if (
-            self.action == "create"
-            or self.action == "update"
-            or self.action == "partial_update"
-        ):
+        if self.action == "create" or self.action == "update" or self.action == "partial_update":
             return ContestCreateSerializer
         elif self.action == "retrieve":
             return ContestDetailSerializer
@@ -97,9 +93,7 @@ class ContestViewSet(viewsets.ModelViewSet):
         # 未認証ユーザーは公開コンテストのみ
         return queryset.filter(is_public=True)
 
-    @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def my_contests(self, request):
         """自分が作成したコンテスト一覧"""
         contests = Contest.objects.filter(creator=request.user).order_by("-created_at")
@@ -116,9 +110,7 @@ class ContestViewSet(viewsets.ModelViewSet):
     def entries(self, request, slug=None):  # type: ignore
         """コンテストのエントリー一覧"""
         contest = self.get_object()
-        entries = Entry.objects.filter(contest=contest, approved=True).annotate(
-            vote_count=Count("votes")
-        )
+        entries = Entry.objects.filter(contest=contest, approved=True).annotate(vote_count=Count("votes"))
 
         # フィルター
         ordering = request.query_params.get("ordering", "-created_at")
@@ -127,19 +119,13 @@ class ContestViewSet(viewsets.ModelViewSet):
 
         page = self.paginate_queryset(entries)
         if page is not None:
-            serializer = EntryListSerializer(
-                page, many=True, context={"request": request}
-            )
+            serializer = EntryListSerializer(page, many=True, context={"request": request})
             return self.get_paginated_response(serializer.data)
 
-        serializer = EntryListSerializer(
-            entries, many=True, context={"request": request}
-        )
+        serializer = EntryListSerializer(entries, many=True, context={"request": request})
         return Response(serializer.data)
 
-    @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def judging_contests(self, request):
         """審査中のコンテスト一覧（審査員として割り当てられているコンテスト）"""
         contests = Contest.objects.filter(judges=request.user).order_by("-start_at")
@@ -152,9 +138,7 @@ class ContestViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(contests, many=True)
         return Response(serializer.data)
 
-    @action(
-        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def add_judge(self, request, slug=None):  # type: ignore
         """審査員を追加（コンテスト作成者のみ）"""
         contest = self.get_object()
@@ -167,18 +151,14 @@ class ContestViewSet(viewsets.ModelViewSet):
 
         user_id = request.data.get("user_id")
         if not user_id:
-            return Response(
-                {"detail": "user_idは必須です。"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "user_idは必須です。"}, status=status.HTTP_400_BAD_REQUEST)
 
         from accounts.models import User
 
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response(
-                {"detail": "ユーザーが見つかりません。"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "ユーザーが見つかりません。"}, status=status.HTTP_404_NOT_FOUND)
 
         # 審査員として追加
         if contest.judges.filter(id=user_id).exists():
@@ -200,9 +180,7 @@ class ContestViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(
-        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def remove_judge(self, request, slug=None):  # type: ignore
         """審査員を削除（コンテスト作成者のみ）"""
         contest = self.get_object()
@@ -215,18 +193,14 @@ class ContestViewSet(viewsets.ModelViewSet):
 
         user_id = request.data.get("user_id")
         if not user_id:
-            return Response(
-                {"detail": "user_idは必須です。"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "user_idは必須です。"}, status=status.HTTP_400_BAD_REQUEST)
 
         from accounts.models import User
 
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response(
-                {"detail": "ユーザーが見つかりません。"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "ユーザーが見つかりません。"}, status=status.HTTP_404_NOT_FOUND)
 
         # 審査員から削除
         if not contest.judges.filter(id=user_id).exists():
@@ -236,13 +210,9 @@ class ContestViewSet(viewsets.ModelViewSet):
             )
 
         contest.judges.remove(user)
-        return Response(
-            {"detail": f"{user.username}を審査員から削除しました。"}, status=status.HTTP_200_OK
-        )
+        return Response({"detail": f"{user.username}を審査員から削除しました。"}, status=status.HTTP_200_OK)
 
-    @action(
-        detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def judges(self, request, _slug=None):  # type: ignore
         """審査員一覧（コンテスト作成者と審査員のみ）"""
         contest = self.get_object()
@@ -283,19 +253,12 @@ class ContestViewSet(viewsets.ModelViewSet):
         total_entries = Entry.objects.filter(contest=contest, approved=True).count()
         pending_entries = Entry.objects.filter(contest=contest, approved=False).count()
         total_votes = Vote.objects.filter(entry__contest=contest).count()
-        unique_voters = (
-            Vote.objects.filter(entry__contest=contest)
-            .values("user")
-            .distinct()
-            .count()
-        )
+        unique_voters = Vote.objects.filter(entry__contest=contest).values("user").distinct().count()
 
         # 日別データをフォーマット
         daily_data = []
         for item in daily_entries:
-            daily_data.append(
-                {"date": item["date"].isoformat(), "count": item["count"]}
-            )
+            daily_data.append({"date": item["date"].isoformat(), "count": item["count"]})
 
         return Response(
             {
@@ -328,9 +291,7 @@ class EntryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         # モデレーターと管理者は未承認も見える
-        if self.request.user.is_authenticated and (
-            self.request.user.is_moderator or self.request.user.is_staff
-        ):
+        if self.request.user.is_authenticated and (self.request.user.is_moderator or self.request.user.is_staff):
             return Entry.objects.all().annotate(vote_count=Count("votes"))
         return queryset
 
@@ -342,18 +303,14 @@ class EntryViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @action(
-        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def vote(self, request, pk=None):  # type: ignore
         """投票"""
         entry = self.get_object()
 
         # コンテストのフェーズチェック
         if entry.contest.phase() not in ["voting", "submission"]:
-            return Response(
-                {"detail": "現在投票期間ではありません。"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "現在投票期間ではありません。"}, status=status.HTTP_400_BAD_REQUEST)
 
         # 既に投票済みかチェック
         if Vote.objects.filter(entry=entry, user=request.user).exists():
@@ -379,18 +336,14 @@ class EntryViewSet(viewsets.ModelViewSet):
         except Vote.DoesNotExist:
             return Response({"detail": "投票していません。"}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(
-        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
-    )
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def flag(self, request, pk=None):  # type: ignore
         """通報"""
         entry = self.get_object()
         reason = request.data.get("reason", "")
 
         if not reason:
-            return Response(
-                {"detail": "通報理由を入力してください。"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "通報理由を入力してください。"}, status=status.HTTP_400_BAD_REQUEST)
 
         flag = Flag.objects.create(entry=entry, user=request.user, reason=reason)
         serializer = FlagSerializer(flag)
@@ -403,17 +356,13 @@ class EntryViewSet(viewsets.ModelViewSet):
 
         # コンテストのフェーズチェック（応募期間中も審査可能）
         if entry.contest.phase() not in ["submission", "voting"]:
-            return Response(
-                {"detail": "現在は審査期間ではありません。"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "現在は審査期間ではありません。"}, status=status.HTTP_400_BAD_REQUEST)
 
         score = request.data.get("score")
         comment = request.data.get("comment", "")
 
         if score is None or not (0 <= int(score) <= 100):
-            return Response(
-                {"detail": "スコアは0-100の範囲で入力してください。"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "スコアは0-100の範囲で入力してください。"}, status=status.HTTP_400_BAD_REQUEST)
 
         judge_score, created = JudgeScore.objects.update_or_create(
             entry=entry,
@@ -449,22 +398,14 @@ class EntryViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], permission_classes=[IsModerator])
     def pending(self, request):
         """承認待ちエントリー一覧"""
-        entries = (
-            Entry.objects.filter(approved=False)
-            .annotate(vote_count=Count("votes"))
-            .order_by("-created_at")
-        )
+        entries = Entry.objects.filter(approved=False).annotate(vote_count=Count("votes")).order_by("-created_at")
 
         page = self.paginate_queryset(entries)
         if page is not None:
-            serializer = EntryListSerializer(
-                page, many=True, context={"request": request}
-            )
+            serializer = EntryListSerializer(page, many=True, context={"request": request})
             return self.get_paginated_response(serializer.data)
 
-        serializer = EntryListSerializer(
-            entries, many=True, context={"request": request}
-        )
+        serializer = EntryListSerializer(entries, many=True, context={"request": request})
         return Response(serializer.data)
 
 
@@ -496,10 +437,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         """部門更新時に権限チェック"""
         category = self.get_object()
-        if (
-            category.contest.creator != self.request.user
-            and not self.request.user.is_staff
-        ):
+        if category.contest.creator != self.request.user and not self.request.user.is_staff:
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied("この部門を編集する権限がありません")
@@ -507,10 +445,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         """部門削除時に権限チェック"""
-        if (
-            instance.contest.creator != self.request.user
-            and not self.request.user.is_staff
-        ):
+        if instance.contest.creator != self.request.user and not self.request.user.is_staff:
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied("この部門を削除する権限がありません")
@@ -545,10 +480,7 @@ class JudgingCriteriaViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         """審査基準更新時に権限チェック"""
         criteria = self.get_object()
-        if (
-            criteria.contest.creator != self.request.user
-            and not self.request.user.is_staff
-        ):
+        if criteria.contest.creator != self.request.user and not self.request.user.is_staff:
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied("この審査基準を編集する権限がありません")
@@ -556,10 +488,7 @@ class JudgingCriteriaViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         """審査基準削除時に権限チェック"""
-        if (
-            instance.contest.creator != self.request.user
-            and not self.request.user.is_staff
-        ):
+        if instance.contest.creator != self.request.user and not self.request.user.is_staff:
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied("この審査基準を削除する権限がありません")
@@ -588,9 +517,7 @@ class VoteViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def my_votes(self, request):
         """自分の投票一覧"""
-        votes = Vote.objects.filter(user=request.user).select_related(
-            "entry", "category"
-        )
+        votes = Vote.objects.filter(user=request.user).select_related("entry", "category")
 
         page = self.paginate_queryset(votes)
         if page is not None:
@@ -621,9 +548,7 @@ class JudgeScoreViewSet(viewsets.ModelViewSet):
             return JudgeScore.objects.all()
 
         # 自分が審査員のコンテストのスコア、または自分のスコア
-        return JudgeScore.objects.filter(
-            Q(judge=self.request.user) | Q(entry__contest__creator=self.request.user)
-        ).distinct()
+        return JudgeScore.objects.filter(Q(judge=self.request.user) | Q(entry__contest__creator=self.request.user)).distinct()
 
     def perform_create(self, serializer):
         """スコア作成時にユーザーを自動設定"""
@@ -633,9 +558,7 @@ class JudgeScoreViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def my_scores(self, request):
         """自分のスコア一覧"""
-        scores = JudgeScore.objects.filter(judge=request.user).select_related(
-            "entry", "category", "judge"
-        )
+        scores = JudgeScore.objects.filter(judge=request.user).select_related("entry", "category", "judge")
 
         page = self.paginate_queryset(scores)
         if page is not None:

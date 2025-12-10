@@ -12,9 +12,7 @@ class UserModelTest(TestCase):
     """ユーザーモデルのテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
 
     def test_user_creation(self):
         """ユーザーが正しく作成される"""
@@ -58,9 +56,7 @@ class UserModelTest(TestCase):
         from django.core.files.uploadedfile import SimpleUploadedFile
 
         # ダミー画像を作成
-        image = SimpleUploadedFile(
-            "test_avatar.jpg", b"fake image content", content_type="image/jpeg"
-        )
+        image = SimpleUploadedFile("test_avatar.jpg", b"fake image content", content_type="image/jpeg")
         self.user.avatar = image
         self.user.save()
 
@@ -81,9 +77,7 @@ class UserSerializerTest(TestCase):
     """ユーザーシリアライザーのテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
 
     def test_user_serializer_fields(self):
         """シリアライザーが正しいフィールドを含む"""
@@ -101,9 +95,7 @@ class UserSerializerTest(TestCase):
         """アバター画像ファイルがある場合のURL"""
         from django.core.files.uploadedfile import SimpleUploadedFile
 
-        image = SimpleUploadedFile(
-            "avatar.jpg", b"fake image content", content_type="image/jpeg"
-        )
+        image = SimpleUploadedFile("avatar.jpg", b"fake image content", content_type="image/jpeg")
         self.user.avatar = image
         self.user.save()
 
@@ -147,14 +139,10 @@ class UserSerializerTest(TestCase):
         )
 
         # 承認済みエントリーを作成
-        Entry.objects.create(
-            contest=contest, author=self.user, title="Approved Entry", approved=True
-        )
+        Entry.objects.create(contest=contest, author=self.user, title="Approved Entry", approved=True)
 
         # 未承認エントリーを作成（カウントされない）
-        Entry.objects.create(
-            contest=contest, author=self.user, title="Pending Entry", approved=False
-        )
+        Entry.objects.create(contest=contest, author=self.user, title="Pending Entry", approved=False)
 
         serializer = UserDetailSerializer(self.user)
         data = serializer.data
@@ -175,9 +163,7 @@ class UserSerializerTest(TestCase):
             end_at=timezone.now() + timedelta(days=30),
         )
 
-        entry = Entry.objects.create(
-            contest=contest, author=self.user, title="Test Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=contest, author=self.user, title="Test Entry", approved=True)
 
         # 投票を作成
         Vote.objects.create(entry=entry, user=self.user)
@@ -205,9 +191,7 @@ class UserSerializerTest(TestCase):
         self.assertEqual(len(data["social_accounts"]), 1)
         self.assertEqual(data["social_accounts"][0]["provider"], "google")
         self.assertEqual(data["social_accounts"][0]["name"], "Test User")
-        self.assertEqual(
-            data["social_accounts"][0]["picture"], "https://example.com/picture.jpg"
-        )
+        self.assertEqual(data["social_accounts"][0]["picture"], "https://example.com/picture.jpg")
 
     def test_read_only_fields(self):
         """読み取り専用フィールドが更新できない"""
@@ -222,9 +206,7 @@ class UserAPITest(APITestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass123")
 
     def test_get_users_list(self):
         """ユーザー一覧を取得"""
@@ -255,9 +237,7 @@ class UserAPITest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         # ユーザー名を更新
-        response = self.client.patch(
-            "/api/users/update_me/", {"username": "newusername"}
-        )
+        response = self.client.patch("/api/users/update_me/", {"username": "newusername"})
         # アバターのアップロードがないため、200が返る
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -268,13 +248,9 @@ class UserAPITest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         # ダミー画像を作成
-        image = SimpleUploadedFile(
-            "test_avatar.jpg", b"fake image content", content_type="image/jpeg"
-        )
+        image = SimpleUploadedFile("test_avatar.jpg", b"fake image content", content_type="image/jpeg")
 
-        response = self.client.patch(
-            "/api/users/update_me/", {"avatar": image}, format="multipart"
-        )
+        response = self.client.patch("/api/users/update_me/", {"avatar": image}, format="multipart")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
@@ -437,9 +413,7 @@ class SocialAuthTest(TestCase):
     """ソーシャル認証のテスト"""
 
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="socialuser", email="social@example.com", password="testpass123"
-        )
+        self.user = User.objects.create_user(username="socialuser", email="social@example.com", password="testpass123")
 
     def test_create_twitter_social_account(self):
         """Twitterソーシャルアカウントの作成"""
@@ -497,9 +471,7 @@ class UserPermissionsTest(APITestCase):
     """ユーザー権限のテスト"""
 
     def setUp(self):
-        self.normal_user = User.objects.create_user(
-            username="normaluser", email="normal@example.com", password="testpass123"
-        )
+        self.normal_user = User.objects.create_user(username="normaluser", email="normal@example.com", password="testpass123")
 
         self.judge_user = User.objects.create_user(
             username="judgeuser",

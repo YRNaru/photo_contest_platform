@@ -3,6 +3,7 @@
 
 このファイルは残りのすべての未カバー行を確実にカバーします。
 """
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -48,9 +49,7 @@ class Line543And946TestsTest(TestCase):
         """行543: contests = response.data (elseブランチ)"""
         from django.test import Client
 
-        user = User.objects.create_user(
-            username="user1", email="user1@example.com", password="pass123"
-        )
+        user = User.objects.create_user(username="user1", email="user1@example.com", password="pass123")
 
         Contest.objects.create(
             slug="c1",
@@ -87,9 +86,7 @@ class Line543And946TestsTest(TestCase):
             end_at=timezone.now() + timedelta(days=30),
         )
 
-        Entry.objects.create(
-            contest=contest, author=user, title="Pending", approved=False
-        )
+        Entry.objects.create(contest=contest, author=user, title="Pending", approved=False)
 
         client = Client()
         client.force_login(user)
@@ -113,9 +110,7 @@ class Line132And133TestAdminTest(TestCase):
         site = AdminSite()
         admin = EntryAdmin(Entry, site)
 
-        user = User.objects.create_user(
-            username="user", email="user@example.com", password="pass123"
-        )
+        user = User.objects.create_user(username="user", email="user@example.com", password="pass123")
 
         contest = Contest.objects.create(
             slug="c1",
@@ -124,13 +119,9 @@ class Line132And133TestAdminTest(TestCase):
             end_at=timezone.now() + timedelta(days=30),
         )
 
-        entry = Entry.objects.create(
-            contest=contest, author=user, title="Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=contest, author=user, title="Entry", approved=True)
 
-        voter = User.objects.create_user(
-            username="voter", email="voter@example.com", password="pass123"
-        )
+        voter = User.objects.create_user(username="voter", email="voter@example.com", password="pass123")
 
         Vote.objects.create(entry=entry, user=voter)
 
@@ -159,9 +150,7 @@ class Line88And89TasksTest(TestCase):
             end_at=timezone.now() + timedelta(days=30),
         )
 
-        entry = Entry.objects.create(
-            contest=contest, author=user, title="Entry", approved=True
-        )
+        entry = Entry.objects.create(contest=contest, author=user, title="Entry", approved=True)
 
         # 実際の画像を作成
         file = BytesIO()

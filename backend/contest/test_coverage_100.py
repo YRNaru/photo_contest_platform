@@ -3,6 +3,7 @@
 
 このファイルは残りの未カバー行を確実にカバーするために作成されました。
 """
+
 from django.test import TestCase
 from django.utils import timezone
 from datetime import timedelta
@@ -24,9 +25,7 @@ class SerializersLine48Test(TestCase):
         3. self.instance が存在する (行47: and self.instance が真)
         → 行48が実行: end_at = self.instance.end_at
         """
-        user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="test123"
-        )
+        user = User.objects.create_user(username="testuser", email="test@example.com", password="test123")
 
         # Step 1: インスタンスを作成
         existing_contest = Contest.objects.create(
@@ -60,9 +59,7 @@ class SerializersLine48Test(TestCase):
 
     def test_line_48_triggers_validation_error(self):
         """行48実行後、行49でバリデーションエラーになるケース"""
-        user = User.objects.create_user(
-            username="user2", email="user2@example.com", password="test123"
-        )
+        user = User.objects.create_user(username="user2", email="user2@example.com", password="test123")
 
         # インスタンスを作成
         existing_contest = Contest.objects.create(
@@ -78,9 +75,7 @@ class SerializersLine48Test(TestCase):
             "voting_end_at": timezone.now() + timedelta(days=10),  # 30日より前
         }
 
-        serializer = ContestCreateSerializer(
-            instance=existing_contest, data=update_data, partial=True
-        )
+        serializer = ContestCreateSerializer(instance=existing_contest, data=update_data, partial=True)
 
         # 行48でend_atがinstanceから取得され
         # 行49で voting_end_at <= end_at となりエラー
