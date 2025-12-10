@@ -314,7 +314,9 @@ class EntryCreateSerializer(serializers.ModelSerializer):
         current_phase = contest.phase()
         if current_phase != "submission":
             error_msg = (
-                f"現在このコンテストは応募期間ではありません。" f"現在のフェーズ: {current_phase} " f"(開始: {contest.start_at}, 終了: {contest.end_at})"
+                f"現在このコンテストは応募期間ではありません。"
+                f"現在のフェーズ: {current_phase} "
+                f"(開始: {contest.start_at}, 終了: {contest.end_at})"
             )
             # 開発環境では警告のみ、本番環境ではエラー
             if not settings.DEBUG:

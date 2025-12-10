@@ -46,10 +46,14 @@ class Contest(models.Model):
         verbose_name="審査方式",
         help_text="投票方式または点数方式を選択",
     )
-    max_votes_per_judge = models.IntegerField(default=3, verbose_name="審査員あたり最大投票数", help_text="投票方式の場合のみ有効。各審査員が投票できる作品数")
+    max_votes_per_judge = models.IntegerField(
+        default=3, verbose_name="審査員あたり最大投票数", help_text="投票方式の場合のみ有効。各審査員が投票できる作品数"
+    )
 
     # 承認設定
-    auto_approve_entries = models.BooleanField(default=False, verbose_name="投稿の自動承認", help_text="有効にすると、投稿が自動的に承認されます")
+    auto_approve_entries = models.BooleanField(
+        default=False, verbose_name="投稿の自動承認", help_text="有効にすると、投稿が自動的に承認されます"
+    )
 
     # Twitter自動取得設定
     twitter_hashtag = models.CharField(
