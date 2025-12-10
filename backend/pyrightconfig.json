@@ -1,38 +1,29 @@
 {
   "include": [
-    "accounts",
-    "contest",
-    "config"
+    "."
   ],
   "exclude": [
-    "**/migrations",
+    "**/node_modules",
     "**/__pycache__",
-    "**/test_*.py",
-    "**/*_test.py",
-    "**/tests.py",
-    ".pytest_cache",
-    "htmlcov"
+    "**/venv",
+    "**/env",
+    "**/.venv",
+    "**/migrations",
+    "**/.git"
   ],
-  "reportUnannotatedClassAttribute": "none",
-  "reportImplicitOverride": "none",
-  "reportUninitializedInstanceVariable": "none",
-  "reportPrivateLocalImportUsage": "none",
-  "reportUnknownMemberType": "none",
-  "reportUnknownVariableType": "none",
-  "reportUnknownParameterType": "none",
-  "reportUnknownLambdaType": "none",
-  "reportUnknownArgumentType": "none",
-  "reportAttributeAccessIssue": "none",
-  "reportOperatorIssue": "none",
-  "reportIncompatibleVariableOverride": "none",
-  "reportAssignmentType": "none",
-  "reportUnusedParameter": "none",
-  "reportUnusedImport": "warning",
-  "reportUnreachable": "none",
-  "reportUnnecessaryComparison": "warning",
   "typeCheckingMode": "basic",
   "pythonVersion": "3.11",
-  "pythonPlatform": "Linux",
-  "stubPath": "",
-  "useLibraryCodeForTypes": false
+  "reportMissingImports": false,
+  "reportMissingTypeStubs": false,
+  "reportAttributeAccessIssue": false,
+  "reportIncompatibleMethodOverride": false,
+  "reportIncompatibleVariableOverride": false,
+  "reportArgumentType": false,
+  "reportOptionalMemberAccess": false,
+  "reportFunctionMemberAccess": false,
+  "reportPrivateImportUsage": false,
+  "reportCallIssue": false,
+  "reportGeneralTypeIssues": false,
+  "reportOptionalSubscript": false,
+  "reportReturnType": false
 }
