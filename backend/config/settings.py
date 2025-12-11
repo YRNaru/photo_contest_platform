@@ -20,6 +20,13 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
+# Render.comのドメインを追加
+if not DEBUG:
+    ALLOWED_HOSTS.extend([
+        "photo-contest-platform.onrender.com",
+        ".onrender.com",
+    ])
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -129,6 +136,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:13000,http://127.0.0.1:13000").split(",")
+
+# 本番環境のフロントエンドURLを追加
+if not DEBUG:
+    CORS_ALLOWED_ORIGINS.extend([
+        "https://photo-contest-platform-1.onrender.com",
+    ])
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -142,7 +156,7 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
-# Session & CSRF Cookie settings for development
+# Session & CSRF Cookie settings
 if DEBUG:
     SESSION_COOKIE_SAMESITE = "Lax"  # Noneは開発環境（HTTP）では使えない
     SESSION_COOKIE_SECURE = False  # 開発環境ではFalse
@@ -157,6 +171,20 @@ if DEBUG:
         "http://127.0.0.1:13000",
         "http://localhost:18000",
         "http://127.0.0.1:18000",
+    ]
+else:
+    # 本番環境の設定
+    SESSION_COOKIE_SAMESITE = "None"
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_DOMAIN = None
+
+    CSRF_COOKIE_SAMESITE = "None"
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_TRUSTED_ORIGINS = [
+        "https://photo-contest-platform-1.onrender.com",
+        "https://photo-contest-platform.onrender.com",
     ]
 
 # Django REST Framework

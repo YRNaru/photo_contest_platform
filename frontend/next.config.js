@@ -17,6 +17,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'photo-contest-platform.onrender.com',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'pbs.twimg.com',
         pathname: '/**',
       },
@@ -25,17 +30,25 @@ const nextConfig = {
         hostname: '**.amazonaws.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**.r2.cloudflarestorage.com',
+        pathname: '/**',
+      },
     ],
   },
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:18000/api'
+    const baseUrl = apiUrl.replace('/api', '')
+    
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:18000/api'}/:path*`,
+        destination: `${apiUrl}/:path*`,
       },
       {
         source: '/media/:path*',
-        destination: 'http://localhost:18000/media/:path*',
+        destination: `${baseUrl}/media/:path*`,
       },
     ]
   },
