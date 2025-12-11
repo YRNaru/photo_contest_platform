@@ -214,7 +214,7 @@ class ContestViewSet(viewsets.ModelViewSet):
         return Response({"detail": f"{user.username}を審査員から削除しました。"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated])
-    def judges(self, request, _slug=None):  # type: ignore
+    def judges(self, request, slug=None):  # type: ignore
         """審査員一覧（コンテスト作成者と審査員のみ）"""
         contest = self.get_object()
 
@@ -233,7 +233,7 @@ class ContestViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=True, methods=["get"])
-    def statistics(self, _request, _slug=None):  # type: ignore
+    def statistics(self, request, slug=None):  # type: ignore
         """コンテストの統計情報（日別応募数など）"""
         contest = self.get_object()
 
