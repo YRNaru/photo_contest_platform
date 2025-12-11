@@ -1,14 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export', // Static export for Render
   logging: {
     fetches: {
       fullUrl: false,
     },
   },
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: process.env.NODE_ENV === 'development',
     remotePatterns: [
       {
         protocol: 'http',
@@ -28,8 +27,18 @@ const nextConfig = {
       },
     ],
   },
-  // rewrites are not supported in static export
-  // Use NEXT_PUBLIC_API_URL directly in API calls instead
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:18000/api'}/:path*`,
+      },
+      {
+        source: '/media/:path*',
+        destination: 'http://localhost:18000/media/:path*',
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig
