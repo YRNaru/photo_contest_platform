@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import os
 
 from django.contrib.auth.decorators import login_required
@@ -19,7 +17,7 @@ from .models import User
 from .serializers import UserDetailSerializer, UserSerializer
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet[User]):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """ユーザーViewSet"""
 
     queryset = User.objects.filter(is_active=True)
