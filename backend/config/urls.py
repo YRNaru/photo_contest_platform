@@ -5,9 +5,25 @@ URL configuration for photo_contest_platform project.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 
+
+def api_root(request):
+    """API root endpoint"""
+    return JsonResponse({
+        "message": "Photo Contest Platform API",
+        "status": "running",
+        "endpoints": {
+            "admin": "/admin/",
+            "api": "/api/",
+            "auth": "/api/auth/",
+        }
+    })
+
+
 urlpatterns = [
+    path("", api_root, name="api-root"),
     path("admin/", admin.site.urls),
     path("api/auth/", include("dj_rest_auth.urls")),
     path("api/auth/registration/", include("dj_rest_auth.registration.urls")),
