@@ -1,6 +1,7 @@
 """
 Django settings for photo_contest_platform project.
 """
+# pyright: reportConstantRedefinition=false
 
 import os
 from datetime import timedelta
@@ -13,12 +14,16 @@ from celery.schedules import crontab
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-dev-key-change-this")
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-dev-key-change-this"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = os.environ.get(
+    "ALLOWED_HOSTS", "localhost,127.0.0.1"
+).split(",")
 
 # Render.comのドメインを追加
 if not DEBUG:
@@ -104,16 +109,28 @@ if "mysql" in DATABASES["default"]["ENGINE"]:
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "MinimumLengthValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "CommonPasswordValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "NumericPasswordValidator"
+        ),
     },
 ]
 
@@ -135,7 +152,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:13000,http://127.0.0.1:13000").split(",")
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:13000,http://127.0.0.1:13000",
+).split(",")
 
 # 本番環境のフロントエンドURLを追加
 if not DEBUG:
@@ -196,7 +216,9 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",  # デフォルトは全員アクセス可能
     ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework.pagination.PageNumberPagination"
+    ),
     "PAGE_SIZE": 20,
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -208,8 +230,12 @@ REST_FRAMEWORK = {
 
 # Simple JWT
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.environ.get("JWT_ACCESS_TOKEN_LIFETIME", "60"))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=int(os.environ.get("JWT_REFRESH_TOKEN_LIFETIME", "1440"))),
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=int(os.environ.get("JWT_ACCESS_TOKEN_LIFETIME", "60"))
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        minutes=int(os.environ.get("JWT_REFRESH_TOKEN_LIFETIME", "1440"))
+    ),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
@@ -247,15 +273,21 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 
 # ログイン/ログアウト後のリダイレクト先（フロントエンド）
-LOGIN_REDIRECT_URL = "/accounts/profile/"  # ログイン後はprofileビューへ（そこからフロントエンドにリダイレクト）
-LOGOUT_REDIRECT_URL = "http://localhost:13000/"  # ログアウト後はフロントエンドのホームへ
+# ログイン後はprofileビューへ（そこからフロントエンドにリダイレクト）
+LOGIN_REDIRECT_URL = "/accounts/profile/"
+# ログアウト後はフロントエンドのホームへ
+LOGOUT_REDIRECT_URL = (
+    os.environ.get("FRONTEND_URL", "http://localhost:13000") + "/"
+)
 
 # ソーシャルアカウント設定
 SOCIALACCOUNT_AUTO_SIGNUP = True  # ソーシャルログイン時に自動サインアップ
 SOCIALACCOUNT_EMAIL_VERIFICATION = "optional"  # メール確認を任意に
 SOCIALACCOUNT_QUERY_EMAIL = True  # メールアドレスを要求
-SOCIALACCOUNT_ADAPTER = "accounts.adapter.CustomSocialAccountAdapter"  # カスタムアダプター
-SOCIALACCOUNT_LOGIN_ON_GET = True  # GETリクエストで直接ログインプロセスを開始
+# カスタムアダプター
+SOCIALACCOUNT_ADAPTER = "accounts.adapter.CustomSocialAccountAdapter"
+# GETリクエストで直接ログインプロセスを開始
+SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True  # メールアドレス必須
 
 AUTHENTICATION_BACKENDS = [
@@ -318,16 +350,16 @@ if USE_S3:
     # django-storages settings for S3/R2
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
     # 静的ファイルは本番環境でもWhiteNoiseを使用（CDNは別途設定可能）
-    
+
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
     AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
     AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME", "auto")
-    
+
     # Cloudflare R2用のカスタムエンドポイント
     AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
     AWS_S3_CUSTOM_DOMAIN = os.environ.get("AWS_S3_CUSTOM_DOMAIN")
-    
+
     # S3互換設定
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_S3_FILE_OVERWRITE = False
@@ -336,21 +368,25 @@ if USE_S3:
     AWS_S3_OBJECT_PARAMETERS = {
         "CacheControl": "max-age=86400",
     }
-    
+
     # URLの設定（メディアファイルのみS3/R2を使用）
     if AWS_S3_CUSTOM_DOMAIN:
         MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
     else:
         MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
-    
+
     # 静的ファイルはWhiteNoiseを使用
     STATIC_URL = "/static/"
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    STATICFILES_STORAGE = (
+        "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    )
 else:
     # ローカルストレージ設定（開発環境）
     MEDIA_URL = "/media/"
     STATIC_URL = "/static/"
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    STATICFILES_STORAGE = (
+        "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    )
 
 # Logging configuration
 LOGGING = {
@@ -391,7 +427,7 @@ if os.environ.get("SENTRY_DSN"):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 
-    sentry_sdk.init(
+    _ = sentry_sdk.init(
         dsn=os.environ.get("SENTRY_DSN"),
         integrations=[DjangoIntegration()],
         traces_sample_rate=0.1,

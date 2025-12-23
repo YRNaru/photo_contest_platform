@@ -6,11 +6,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.db import connection
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.urls import include, path
 
 
-def api_root(request):
+def api_root(_request: HttpRequest) -> JsonResponse:
     """API root endpoint"""
     return JsonResponse({
         "message": "Photo Contest Platform API",
@@ -24,7 +24,7 @@ def api_root(request):
     })
 
 
-def health_check(request):
+def health_check(_request: HttpRequest) -> JsonResponse:
     """Health check endpoint for monitoring"""
     try:
         # Check database connection
@@ -46,8 +46,14 @@ urlpatterns = [
     path("health/", health_check, name="health-check"),
     path("admin/", admin.site.urls),
     path("api/auth/", include("dj_rest_auth.urls")),
-    path("api/auth/registration/", include("dj_rest_auth.registration.urls")),
-    path("api/auth/google/", include("allauth.socialaccount.providers.google.urls")),
+    path(
+        "api/auth/registration/",
+        include("dj_rest_auth.registration.urls"),
+    ),
+    path(
+        "api/auth/google/",
+        include("allauth.socialaccount.providers.google.urls"),
+    ),
     path("api/", include("contest.urls")),
     path("api/", include("accounts.urls")),
     # カスタムプロフィールページ
@@ -58,5 +64,9 @@ urlpatterns = [
 
 # Serve media files in development
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+    )
+    urlpatterns += static(
+        settings.STATIC_URL, document_root=settings.STATIC_ROOT
+    )

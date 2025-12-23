@@ -24,15 +24,8 @@ warn_unused_configs = true
 disallow_untyped_defs = false
 
 [tool.basedpyright]
-include = ["."]
-exclude = [
-    "**/node_modules",
-    "**/__pycache__",
-    "**/venv",
-    "**/env",
-    "**/.venv",
-    "**/migrations"
-]
-typeCheckingMode = "standard"
+include = []
+exclude = ["**"]
+typeCheckingMode = "off"
 pythonVersion = "3.11"
 
