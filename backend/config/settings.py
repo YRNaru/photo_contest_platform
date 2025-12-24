@@ -96,6 +96,7 @@ DATABASES = {
     "default": dj_database_url.config(
         default="mysql://contestuser:contestpass@localhost:3307/contest",
         conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 
@@ -104,6 +105,7 @@ DATABASES = {
 if "mysql" in DATABASES["default"]["ENGINE"]:
     DATABASES["default"]["OPTIONS"] = {
         "charset": "utf8mb4",
+        "connect_timeout": 30,
     }
 
 # Password validation
