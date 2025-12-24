@@ -14,7 +14,7 @@ import django
 
 django.setup()
 
-MAX_RETRIES = 30
+MAX_RETRIES = 10  # 最大20秒（10回 × 2秒）
 RETRY_DELAY = 2
 
 
