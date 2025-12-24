@@ -203,14 +203,40 @@ Next.jsアプリはVercelにデプロイすることもできます。
 
 ## 8. Google OAuthの更新
 
+### 8.1 Google Cloud Consoleでの設定
+
 Google Cloud Consoleで認証情報を更新:
 
 1. 承認済みのJavaScript生成元:
    - `https://your-frontend-url.onrender.com`
 
-2. 承認済みのリダイレクトURI:
-   - `https://your-frontend-url.onrender.com`
-   - `https://your-backend-url.onrender.com/api/auth/google/callback/`
+2. **承認済みのリダイレクトURI（重要）**:
+   - `https://your-backend-url.onrender.com/accounts/google/login/callback/`
+   - ⚠️ 末尾の `/` を忘れずに追加してください
+
+### 8.2 Django Siteモデルの更新
+
+本番環境では、DjangoのSiteモデルのドメインを本番環境のドメインに更新する必要があります。
+
+Renderのシェルから実行（またはデプロイ後のスクリプトで自動実行）:
+
+```bash
+python scripts/update_site_domain.py your-backend-url.onrender.com
+```
+
+または、Django管理画面から手動で更新:
+1. `https://your-backend-url.onrender.com/admin/sites/site/1/change/` にアクセス
+2. Domain nameを `your-backend-url.onrender.com` に変更
+3. Display nameを適切な名前に変更
+4. 保存
+
+**重要**: Siteモデルのドメインが正しく設定されていないと、OAuthのリダイレクトURIがlocalhostになってしまいます。
+
+### 8.3 Twitter OAuthの設定
+
+Twitter Developer Portalでも同様に、Callback URIに本番環境のURLを追加:
+
+- `https://your-backend-url.onrender.com/accounts/twitter_oauth2/login/callback/`
 
 ## 9. GitHub Actionsの設定
 

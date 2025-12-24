@@ -26,7 +26,9 @@ export default function MyEntriesPage() {
         }
 
         // 現在のユーザー情報を取得してからエントリーを取得
-        const userResponse = await fetch('http://localhost:18000/api/users/me/', {
+        const { getBackendBaseUrl } = await import('@/lib/backend-url')
+        const backendUrl = getBackendBaseUrl()
+        const userResponse = await fetch(`${backendUrl}/api/users/me/`, {
           headers: {
             Authorization: `Bearer ${storedToken}`,
           },

@@ -2,18 +2,21 @@
 
 import { FaGoogle, FaTwitter } from 'react-icons/fa'
 import { useState } from 'react'
+import { getBackendBaseUrl } from '@/lib/backend-url'
 
 export function LoginButton() {
   const [showOptions, setShowOptions] = useState(false)
 
   const handleGoogleLogin = () => {
     // Google OAuth2フローを開始
-    window.location.href = 'http://localhost:18000/accounts/google/login/'
+    const backendUrl = getBackendBaseUrl()
+    window.location.href = `${backendUrl}/accounts/google/login/`
   }
 
   const handleTwitterLogin = () => {
     // Twitter OAuth2フローを開始
-    window.location.href = 'http://localhost:18000/accounts/twitter_oauth2/login/'
+    const backendUrl = getBackendBaseUrl()
+    window.location.href = `${backendUrl}/accounts/twitter_oauth2/login/`
   }
 
   return (

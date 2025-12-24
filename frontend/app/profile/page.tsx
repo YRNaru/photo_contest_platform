@@ -78,7 +78,9 @@ export default function ProfilePage() {
       localStorage.removeItem('refresh_token')
 
       // バックエンドのログアウトエンドポイントを呼ぶ
-      window.location.href = 'http://localhost:18000/accounts/logout/'
+      const { getBackendBaseUrl } = await import('@/lib/backend-url')
+      const backendUrl = getBackendBaseUrl()
+      window.location.href = `${backendUrl}/accounts/logout/`
     } catch (err) {
       console.error('ログアウトエラー:', err)
     }
