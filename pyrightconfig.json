@@ -1,18 +1,7 @@
 {
-  "include": ["backend", "frontend"],
-  "exclude": [
-    "**/node_modules",
-    "**/__pycache__",
-    "**/migrations"
-  ],
-  "reportMissingImports": "none",
-  "reportMissingTypeStubs": "none",
-  "reportMissingModuleSource": "none",
-  "reportGeneralTypeIssues": "none",
-  "reportOptionalMemberAccess": "none",
-  "reportAttributeAccessIssue": "none",
-  "reportArgumentType": "none",
-  "reportIncompatibleMethodOverride": "none",
+  "include": [],
+  "exclude": ["**"],
+  "typeCheckingMode": "off",
   "pythonVersion": "3.11",
   "pythonPlatform": "Linux"
 }

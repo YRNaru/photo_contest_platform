@@ -228,20 +228,35 @@ GitHubリポジトリの「Settings」→「Secrets and variables」→「Action
 
 ## 10. 初回デプロイ後の設定
 
-### 10.1 マイグレーション実行
+### 10.1 スーパーユーザーの作成（環境変数から自動作成）
 
-Renderのシェルから:
+**無料プランでも利用可能な方法:**
+
+Renderの環境変数に以下を設定:
+
+```
+DJANGO_SUPERUSER_EMAIL=admin@example.com
+DJANGO_SUPERUSER_PASSWORD=your-secure-password
+DJANGO_SUPERUSER_USERNAME=admin  # オプション（デフォルト: admin）
+```
+
+アプリケーション起動時に自動的にスーパーユーザーが作成されます。
+既に存在する場合はスキップされます。
+
+**注意:** セキュリティのため、本番環境では強力なパスワードを設定してください。
+
+### 10.2 マイグレーションと静的ファイル収集
+
+これらは起動スクリプト（`entrypoint.sh`）で自動実行されますが、
+手動で実行する場合はRenderのシェルから:
 
 ```bash
 python manage.py migrate
-python manage.py createsuperuser
-```
-
-### 10.2 静的ファイル収集
-
-```bash
 python manage.py collectstatic --noinput
 ```
+
+**注意:** 無料プランではシェルアクセスが利用できないため、
+環境変数からの自動作成方法（10.1）を使用してください。
 
 ## 11. ヘルスチェックとモニタリング
 
