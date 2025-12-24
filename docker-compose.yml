@@ -1,19 +1,19 @@
 name: photocontest
 services:
   db:
-    image: mysql:8.0
+    image: postgres:16-alpine
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-contest}
+      POSTGRES_USER: ${POSTGRES_USER:-contestuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-contestpass}
     ports:
-      - "13306:3306"
+      - "15432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-contestuser}"]
+      interval: 5s
+      timeout: 5s
       retries: 10
 
   redis:

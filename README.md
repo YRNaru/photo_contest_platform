@@ -19,7 +19,7 @@ VRChatのフォトコンテスト用のWebアプリケーションプラット�
 ### バックエンド
 - Django 5.0
 - Django REST Framework
-- MySQL 8.0
+- PostgreSQL 16
 - Redis
 - Celery（画像処理タスク）
 - Google OAuth 2.0
@@ -49,7 +49,7 @@ cat > .env << 'EOF'
 DEBUG=True
 SECRET_KEY=demo-secret-key
 ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=mysql://contestuser:contestpass@db:3306/contest
+DATABASE_URL=postgresql://contestuser:contestpass@db:5432/contest
 REDIS_URL=redis://redis:6379/0
 CORS_ALLOWED_ORIGINS=http://localhost:13000
 CELERY_BROKER_URL=redis://redis:6379/0
@@ -155,13 +155,15 @@ npm run build
    - Start Command: `npm start`
    - 環境変数を設定
 
-3. **MySQL（Render Database）**
-   - MySQL 8インスタンスを作成
-   - DATABASE_URLを設定
+3. **PostgreSQL（Render Database）**
+   - PostgreSQLインスタンスを作成（無料プラン利用可）
+   - DATABASE_URLは自動設定される
 
 4. **Redis（Render Redis）**
    - Redisインスタンスを作成
    - REDIS_URLを設定
+
+📖 **詳細**: [docs/RENDER_DEPLOYMENT.md](./docs/RENDER_DEPLOYMENT.md)
 
 ### GitHub Actionsの設定
 

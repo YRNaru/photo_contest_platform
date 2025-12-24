@@ -94,19 +94,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 DATABASES = {
     "default": dj_database_url.config(
-        default="mysql://contestuser:contestpass@localhost:3307/contest",
+        default="postgresql://contestuser:contestpass@localhost:5432/contest",
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
-
-# MySQLで絵文字などの4バイトUTF-8文字を扱えるようにする
-# PostgreSQLの場合は不要なのでエンジンをチェック
-if "mysql" in DATABASES["default"]["ENGINE"]:
-    DATABASES["default"]["OPTIONS"] = {
-        "charset": "utf8mb4",
-        "connect_timeout": 30,
-    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
