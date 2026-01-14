@@ -29,13 +29,13 @@ export function LoginButton() {
       </button>
 
       {showOptions && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border py-2 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
           <button
             onClick={() => {
               handleGoogleLogin()
               setShowOptions(false)
             }}
-            className="flex items-center gap-3 px-4 py-3 w-full hover:bg-gray-100 transition"
+            className="flex items-center gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-900 dark:text-gray-100"
           >
             <FaGoogle className="text-red-500" />
             <span>Googleでログイン</span>
@@ -46,7 +46,7 @@ export function LoginButton() {
               handleTwitterLogin()
               setShowOptions(false)
             }}
-            className="flex items-center gap-3 px-4 py-3 w-full hover:bg-gray-100 transition"
+            className="flex items-center gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-900 dark:text-gray-100"
           >
             <FaTwitter className="text-blue-400" />
             <span>Twitterでログイン</span>
