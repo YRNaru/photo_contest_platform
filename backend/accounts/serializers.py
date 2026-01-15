@@ -1,4 +1,4 @@
-import os
+from urllib.parse import urlparse
 
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
@@ -27,19 +27,14 @@ class UserSerializer(serializers.ModelSerializer):
     def get_avatar_url(self, obj):
         """アバター画像のURLを取得"""
         if obj.avatar:
-            request = self.context.get("request")
-            if request:
-                # requestから完全なURLを生成
-                return request.build_absolute_uri(obj.avatar.url)
-            else:
-                # requestがない場合は環境変数からベースURLを取得
-                api_url = os.environ.get(
-                    "NEXT_PUBLIC_API_URL", "http://localhost:18000/api"
-                )
-                backend_url = os.environ.get(
-                    "BACKEND_URL", api_url.replace("/api", "")
-                )
-                return f"{backend_url}{obj.avatar.url}"
+            # 相対パスを返す（Next.jsのrewriteがバックエンドにプロキシ）
+            avatar_url = obj.avatar.url
+            # S3などの絶対URLの場合は相対パスに変換
+            if avatar_url.startswith(("http://", "https://")):
+                # 絶対URLから相対パスを抽出
+                parsed = urlparse(avatar_url)
+                return parsed.path
+            return avatar_url
         return obj.avatar_url
 
 
@@ -81,19 +76,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def get_avatar_url(self, obj):
         """アバター画像のURLを取得"""
         if obj.avatar:
-            request = self.context.get("request")
-            if request:
-                # requestから完全なURLを生成
-                return request.build_absolute_uri(obj.avatar.url)
-            else:
-                # requestがない場合は環境変数からベースURLを取得
-                api_url = os.environ.get(
-                    "NEXT_PUBLIC_API_URL", "http://localhost:18000/api"
-                )
-                backend_url = os.environ.get(
-                    "BACKEND_URL", api_url.replace("/api", "")
-                )
-                return f"{backend_url}{obj.avatar.url}"
+            # 相対パスを返す（Next.jsのrewriteがバックエンドにプロキシ）
+            avatar_url = obj.avatar.url
+            # S3などの絶対URLの場合は相対パスに変換
+            if avatar_url.startswith(("http://", "https://")):
+                # 絶対URLから相対パスを抽出
+                parsed = urlparse(avatar_url)
+                return parsed.path
+            return avatar_url
         return obj.avatar_url
 
     def get_entry_count(self, obj):
