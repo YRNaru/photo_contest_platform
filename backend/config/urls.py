@@ -6,9 +6,12 @@ import os
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.db import connection
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, Http404, HttpResponse, FileResponse, JsonResponse
 from django.urls import include, path
+from django.views.decorators.cache import cache_control
+from django.views.static import serve
 
 
 def api_root(_request: HttpRequest) -> JsonResponse:
@@ -68,9 +71,28 @@ urlpatterns = [
 use_s3 = os.environ.get("USE_S3", "False") == "True"
 if not use_s3:
     # ローカルストレージの場合、本番環境でもメディアファイルを提供
-    urlpatterns += static(
-        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-    )
+    # 開発環境ではstatic()を使用、本番環境では専用ビューを使用
+    if settings.DEBUG:
+        urlpatterns += static(
+            settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+        )
+    else:
+        # 本番環境用のメディアファイル提供ビュー
+        @cache_control(max_age=86400, public=True)
+        def serve_media(request, path):
+            """本番環境でメディアファイルを提供"""
+            file_path = settings.MEDIA_ROOT / path
+            if not file_path.exists() or not file_path.is_file():
+                raise Http404("File not found")
+            return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+        urlpatterns += [
+            path(
+                f"{settings.MEDIA_URL.strip('/')}/<path:path>",
+                serve_media,
+                name="media",
+            ),
+        ]
 
 # Serve static files in development
 if settings.DEBUG:
