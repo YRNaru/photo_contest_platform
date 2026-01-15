@@ -229,7 +229,9 @@ class ContestViewSet(viewsets.ModelViewSet):
         from accounts.serializers import UserSerializer
 
         judges = contest.judges.all()
-        serializer = UserSerializer(judges, many=True)
+        serializer = UserSerializer(
+            judges, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     @action(detail=True, methods=["get"])

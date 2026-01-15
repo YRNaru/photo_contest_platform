@@ -1,3 +1,5 @@
+import os
+
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
@@ -25,8 +27,19 @@ class UserSerializer(serializers.ModelSerializer):
     def get_avatar_url(self, obj):
         """アバター画像のURLを取得"""
         if obj.avatar:
-            # バックエンドの完全なURLを返す（ポート18000）
-            return f"http://localhost:18000{obj.avatar.url}"
+            request = self.context.get("request")
+            if request:
+                # requestから完全なURLを生成
+                return request.build_absolute_uri(obj.avatar.url)
+            else:
+                # requestがない場合は環境変数からベースURLを取得
+                api_url = os.environ.get(
+                    "NEXT_PUBLIC_API_URL", "http://localhost:18000/api"
+                )
+                backend_url = os.environ.get(
+                    "BACKEND_URL", api_url.replace("/api", "")
+                )
+                return f"{backend_url}{obj.avatar.url}"
         return obj.avatar_url
 
 
@@ -68,8 +81,19 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def get_avatar_url(self, obj):
         """アバター画像のURLを取得"""
         if obj.avatar:
-            # バックエンドの完全なURLを返す（ポート18000）
-            return f"http://localhost:18000{obj.avatar.url}"
+            request = self.context.get("request")
+            if request:
+                # requestから完全なURLを生成
+                return request.build_absolute_uri(obj.avatar.url)
+            else:
+                # requestがない場合は環境変数からベースURLを取得
+                api_url = os.environ.get(
+                    "NEXT_PUBLIC_API_URL", "http://localhost:18000/api"
+                )
+                backend_url = os.environ.get(
+                    "BACKEND_URL", api_url.replace("/api", "")
+                )
+                return f"{backend_url}{obj.avatar.url}"
         return obj.avatar_url
 
     def get_entry_count(self, obj):
@@ -91,8 +115,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
             # Twitter情報
             if sa.provider == "twitter_oauth2":
-                account_data["username"] = sa.extra_data.get("username") or sa.extra_data.get("screen_name")
-                account_data["profile_image_url"] = sa.extra_data.get("profile_image_url")
+                account_data["username"] = (
+                    sa.extra_data.get("username")
+                    or sa.extra_data.get("screen_name")
+                )
+                account_data["profile_image_url"] = (
+                    sa.extra_data.get("profile_image_url")
+                )
 
             # Google情報
             elif sa.provider == "google":

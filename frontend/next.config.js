@@ -22,6 +22,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'photo-contest-platform-1.onrender.com',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'pbs.twimg.com',
         pathname: '/**',
       },

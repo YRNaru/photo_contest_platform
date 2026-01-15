@@ -176,10 +176,13 @@ def get_session_token(request: Request) -> Response:
     # JWTトークンを生成
     refresh = RefreshToken.for_user(request.user)
 
+    user_serializer = UserDetailSerializer(
+        request.user, context={"request": request}
+    )
     return Response(
         {
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh),
-            "user": UserDetailSerializer(request.user).data,
+            "user": user_serializer.data,
         }
     )
