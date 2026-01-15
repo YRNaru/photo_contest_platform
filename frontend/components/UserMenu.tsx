@@ -32,7 +32,13 @@ export function UserMenu() {
       >
         {user.avatar_url ? (
           <div className="relative w-8 h-8 rounded-full overflow-hidden">
-            <Image src={user.avatar_url} alt={user.username} fill className="object-cover" />
+            <Image
+              src={user.avatar_url}
+              alt={user.username}
+              fill
+              className="object-cover"
+              unoptimized
+            />
           </div>
         ) : (
           <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">

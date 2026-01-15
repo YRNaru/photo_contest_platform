@@ -41,6 +41,7 @@ export function AvatarSection({
                   alt="Profile"
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               </div>
             ) : (

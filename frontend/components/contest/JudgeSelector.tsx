@@ -155,6 +155,7 @@ export function JudgeSelector({
                                 alt={user.username}
                                 fill
                                 className="object-cover"
+                                unoptimized
                               />
                             </div>
                           ) : (

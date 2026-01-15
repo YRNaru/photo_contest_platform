@@ -185,6 +185,7 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
                       alt={judge.username}
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                   </div>
                 ) : (
