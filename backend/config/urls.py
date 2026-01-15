@@ -2,6 +2,7 @@
 URL configuration for photo_contest_platform project.
 """
 
+import os
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -62,11 +63,17 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
 ]
 
-# Serve media files in development
-if settings.DEBUG:
+# Serve media files
+# 本番環境でもメディアファイルを提供（S3を使用していない場合）
+use_s3 = os.environ.get("USE_S3", "False") == "True"
+if not use_s3:
+    # ローカルストレージの場合、本番環境でもメディアファイルを提供
     urlpatterns += static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
     )
+
+# Serve static files in development
+if settings.DEBUG:
     urlpatterns += static(
         settings.STATIC_URL, document_root=settings.STATIC_ROOT
     )
