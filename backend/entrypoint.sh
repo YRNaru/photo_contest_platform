@@ -22,6 +22,10 @@ GUNICORN_PID=$!
     # スーパーユーザー作成
     echo "Creating superuser from environment variables..."
     python manage.py create_superuser_from_env || echo "Info: Superuser creation skipped."
+
+    # OAuth設定
+    echo "Setting up OAuth from environment variables..."
+    python manage.py setup_oauth_from_env || echo "Info: OAuth setup skipped."
 } &
 
 # Gunicornプロセスを待つ（メインプロセス）
