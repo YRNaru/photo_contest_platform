@@ -192,6 +192,10 @@ else:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_DOMAIN = None
+    # セッションの有効期限を延長（OAuth認証に時間がかかる場合があるため）
+    SESSION_COOKIE_AGE = 3600  # 1時間
+    # セッションをデータベースに保存（デフォルト）
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
     CSRF_COOKIE_SAMESITE = "None"
     CSRF_COOKIE_SECURE = True
@@ -388,8 +392,9 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
+            "format": "[{levelname}] {asctime} {module}.{funcName}:{lineno} - {message}",
             "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
     "handlers": {
@@ -416,6 +421,21 @@ LOGGING = {
         "django.db.backends": {
             "handlers": ["console"],
             "level": "ERROR",
+            "propagate": False,
+        },
+        "allauth": {
+            "handlers": ["console"],
+            "level": "INFO",  # 本番環境でもINFOレベルで出力
+            "propagate": False,
+        },
+        "accounts": {
+            "handlers": ["console"],
+            "level": "INFO",  # 本番環境でもINFOレベルで出力
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "WARNING",  # WARNING以上を出力（エラーも含む）
             "propagate": False,
         },
     },
