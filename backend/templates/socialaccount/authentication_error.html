@@ -19,11 +19,25 @@
                 ソーシャルアカウントでの認証中にエラーが発生しました。
             {% endif %}
         </p>
-        {% if request.GET.error %}
+
+        {# allauth が渡してくる auth_error オブジェクトの情報を表示 #}
+        {% if auth_error %}
+            <p style="color: #c33; margin: 0; font-size: 0.9em; word-break: break-all;">
+                <strong>エラー詳細:</strong>
+                {% if auth_error.message %}
+                    {{ auth_error.message }}
+                {% elif auth_error.exception %}
+                    {{ auth_error.exception }}
+                {% else %}
+                    {{ auth_error }}
+                {% endif %}
+            </p>
+        {% elif request.GET.error %}
             <p style="color: #c33; margin: 0; font-size: 0.9em; word-break: break-all;">
                 <strong>エラー詳細:</strong> {{ request.GET.error|truncatewords:20 }}
             </p>
         {% endif %}
+
         {% if DEBUG %}
             <div style="margin-top: 15px; padding: 10px; background: #fff; border: 1px solid #ccc; border-radius: 5px; text-align: left; font-size: 0.85em; color: #666;">
                 <strong>デバッグ情報:</strong><br>
