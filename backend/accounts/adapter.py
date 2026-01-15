@@ -5,7 +5,7 @@
 
 import logging
 
-from allauth.exceptions import ImmediateHttpResponse
+from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth import get_user_model, login
 from django.http import HttpResponseRedirect

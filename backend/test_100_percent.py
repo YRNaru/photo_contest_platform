@@ -7,7 +7,7 @@
 from datetime import timedelta
 from unittest.mock import Mock, patch
 
-from allauth.exceptions import ImmediateHttpResponse
+from allauth.core.exceptions import ImmediateHttpResponse
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
 from django.utils import timezone

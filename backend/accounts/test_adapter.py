@@ -3,7 +3,7 @@
 from unittest.mock import Mock, patch  # noqa: F401
 
 from allauth.account.models import EmailAddress as AllauthEmailAddress  # noqa: F401
-from allauth.exceptions import ImmediateHttpResponse
+from allauth.core.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.models import EmailAddress  # noqa: F401
 from allauth.socialaccount.models import SocialAccount, SocialLogin  # noqa: F401
 from django.contrib.auth import get_user_model
