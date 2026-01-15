@@ -1,3 +1,4 @@
+import os
 from urllib.parse import urlparse
 
 from allauth.socialaccount.models import SocialAccount
@@ -27,14 +28,20 @@ class UserSerializer(serializers.ModelSerializer):
     def get_avatar_url(self, obj):
         """アバター画像のURLを取得"""
         if obj.avatar:
-            # 相対パスを返す（Next.jsのrewriteがバックエンドにプロキシ）
             avatar_url = obj.avatar.url
             # S3などの絶対URLの場合は相対パスに変換
             if avatar_url.startswith(("http://", "https://")):
-                # 絶対URLから相対パスを抽出
                 parsed = urlparse(avatar_url)
-                return parsed.path
-            return avatar_url
+                avatar_url = parsed.path
+            
+            # フロントエンドのドメイン経由の絶対URLを返す
+            # Next.jsのrewriteがバックエンドにプロキシし、画像最適化も動作
+            frontend_url = os.environ.get(
+                "FRONTEND_URL", "http://localhost:13000"
+            )
+            # 末尾のスラッシュを削除
+            frontend_url = frontend_url.rstrip("/")
+            return f"{frontend_url}{avatar_url}"
         return obj.avatar_url
 
 
@@ -76,14 +83,20 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def get_avatar_url(self, obj):
         """アバター画像のURLを取得"""
         if obj.avatar:
-            # 相対パスを返す（Next.jsのrewriteがバックエンドにプロキシ）
             avatar_url = obj.avatar.url
             # S3などの絶対URLの場合は相対パスに変換
             if avatar_url.startswith(("http://", "https://")):
-                # 絶対URLから相対パスを抽出
                 parsed = urlparse(avatar_url)
-                return parsed.path
-            return avatar_url
+                avatar_url = parsed.path
+            
+            # フロントエンドのドメイン経由の絶対URLを返す
+            # Next.jsのrewriteがバックエンドにプロキシし、画像最適化も動作
+            frontend_url = os.environ.get(
+                "FRONTEND_URL", "http://localhost:13000"
+            )
+            # 末尾のスラッシュを削除
+            frontend_url = frontend_url.rstrip("/")
+            return f"{frontend_url}{avatar_url}"
         return obj.avatar_url
 
     def get_entry_count(self, obj):
