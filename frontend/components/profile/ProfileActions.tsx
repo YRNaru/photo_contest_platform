@@ -43,7 +43,8 @@ export function ProfileActions({
         </a>
       )}
 
-      {!googleAccount && (
+      {/* 本番環境ではGoogle連携ボタンを非表示 */}
+      {!googleAccount && process.env.NODE_ENV !== 'production' && (
         <a
           href={`${backendUrl}/accounts/google/login/`}
           className="group bg-white dark:bg-gray-800 border-2 border-red-500 dark:border-red-600 text-red-600 dark:text-red-400 py-3 sm:py-4 px-6 rounded-xl font-bold hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-center flex items-center justify-center gap-2"
