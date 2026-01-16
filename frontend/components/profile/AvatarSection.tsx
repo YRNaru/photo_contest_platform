@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { FaUpload, FaCheck } from 'react-icons/fa'
 import Image from 'next/image'
 import { User, SocialAccount } from '@/lib/types'
@@ -23,6 +23,12 @@ export function AvatarSection({
   twitterAccount,
 }: AvatarSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // 画像URLにキャッシュバスターを追加（avatar_urlが変更されたときにのみ更新）
+  const avatarUrlWithCacheBuster = useMemo(() => {
+    if (!user.avatar_url) return null
+    return `${user.avatar_url}${user.avatar_url.includes('?') ? '&' : '?'}t=${Date.now()}`
+  }, [user.avatar_url])
 
   return (
     <div className="mb-8 animate-fadeInUp">
@@ -34,10 +40,11 @@ export function AvatarSection({
         {/* アバター表示 */}
         <div className="relative group">
           <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full overflow-hidden border-4 border-purple-500 dark:border-purple-600 shadow-xl group-hover:scale-105 transition-transform duration-300">
-            {avatarPreview || user.avatar_url ? (
+            {avatarPreview || avatarUrlWithCacheBuster ? (
               <div className="relative w-full h-full">
                 <Image
-                  src={avatarPreview || user.avatar_url || ''}
+                  key={avatarPreview || avatarUrlWithCacheBuster}
+                  src={avatarPreview || avatarUrlWithCacheBuster || ''}
                   alt="Profile"
                   fill
                   className="object-cover"

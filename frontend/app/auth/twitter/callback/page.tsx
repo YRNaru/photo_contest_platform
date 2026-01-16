@@ -20,11 +20,13 @@ function TwitterCallbackContent() {
         localStorage.setItem('access_token', access)
         localStorage.setItem('refresh_token', refresh)
 
-        // ユーザー情報を読み込み
+        // ユーザー情報を読み込み（認証状態を更新）
         await loadUser()
 
-        // ホームページにリダイレクト
-        router.push('/')
+        // 少し待ってからリダイレクト（状態更新を確実にする）
+        setTimeout(() => {
+          router.push('/')
+        }, 100)
       } else {
         // エラーの場合はホームにリダイレクト
         console.error('No tokens received from Twitter OAuth')

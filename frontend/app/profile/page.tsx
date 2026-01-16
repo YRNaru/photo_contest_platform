@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { userApi } from '@/lib/api'
+import { useAuth } from '@/lib/auth'
 import { User, SocialAccount } from '@/lib/types'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { AvatarSection } from '@/components/profile/AvatarSection'
@@ -13,6 +14,7 @@ import { ProfileActions } from '@/components/profile/ProfileActions'
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { loadUser } = useAuth()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -118,6 +120,10 @@ export default function ProfilePage() {
 
       const response = await userApi.updateProfile(formData)
       setUser(response.data)
+      
+      // useAuthの状態も更新（ヘッダーのUserMenuに反映される）
+      await loadUser()
+      
       setUploadSuccess(true)
 
       // 成功メッセージを3秒後に消す
@@ -143,6 +149,10 @@ export default function ProfilePage() {
       const response = await userApi.setTwitterIcon()
       setUser(response.data)
       setAvatarPreview(null)
+      
+      // useAuthの状態も更新（ヘッダーのUserMenuに反映される）
+      await loadUser()
+      
       setUploadSuccess(true)
 
       // 成功メッセージを3秒後に消す

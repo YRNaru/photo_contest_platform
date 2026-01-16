@@ -3,13 +3,19 @@
 import { useAuth } from '@/lib/auth'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { FaUser, FaSignOutAlt, FaCog, FaImage } from 'react-icons/fa'
 
 export function UserMenu() {
   const { user, logout } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  
+  // 画像URLにキャッシュバスターを追加（avatar_urlが変更されたときにのみ更新）
+  const avatarUrlWithCacheBuster = useMemo(() => {
+    if (!user?.avatar_url) return null
+    return `${user.avatar_url}${user.avatar_url.includes('?') ? '&' : '?'}t=${Date.now()}`
+  }, [user?.avatar_url])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -30,10 +36,11 @@ export function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
       >
-        {user.avatar_url ? (
+        {avatarUrlWithCacheBuster ? (
           <div className="relative w-8 h-8 rounded-full overflow-hidden">
             <Image
-              src={user.avatar_url}
+              key={avatarUrlWithCacheBuster}
+              src={avatarUrlWithCacheBuster}
               alt={user.username}
               fill
               className="object-cover"

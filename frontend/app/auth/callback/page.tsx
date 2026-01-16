@@ -2,14 +2,16 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useAuth } from '@/lib/auth'
 
 function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { loadUser } = useAuth()
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const processCallback = () => {
+    const processCallback = async () => {
       try {
         // URLパラメータからトークンを取得
         const accessToken = searchParams.get('access_token')
@@ -21,6 +23,9 @@ function AuthCallbackContent() {
           localStorage.setItem('refresh_token', refreshToken)
 
           console.log('ログイン成功: トークンを保存しました')
+
+          // ユーザー情報を読み込み（認証状態を更新）
+          await loadUser()
 
           // プロフィールページにリダイレクト
           router.push('/profile')
@@ -45,7 +50,7 @@ function AuthCallbackContent() {
     }
 
     processCallback()
-  }, [router, searchParams])
+  }, [router, searchParams, loadUser])
 
   if (error) {
     return (
