@@ -50,13 +50,38 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         """現在のユーザー情報を更新"""
         user = request.user
 
+        # ユーザー名の更新
+        if "username" in request.data:
+            username = request.data["username"]
+            # ユーザー名のバリデーション
+            if username and username.strip():
+                # 既存のユーザー名と異なる場合のみチェック
+                if username != user.username:
+                    # ユーザー名の重複チェック
+                    if User.objects.filter(username=username).exists():
+                        return Response(
+                            {"error": "このユーザー名は既に使用されています"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                user.username = username.strip()
+            else:
+                return Response(
+                    {"error": "ユーザー名は必須です"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         # アバター画像のアップロード
         try:
             if request.FILES and "avatar" in request.FILES:
                 user.avatar = request.FILES["avatar"]
-                user.save()
         except (KeyError, AttributeError):
             pass
+
+        # 変更があれば保存
+        has_username_update = "username" in request.data
+        has_avatar_update = request.FILES and "avatar" in request.FILES
+        if has_username_update or has_avatar_update:
+            user.save()
 
         serializer = UserDetailSerializer(user, context={"request": request})
         return Response(serializer.data)

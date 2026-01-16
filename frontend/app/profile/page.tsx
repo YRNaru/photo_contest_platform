@@ -203,7 +203,10 @@ export default function ProfilePage() {
             onSetTwitterIcon={handleSetTwitterIcon}
             twitterAccount={twitterAccount}
           />
-          <BasicInfoSection user={user} />
+          <BasicInfoSection
+            user={user}
+            onUserUpdate={(updatedUser) => setUser(updatedUser)}
+          />
           <StatsSection user={user} />
           <SocialAccountsSection twitterAccount={twitterAccount} googleAccount={googleAccount} />
           <ProfileActions
