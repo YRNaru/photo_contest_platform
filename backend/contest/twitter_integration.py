@@ -33,14 +33,14 @@ class TwitterFetcher:
                 access_token_secret=settings.TWITTER_ACCESS_TOKEN_SECRET,
             )
 
-    def fetch_tweets_by_hashtag(self, hashtag, since_time=None, max_results=100):
+    def fetch_tweets_by_hashtag(self, hashtag, since_time=None, max_results=10):
         """
         ハッシュタグでツイートを検索
 
         Args:
             hashtag: ハッシュタグ（#なし）
             since_time: この時刻以降のツイートを取得
-            max_results: 最大取得数（10-100）
+            max_results: 最大取得数（10-100）※デフォルト10
 
         Returns:
             list: ツイートのリスト
@@ -56,7 +56,7 @@ class TwitterFetcher:
             # since_timeがある場合は追加
             kwargs = {
                 "query": query,
-                "max_results": min(max_results, 100),
+                "max_results": min(max(max_results, 10), 100),  # 最小10、最大100
                 "tweet_fields": ["created_at", "author_id", "text", "attachments"],
                 "expansions": ["author_id", "attachments.media_keys"],
                 "media_fields": ["url", "preview_image_url", "type"],
@@ -193,14 +193,26 @@ class TwitterFetcher:
             logger.info(f"Contest {contest.slug} does not have Twitter auto-fetch enabled")
             return 0
 
-        # 最終取得時刻から取得、なければコンテスト開始時刻から
-        since_time = contest.twitter_last_fetch or contest.start_at
-
         # 現在時刻がコンテスト期間内かチェック
         now = timezone.now()
         if now < contest.start_at or now > contest.end_at:
             logger.info(f"Contest {contest.slug} is not in submission period")
             return 0
+
+        # 初回取得: コンテスト開始時刻から
+        # 2回目以降: 前回取得時刻から（重複なし）
+        if contest.twitter_last_fetch is None:
+            since_time = contest.start_at
+            logger.info(
+                f"First fetch for contest {contest.slug}: "
+                f"fetching from contest start ({since_time})"
+            )
+        else:
+            since_time = contest.twitter_last_fetch
+            logger.info(
+                f"Incremental fetch for contest {contest.slug}: "
+                f"fetching since last fetch ({since_time})"
+            )
 
         # ツイート取得
         tweets = self.fetch_tweets_by_hashtag(contest.twitter_hashtag, since_time=since_time)
@@ -223,6 +235,7 @@ class TwitterFetcher:
 def fetch_all_active_contests():
     """
     すべてのアクティブなコンテストでTwitter取得を実行
+    since_timeで前回取得時刻以降のみ取得し、重複を完全に排除
 
     Returns:
         dict: コンテストごとの作成エントリー数
@@ -238,6 +251,7 @@ def fetch_all_active_contests():
         end_at__gte=timezone.now(),
     )
 
+    # 各コンテストごとに処理（since_timeで重複排除）
     for contest in contests:
         try:
             count = fetcher.fetch_and_create_entries(contest)

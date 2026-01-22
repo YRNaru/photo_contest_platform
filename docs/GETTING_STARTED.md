@@ -275,7 +275,7 @@ docker-compose exec backend python manage.py fetch_twitter
 
 ### 5. 自動実行
 
-15分ごとに自動実行されます（Celery Beat）。
+15分ごとに自動実行されます（Celery Beat）。`since_time`で重複取得を排除し、取得漏れを防止。
 
 ✅ **詳細**: [TWITTER_SETUP.md](./TWITTER_SETUP.md)
 

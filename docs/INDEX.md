@@ -11,6 +11,7 @@
 - [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md) - 本番環境OAuth設定ガイド【NEW】
 - [OAUTH_TROUBLESHOOTING.md](./OAUTH_TROUBLESHOOTING.md) - OAuth認証トラブルシューティング【NEW】
 - [TWITTER_SETUP.md](./TWITTER_SETUP.md) - Twitter連携詳細設定
+- [TWITTER_API_OPTIMIZATION.md](./TWITTER_API_OPTIMIZATION.md) - Twitter API利用料最適化ガイド【NEW】
 
 ### 🛠️ セットアップ・設定
 - [ENV_TEMPLATE.md](./ENV_TEMPLATE.md) - 環境変数テンプレート
