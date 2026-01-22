@@ -16,16 +16,18 @@ from django.views.static import serve
 
 def api_root(_request: HttpRequest) -> JsonResponse:
     """API root endpoint"""
-    return JsonResponse({
-        "message": "Photo Contest Platform API",
-        "status": "running",
-        "endpoints": {
-            "admin": "/admin/",
-            "api": "/api/",
-            "auth": "/api/auth/",
-            "health": "/health/",
+    return JsonResponse(
+        {
+            "message": "Photo Contest Platform API",
+            "status": "running",
+            "endpoints": {
+                "admin": "/admin/",
+                "api": "/api/",
+                "auth": "/api/auth/",
+                "health": "/health/",
+            },
         }
-    })
+    )
 
 
 def health_check(_request: HttpRequest) -> JsonResponse:
@@ -33,16 +35,9 @@ def health_check(_request: HttpRequest) -> JsonResponse:
     try:
         # Check database connection
         connection.ensure_connection()
-        return JsonResponse({
-            "status": "healthy",
-            "database": "connected"
-        })
+        return JsonResponse({"status": "healthy", "database": "connected"})
     except Exception as e:
-        return JsonResponse({
-            "status": "unhealthy",
-            "database": "disconnected",
-            "error": str(e)
-        }, status=503)
+        return JsonResponse({"status": "unhealthy", "database": "disconnected", "error": str(e)}, status=503)
 
 
 urlpatterns = [
@@ -73,9 +68,7 @@ if not use_s3:
     # ローカルストレージの場合、本番環境でもメディアファイルを提供
     # 開発環境ではstatic()を使用、本番環境では専用ビューを使用
     if settings.DEBUG:
-        urlpatterns += static(
-            settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-        )
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     else:
         # 本番環境用のメディアファイル提供ビュー
         @cache_control(max_age=86400, public=True)
@@ -96,6 +89,4 @@ if not use_s3:
 
 # Serve static files in development
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.STATIC_URL, document_root=settings.STATIC_ROOT
-    )
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

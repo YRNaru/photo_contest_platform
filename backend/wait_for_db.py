@@ -1,6 +1,7 @@
 """
 データベース接続を待つスクリプト
 """
+
 import os
 import sys
 import time
@@ -42,4 +43,3 @@ if __name__ == "__main__":
         sys.exit(0)
     else:
         sys.exit(1)
-

@@ -36,9 +36,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     )
     def me(self, request: Request) -> Response:
         """現在のユーザー情報を取得"""
-        serializer = UserDetailSerializer(
-            request.user, context={"request": request}
-        )
+        serializer = UserDetailSerializer(request.user, context={"request": request})
         return Response(serializer.data)
 
     @action(
@@ -103,9 +101,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Twitterアカウントを取得
         try:
-            twitter_account = SocialAccount.objects.get(
-                user=user, provider="twitter_oauth2"
-            )
+            twitter_account = SocialAccount.objects.get(user=user, provider="twitter_oauth2")
         except SocialAccount.DoesNotExist:
             return Response(
                 {"error": "Twitterアカウントが連携されていません"},
@@ -113,9 +109,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         # プロフィール画像URLを取得
-        profile_image_url = twitter_account.extra_data.get(
-            "profile_image_url"
-        )
+        profile_image_url = twitter_account.extra_data.get("profile_image_url")
         if not profile_image_url:
             return Response(
                 {"error": "Twitterプロフィール画像が見つかりません"},
@@ -123,9 +117,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         # 高解像度版のURLに変更（_normal を _400x400 に）
-        profile_image_url = profile_image_url.replace(
-            "_normal", "_400x400"
-        )
+        profile_image_url = profile_image_url.replace("_normal", "_400x400")
 
         try:
             # 画像をダウンロード
@@ -137,22 +129,14 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             file_name = f"twitter_avatar_{user.id}{file_ext}"
 
             # ユーザーのアバターに保存
-            user.avatar.save(
-                file_name, ContentFile(response.content), save=True
-            )
+            user.avatar.save(file_name, ContentFile(response.content), save=True)
 
-            serializer = UserDetailSerializer(
-                user, context={"request": request}
-            )
+            serializer = UserDetailSerializer(user, context={"request": request})
             return Response(serializer.data)
 
         except requests.RequestException as e:
             return Response(
-                {
-                    "error": (
-                        f"Twitter画像のダウンロードに失敗しました: {str(e)}"
-                    )
-                },
+                {"error": (f"Twitter画像のダウンロードに失敗しました: {str(e)}")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -181,10 +165,7 @@ def profile(request: HttpRequest) -> HttpResponse:
 
     # フロントエンドのプロフィールページにリダイレクト（トークン付き）
     frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:13000")
-    redirect_url = (
-        f"{frontend_url}/profile?"
-        f"access_token={access_token}&refresh_token={refresh_token}"
-    )
+    redirect_url = f"{frontend_url}/profile?" f"access_token={access_token}&refresh_token={refresh_token}"
     return redirect(redirect_url)
 
 
@@ -201,9 +182,7 @@ def get_session_token(request: Request) -> Response:
     # JWTトークンを生成
     refresh = RefreshToken.for_user(request.user)
 
-    user_serializer = UserDetailSerializer(
-        request.user, context={"request": request}
-    )
+    user_serializer = UserDetailSerializer(request.user, context={"request": request})
     return Response(
         {
             "access_token": str(refresh.access_token),

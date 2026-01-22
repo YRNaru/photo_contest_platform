@@ -1,6 +1,7 @@
 """
 Django settings for photo_contest_platform project.
 """
+
 # pyright: reportConstantRedefinition=false
 
 import os
@@ -14,23 +15,21 @@ from celery.schedules import crontab
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY", "django-insecure-dev-key-change-this"
-)
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-dev-key-change-this")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.environ.get(
-    "ALLOWED_HOSTS", "localhost,127.0.0.1"
-).split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 # Render.comのドメインを追加
 if not DEBUG:
-    ALLOWED_HOSTS.extend([
-        "photo-contest-platform.onrender.com",
-        ".onrender.com",
-    ])
+    ALLOWED_HOSTS.extend(
+        [
+            "photo-contest-platform.onrender.com",
+            ".onrender.com",
+        ]
+    )
 
 # Application definition
 INSTALLED_APPS = [
@@ -103,28 +102,16 @@ DATABASES = {
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "UserAttributeSimilarityValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation." "UserAttributeSimilarityValidator"),
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "MinimumLengthValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation." "MinimumLengthValidator"),
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "CommonPasswordValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation." "CommonPasswordValidator"),
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "NumericPasswordValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation." "NumericPasswordValidator"),
     },
 ]
 
@@ -153,9 +140,11 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 
 # 本番環境のフロントエンドURLを追加
 if not DEBUG:
-    CORS_ALLOWED_ORIGINS.extend([
-        "https://photo-contest-platform-1.onrender.com",
-    ])
+    CORS_ALLOWED_ORIGINS.extend(
+        [
+            "https://photo-contest-platform-1.onrender.com",
+        ]
+    )
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -214,9 +203,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",  # デフォルトは全員アクセス可能
     ],
-    "DEFAULT_PAGINATION_CLASS": (
-        "rest_framework.pagination.PageNumberPagination"
-    ),
+    "DEFAULT_PAGINATION_CLASS": ("rest_framework.pagination.PageNumberPagination"),
     "PAGE_SIZE": 20,
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -228,12 +215,8 @@ REST_FRAMEWORK = {
 
 # Simple JWT
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(
-        minutes=int(os.environ.get("JWT_ACCESS_TOKEN_LIFETIME", "60"))
-    ),
-    "REFRESH_TOKEN_LIFETIME": timedelta(
-        minutes=int(os.environ.get("JWT_REFRESH_TOKEN_LIFETIME", "1440"))
-    ),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.environ.get("JWT_ACCESS_TOKEN_LIFETIME", "60"))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=int(os.environ.get("JWT_REFRESH_TOKEN_LIFETIME", "1440"))),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
@@ -274,9 +257,7 @@ ACCOUNT_EMAIL_VERIFICATION = "optional"
 # ログイン後はprofileビューへ（そこからフロントエンドにリダイレクト）
 LOGIN_REDIRECT_URL = "/accounts/profile/"
 # ログアウト後はフロントエンドのホームへ
-LOGOUT_REDIRECT_URL = (
-    os.environ.get("FRONTEND_URL", "http://localhost:13000") + "/"
-)
+LOGOUT_REDIRECT_URL = os.environ.get("FRONTEND_URL", "http://localhost:13000") + "/"
 
 # ソーシャルアカウント設定
 SOCIALACCOUNT_AUTO_SIGNUP = True  # ソーシャルログイン時に自動サインアップ
@@ -388,16 +369,12 @@ if USE_S3:
 
     # 静的ファイルはWhiteNoiseを使用
     STATIC_URL = "/static/"
-    STATICFILES_STORAGE = (
-        "whitenoise.storage.CompressedManifestStaticFilesStorage"
-    )
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 else:
     # ローカルストレージ設定（開発環境）
     MEDIA_URL = "/media/"
     STATIC_URL = "/static/"
-    STATICFILES_STORAGE = (
-        "whitenoise.storage.CompressedManifestStaticFilesStorage"
-    )
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Logging configuration
 LOGGING = {

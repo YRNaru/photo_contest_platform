@@ -1,6 +1,7 @@
 """
 環境変数からOAuth設定を行う管理コマンド
 """
+
 import os
 
 from django.core.management.base import BaseCommand
@@ -13,7 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """環境変数からOAuth設定を実行"""
-        
+
         # 環境変数から取得
         # PRODUCTION_DOMAINが未設定の場合はALLOWED_HOSTSから取得
         production_domain = os.environ.get("PRODUCTION_DOMAIN", "")
@@ -24,7 +25,7 @@ class Command(BaseCommand):
                 # カンマ区切りから最初のドメインを取得（.onrender.comは除外）
                 domains = [d.strip() for d in allowed_hosts.split(",")]
                 production_domain = next((d for d in domains if d and not d.startswith(".")), "")
-        
+
         production_domain = production_domain or "photo-contest-platform.onrender.com"
 
         # 実際の環境変数名に合わせる
@@ -40,7 +41,7 @@ class Command(BaseCommand):
             defaults={
                 "domain": production_domain,
                 "name": "VRChat Photo Contest (Production)",
-            }
+            },
         )
 
         if not created:

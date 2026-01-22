@@ -203,16 +203,10 @@ class TwitterFetcher:
         # 2回目以降: 前回取得時刻から（重複なし）
         if contest.twitter_last_fetch is None:
             since_time = contest.start_at
-            logger.info(
-                f"First fetch for contest {contest.slug}: "
-                f"fetching from contest start ({since_time})"
-            )
+            logger.info(f"First fetch for contest {contest.slug}: " f"fetching from contest start ({since_time})")
         else:
             since_time = contest.twitter_last_fetch
-            logger.info(
-                f"Incremental fetch for contest {contest.slug}: "
-                f"fetching since last fetch ({since_time})"
-            )
+            logger.info(f"Incremental fetch for contest {contest.slug}: " f"fetching since last fetch ({since_time})")
 
         # ツイート取得
         tweets = self.fetch_tweets_by_hashtag(contest.twitter_hashtag, since_time=since_time)

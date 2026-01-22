@@ -28,8 +28,10 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
         - 未ログインで既存のメールアドレスの場合：自動的にアカウントを接続してログイン
         """
         try:
-            logger.info(f"pre_social_login called: provider={sociallogin.account.provider}, is_existing={sociallogin.is_existing}")
-            
+            logger.info(
+                f"pre_social_login called: provider={sociallogin.account.provider}, is_existing={sociallogin.is_existing}"
+            )
+
             # ソーシャルアカウントが既に存在する場合はスキップ
             if sociallogin.is_existing:
                 logger.info("Social account already exists, skipping")
@@ -64,7 +66,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
                 # 既存のユーザーにソーシャルアカウントを接続
                 existing_user = existing_users.first()
                 logger.info(f"Connecting social account to existing user: {existing_user.email}")
-                
+
                 try:
                     sociallogin.connect(request, existing_user)
                     logger.info("Social account connected successfully")

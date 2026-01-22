@@ -1,6 +1,7 @@
 """
 環境変数からスーパーユーザーを作成する管理コマンド
 """
+
 import os
 
 from django.core.management.base import BaseCommand
@@ -28,9 +29,7 @@ class Command(BaseCommand):
 
         # 既に存在する場合はスキップ
         if User.objects.filter(email=email).exists():
-            self.stdout.write(
-                self.style.WARNING(f"Superuser with email {email} already exists. Skipping.")
-            )
+            self.stdout.write(self.style.WARNING(f"Superuser with email {email} already exists. Skipping."))
             return
 
         # スーパーユーザーを作成
@@ -39,7 +38,4 @@ class Command(BaseCommand):
             username=username,
             password=password,
         )
-        self.stdout.write(
-            self.style.SUCCESS(f"Successfully created superuser: {email}")
-        )
-
+        self.stdout.write(self.style.SUCCESS(f"Successfully created superuser: {email}"))

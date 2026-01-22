@@ -11,20 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:15
         env:
-          MYSQL_ROOT_PASSWORD: rootpass
-          MYSQL_DATABASE: contest
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpass
-        ports:
-          - 3306:3306
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
         options: >-
-          --health-cmd="mysqladmin ping -h localhost"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
       redis:
         image: redis:7-alpine
@@ -51,26 +50,9 @@ jobs:
           cd backend
           pip install -r requirements.txt
 
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 -u testuser -ptestpass --silent; then
-              echo "MySQL is ready"
-              exit 0
-            fi
-            echo "Waiting for MySQL... ($i/30)"
-            sleep 2
-          done
-          echo "MySQL failed to start"
-          exit 1
-
-      - name: Grant MySQL privileges
-        run: |
-          mysql -h 127.0.0.1 -u root -prootpass -e "GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'%'; FLUSH PRIVILEGES;"
-
       - name: Run migrations
         env:
-          DATABASE_URL: mysql://testuser:testpass@127.0.0.1:3306/contest
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
           REDIS_URL: redis://127.0.0.1:6379/0
           SECRET_KEY: test-secret-key
           DEBUG: "True"
@@ -80,7 +62,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: mysql://testuser:testpass@127.0.0.1:3306/contest
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
           REDIS_URL: redis://127.0.0.1:6379/0
           SECRET_KEY: test-secret-key
           DEBUG: "True"
