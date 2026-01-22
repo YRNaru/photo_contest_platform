@@ -182,7 +182,105 @@ Twitter自動取得や画像処理を使用する場合：
 3. **カスタムドメイン設定**（オプション）
    - Vercel/Renderの設定でカスタムドメインを追加
 
-### 6. Google OAuth設定
+### 6. GitHub Actionsによる自動デプロイ設定
+
+git pushで自動的にRenderにデプロイされるように設定します。
+
+#### 6.1 Render API Keyの取得
+
+1. **Renderダッシュボードにアクセス**
+   - https://dashboard.render.com/ にログイン
+
+2. **API Keyを作成**
+   - 右上のアカウントアイコンをクリック
+   - 「Account Settings」を選択
+   - 左メニューから「API Keys」を選択
+   - 「Create API Key」ボタンをクリック
+   - キー名を入力（例: `github-actions-deploy`）
+   - 「Create API Key」をクリック
+   - ⚠️ **重要**: 生成されたAPI Keyをコピーして保存してください（一度しか表示されません）
+
+#### 6.2 RenderサービスIDの確認
+
+各サービス（Backend、Frontend、Celery Worker、Celery Beat）のサービスIDを確認します。
+
+**方法1: URLから確認**
+1. Renderダッシュボードで各サービスを開く
+2. ブラウザのURLバーを確認
+   - 例: `https://dashboard.render.com/web/srv-xxxxxxxxxxxxx`
+   - `srv-` 以降の部分がサービスIDです
+
+**方法2: Settingsから確認**
+1. 各サービスの「Settings」タブを開く
+2. 「Info」セクションでサービスIDを確認
+
+**必要なサービスID:**
+- Backend: `RENDER_SERVICE_ID`
+- Frontend: `RENDER_FRONTEND_SERVICE_ID`
+- Celery Worker: `RENDER_CELERY_WORKER_ID`
+- Celery Beat: `RENDER_CELERY_BEAT_ID`
+
+#### 6.3 GitHub Secretsの設定
+
+1. **GitHubリポジトリにアクセス**
+   - https://github.com/ でリポジトリを開く
+
+2. **Settingsに移動**
+   - リポジトリの「Settings」タブをクリック
+   - 左メニューから「Secrets and variables」→「Actions」を選択
+
+3. **New repository secretをクリック**
+
+4. **以下のSecretsを1つずつ追加**
+
+   **① RENDER_API_KEY**
+   - Name: `RENDER_API_KEY`
+   - Secret: （6.1で取得したRender API Keyを貼り付け）
+   - 「Add secret」をクリック
+
+   **② RENDER_SERVICE_ID（Backend）**
+   - Name: `RENDER_SERVICE_ID`
+   - Secret: （BackendサービスのID、例: `srv-xxxxxxxxxxxxx`）
+   - 「Add secret」をクリック
+
+   **③ RENDER_FRONTEND_SERVICE_ID（Frontend）**
+   - Name: `RENDER_FRONTEND_SERVICE_ID`
+   - Secret: （FrontendサービスのID、例: `srv-xxxxxxxxxxxxx`）
+   - 「Add secret」をクリック
+
+   **④ RENDER_CELERY_WORKER_ID（Celery Worker）**
+   - Name: `RENDER_CELERY_WORKER_ID`
+   - Secret: （Celery WorkerサービスのID、例: `srv-xxxxxxxxxxxxx`）
+   - 「Add secret」をクリック
+
+   **⑤ RENDER_CELERY_BEAT_ID（Celery Beat）**
+   - Name: `RENDER_CELERY_BEAT_ID`
+   - Secret: （Celery BeatサービスのID、例: `srv-xxxxxxxxxxxxx`）
+   - 「Add secret」をクリック
+
+#### 6.4 設定の確認
+
+1. **Secrets一覧を確認**
+   - 「Secrets and variables」→「Actions」で、追加した5つのSecretsが表示されていることを確認
+
+2. **自動デプロイの動作確認**
+   - `main`ブランチに何か変更をpushする
+   - GitHubリポジトリの「Actions」タブを開く
+   - 「Deploy to Render」ワークフローが実行されていることを確認
+   - 各ステップが成功することを確認
+
+#### 6.5 トラブルシューティング
+
+**デプロイが失敗する場合:**
+- Render API Keyが正しいか確認
+- サービスIDが正しいか確認（`srv-` プレフィックスを含む）
+- GitHub Actionsのログでエラーメッセージを確認
+
+**特定のサービスだけデプロイされない場合:**
+- 該当するサービスIDのSecretが正しく設定されているか確認
+- Renderダッシュボードで該当サービスが存在するか確認
+
+### 7. Google OAuth設定
 
 1. **Google Cloud Consoleにアクセス**
    - https://console.cloud.google.com/
@@ -201,7 +299,7 @@ Twitter自動取得や画像処理を使用する場合：
    https://photo-contest-platform-1.onrender.com
    ```
 
-### 7. デプロイ後の初期設定
+### 8. デプロイ後の初期設定
 
 1. **Django管理画面にアクセス**
    ```
