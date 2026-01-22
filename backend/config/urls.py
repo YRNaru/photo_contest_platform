@@ -3,12 +3,13 @@ URL configuration for photo_contest_platform project.
 """
 
 import os
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from django.http import HttpRequest, Http404, HttpResponse, FileResponse, JsonResponse
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
 from django.urls import include, path
 from django.views.decorators.cache import cache_control
 from django.views.static import serve
