@@ -221,9 +221,19 @@ class EntryListSerializer(serializers.ModelSerializer):
     def get_thumbnail(self, obj):
         first_image = obj.images.first()
         if first_image and first_image.thumbnail:
-            return self.context["request"].build_absolute_uri(first_image.thumbnail.url)
+            # R2/S3の場合は既に絶対URLなのでそのまま返す
+            # ローカルストレージの場合はbuild_absolute_uriで絶対URLに変換
+            image_url = first_image.thumbnail.url
+            if image_url.startswith(("http://", "https://")):
+                return image_url
+            return self.context["request"].build_absolute_uri(image_url)
         elif first_image:
-            return self.context["request"].build_absolute_uri(first_image.image.url)
+            # R2/S3の場合は既に絶対URLなのでそのまま返す
+            # ローカルストレージの場合はbuild_absolute_uriで絶対URLに変換
+            image_url = first_image.image.url
+            if image_url.startswith(("http://", "https://")):
+                return image_url
+            return self.context["request"].build_absolute_uri(image_url)
         return None
 
 

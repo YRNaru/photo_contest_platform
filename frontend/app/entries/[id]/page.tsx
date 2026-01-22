@@ -92,6 +92,7 @@ export default function EntryDetailPage() {
                 loading="eager"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
                 className="w-full h-auto rounded-lg shadow-lg"
+                unoptimized
               />
             </div>
           ) : (
@@ -118,6 +119,7 @@ export default function EntryDetailPage() {
                     alt={`${entry.title} - ${index + 1}`}
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 </button>
               ))}

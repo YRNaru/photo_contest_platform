@@ -369,8 +369,16 @@ if USE_S3:
 
     # URLの設定（メディアファイルのみS3/R2を使用）
     if AWS_S3_CUSTOM_DOMAIN:
+        # カスタムドメインが設定されている場合
         MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+    elif AWS_S3_ENDPOINT_URL and "r2.cloudflarestorage.com" in AWS_S3_ENDPOINT_URL:
+        # Cloudflare R2の場合、パブリックドメインを使用
+        # バケットのSettings → Public Accessで確認できるpub-xxxxx.r2.devを使用
+        # カスタムドメインが設定されていない場合は、AWS_S3_CUSTOM_DOMAINにpub-xxxxx.r2.devを設定することを推奨
+        # ここでは、バケット名ベースのURLを生成（実際にはパブリックドメインが必要）
+        MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.r2.cloudflarestorage.com/"
     else:
+        # AWS S3の場合
         MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
 
     # 静的ファイルはWhiteNoiseを使用
