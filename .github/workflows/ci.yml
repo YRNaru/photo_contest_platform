@@ -90,7 +90,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install flake8 black isort mypy
+          pip install flake8 black==24.1.1 isort mypy
 
       - name: Run flake8
         run: |
