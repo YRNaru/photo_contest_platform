@@ -267,7 +267,7 @@ SOCIALACCOUNT_QUERY_EMAIL = True  # メールアドレスを要求
 SOCIALACCOUNT_ADAPTER = "accounts.adapter.CustomSocialAccountAdapter"
 # GETリクエストで直接ログインプロセスを開始
 SOCIALACCOUNT_LOGIN_ON_GET = True
-SOCIALACCOUNT_EMAIL_REQUIRED = True  # メールアドレス必須
+SOCIALACCOUNT_EMAIL_REQUIRED = False  # メールアドレスを必須にしない（自動サインアップを許可）
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
