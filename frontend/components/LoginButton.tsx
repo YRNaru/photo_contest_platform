@@ -4,7 +4,11 @@ import { FaGoogle, FaTwitter } from 'react-icons/fa'
 import { useState } from 'react'
 import { getBackendBaseUrl } from '@/lib/backend-url'
 
-export function LoginButton() {
+interface LoginButtonProps {
+  variant?: 'default' | 'sidebar'
+}
+
+export function LoginButton({ variant = 'default' }: LoginButtonProps) {
   const [showOptions, setShowOptions] = useState(false)
 
   const handleGoogleLogin = () => {
@@ -17,6 +21,31 @@ export function LoginButton() {
     // Twitter OAuth2フローを開始
     const backendUrl = getBackendBaseUrl()
     window.location.href = `${backendUrl}/accounts/twitter_oauth2/login/`
+  }
+
+  if (variant === 'sidebar') {
+    return (
+      <div className="space-y-3">
+        {/* 本番環境ではGoogleログインを非表示 */}
+        {process.env.NODE_ENV !== 'production' && (
+          <button
+            onClick={handleGoogleLogin}
+            className="group flex items-center gap-3 px-4 py-3 w-full rounded-xl bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 text-white hover:shadow-2xl hover:scale-105 font-bold transform-gpu transition-all duration-300"
+          >
+            <FaGoogle className="text-2xl group-hover:scale-125 transition-transform duration-300" />
+            <span>Googleでログイン</span>
+          </button>
+        )}
+
+        <button
+          onClick={handleTwitterLogin}
+          className="group flex items-center gap-3 px-4 py-3 w-full rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 text-white hover:shadow-2xl hover:scale-105 font-bold transform-gpu transition-all duration-300"
+        >
+          <FaTwitter className="text-2xl group-hover:scale-125 transition-transform duration-300" />
+          <span>Twitterでログイン</span>
+        </button>
+      </div>
+    )
   }
 
   return (

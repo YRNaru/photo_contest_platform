@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 import { useSidebar } from '@/lib/sidebar-context'
+import { LoginButton } from './LoginButton'
 
 export function LeftSidebar() {
   const pathname = usePathname()
@@ -79,6 +80,28 @@ export function LeftSidebar() {
             </Link>
           )
         })}
+
+        {!isAuthenticated && (
+          <div
+            className="mt-6 pt-4 border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+            style={{
+              transitionDelay: isLeftOpen ? `${150 + menuItems.length * 80}ms` : '0ms',
+              opacity: isLeftOpen ? 1 : 0,
+              transform: isLeftOpen ? 'translateX(0)' : 'translateX(-20px)',
+            }}
+          >
+            <div
+              style={{
+                transitionDelay: isLeftOpen ? `${150 + (menuItems.length + 1) * 80}ms` : '0ms',
+              }}
+              className={`transition-all duration-500 ${
+                isLeftOpen ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
+              }`}
+            >
+              <LoginButton variant="sidebar" />
+            </div>
+          </div>
+        )}
 
         {isAuthenticated && (
           <>
