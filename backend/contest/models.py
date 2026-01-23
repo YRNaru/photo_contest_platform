@@ -173,7 +173,7 @@ class Category(models.Model):
         null=True,
         blank=True,
         verbose_name="審査員あたり最大投票数",
-        help_text=("この賞での審査員の最大投票数。" "未設定の場合はコンテストの設定を使用"),
+        help_text="この賞での審査員の最大投票数。未設定の場合はコンテストの設定を使用",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -296,7 +296,7 @@ class JudgingCriteria(models.Model):
     def __str__(self):
         contest_name = f"{self.contest.title}"
         category_name = f" - {self.category.name}" if self.category else ""
-        return f"{contest_name}{category_name}: {self.name} " f"(最大{self.max_score}点)"
+        return f"{contest_name}{category_name}: {self.name} (最大{self.max_score}点)"
 
 
 class JudgeScore(models.Model):
@@ -342,7 +342,7 @@ class JudgeScore(models.Model):
         judge_name = self.judge.username if self.judge else "(審査員不明)"
         entry_title = self.entry.title if self.entry else "(エントリー不明)"
         category_name = f" ({self.category.name})" if self.category else ""
-        return f"{judge_name} → {entry_title}{category_name}: " f"{self.total_score}点"
+        return f"{judge_name} → {entry_title}{category_name}: {self.total_score}点"
 
     def calculate_total_score(self):
         """詳細スコアから総合点を計算"""
@@ -384,7 +384,7 @@ class DetailedScore(models.Model):
     def save(self, *args, **kwargs):
         """保存時にスコアの妥当性をチェック"""
         if self.score > self.criteria.max_score:
-            raise ValueError(f"スコアは最大{self.criteria.max_score}点を" "超えることはできません")
+            raise ValueError(f"スコアは最大{self.criteria.max_score}点を超えることはできません")
         if self.score < 0:
             raise ValueError("スコアは0点未満にはできません")
         super().save(*args, **kwargs)

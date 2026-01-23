@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { contestApi } from '@/lib/api'
+import { Contest } from '@/lib/types'
 import { ContestCard } from './ContestCard'
 
 export function ContestList() {
@@ -52,7 +53,7 @@ export function ContestList() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-      {data.map((contest: any, index: number) => (
+      {data.map((contest: Contest, index: number) => (
         <ContestCard key={contest.slug} contest={contest} priority={index < 3} />
       ))}
     </div>

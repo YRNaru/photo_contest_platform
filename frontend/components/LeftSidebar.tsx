@@ -7,10 +7,8 @@ import { useSidebar } from '@/lib/sidebar-context'
 
 export function LeftSidebar() {
   const pathname = usePathname()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const { isLeftOpen } = useSidebar()
-
-  const { user } = useAuth()
 
   const menuItems = [
     { href: '/', label: 'ホーム', icon: '🏠' },

@@ -2,7 +2,6 @@
 Twitter API統合
 """
 
-# from accounts.models import User  # noqa: F401
 import logging
 
 import requests
@@ -12,8 +11,6 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 
 from .models import Contest, Entry, EntryImage
-
-# from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -203,10 +200,10 @@ class TwitterFetcher:
         # 2回目以降: 前回取得時刻から（重複なし）
         if contest.twitter_last_fetch is None:
             since_time = contest.start_at
-            logger.info(f"First fetch for contest {contest.slug}: " f"fetching from contest start ({since_time})")
+            logger.info(f"First fetch for contest {contest.slug}: fetching from contest start ({since_time})")
         else:
             since_time = contest.twitter_last_fetch
-            logger.info(f"Incremental fetch for contest {contest.slug}: " f"fetching since last fetch ({since_time})")
+            logger.info(f"Incremental fetch for contest {contest.slug}: fetching since last fetch ({since_time})")
 
         # ツイート取得
         tweets = self.fetch_tweets_by_hashtag(contest.twitter_hashtag, since_time=since_time)

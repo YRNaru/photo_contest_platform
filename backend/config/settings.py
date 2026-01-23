@@ -102,16 +102,16 @@ DATABASES = {
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": ("django.contrib.auth.password_validation." "UserAttributeSimilarityValidator"),
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        "NAME": ("django.contrib.auth.password_validation." "MinimumLengthValidator"),
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        "NAME": ("django.contrib.auth.password_validation." "CommonPasswordValidator"),
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        "NAME": ("django.contrib.auth.password_validation." "NumericPasswordValidator"),
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -405,7 +405,7 @@ LOGGING = {
         },
         "django.request": {
             "handlers": ["console"],
-            "level": "ERROR",
+            "level": "WARNING",
             "propagate": False,
         },
         "django.db.backends": {
@@ -415,17 +415,12 @@ LOGGING = {
         },
         "allauth": {
             "handlers": ["console"],
-            "level": "INFO",  # 本番環境でもINFOレベルで出力
+            "level": "INFO",
             "propagate": False,
         },
         "accounts": {
             "handlers": ["console"],
-            "level": "INFO",  # 本番環境でもINFOレベルで出力
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": ["console"],
-            "level": "WARNING",  # WARNING以上を出力（エラーも含む）
+            "level": "INFO",
             "propagate": False,
         },
     },

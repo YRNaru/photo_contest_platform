@@ -91,8 +91,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     )
     def set_twitter_icon(self, request: Request) -> Response:
         """Twitterのプロフィール画像をアバターに設定"""
-        import os
-
         import requests
         from allauth.socialaccount.models import SocialAccount
         from django.core.files.base import ContentFile

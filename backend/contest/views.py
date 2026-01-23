@@ -87,8 +87,6 @@ class ContestViewSet(viewsets.ModelViewSet):
 
         # 認証済みユーザーは公開コンテスト + 自分のコンテスト
         if self.request.user.is_authenticated:
-            from django.db.models import Q
-
             return queryset.filter(Q(is_public=True) | Q(creator=self.request.user))
 
         # 未認証ユーザーは公開コンテストのみ

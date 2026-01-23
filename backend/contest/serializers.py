@@ -347,7 +347,7 @@ class EntryCreateSerializer(serializers.ModelSerializer):
         if contest.max_entries_per_user > 0:
             user_entries = Entry.objects.filter(contest=contest, author=request.user).count()
             if user_entries >= contest.max_entries_per_user:
-                msg = f"このコンテストへの応募は最大" f"{contest.max_entries_per_user}件までです。"
+                msg = f"このコンテストへの応募は最大{contest.max_entries_per_user}件までです。"
                 raise serializers.ValidationError(msg)
 
         # 画像数チェック（0の場合は無制限）
@@ -364,7 +364,7 @@ class EntryCreateSerializer(serializers.ModelSerializer):
             if existing_image:
                 # 既存の画像のエントリー情報を取得
                 existing_entry = existing_image.entry
-                msg = f"この画像は既に投稿されています。" f'（エントリー: "{existing_entry.title}"）'
+                msg = f'この画像は既に投稿されています。（エントリー: "{existing_entry.title}"）'
                 raise serializers.ValidationError(msg)
 
         return data
