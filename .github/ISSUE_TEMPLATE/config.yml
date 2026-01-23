@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/yourproject/photo_contest_platform/blob/main/README.md
+    about: Please check the documentation first
+  - name: 💬 Discussions
+    url: https://github.com/yourproject/photo_contest_platform/discussions
+    about: Ask questions and discuss with the community
