@@ -4,6 +4,15 @@
 echo "Collecting static files..."
 python manage.py collectstatic --noinput || echo "Warning: Static file collection failed."
 
+# Celery WorkerとBeatをバックグラウンドで起動（無料プラン用）
+if [ "${ENABLE_CELERY}" = "true" ]; then
+    echo "Starting Celery Worker..."
+    celery -A config worker -l info --concurrency=2 &
+    
+    echo "Starting Celery Beat..."
+    celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler &
+fi
+
 # Gunicornを先に起動（ポートを開く）
 echo "Starting gunicorn..."
 gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --graceful-timeout 120 &
