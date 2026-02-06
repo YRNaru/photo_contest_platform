@@ -185,6 +185,52 @@ class ContestListSerializer(serializers.ModelSerializer):
             return obj.judges.filter(id=request.user.id).exists()
         return False
 
+
+class ImportTweetSerializer(serializers.Serializer):
+    """ツイートURL手動登録用シリアライザー"""
+
+    tweet_url = serializers.URLField(
+        required=True,
+        help_text="ツイートのURL（例: https://twitter.com/username/status/1234567890）",
+    )
+
+    def validate_tweet_url(self, value):
+        """ツイートURLからツイートIDを抽出"""
+        from .twitter_integration import TwitterFetcher
+
+        tweet_id = TwitterFetcher.extract_tweet_id_from_url(value)
+        if not tweet_id:
+            raise serializers.ValidationError("有効なツイートURLを入力してください。")
+
+        return value
+
+    def create(self, validated_data):
+        """ツイートをインポートしてエントリーを作成"""
+        from .twitter_integration import TwitterFetcher
+
+        contest = self.context["contest"]
+        tweet_url = validated_data["tweet_url"]
+        tweet_id = TwitterFetcher.extract_tweet_id_from_url(tweet_url)
+
+        # ツイート取得
+        fetcher = TwitterFetcher()
+        tweet_data = fetcher.fetch_tweet_by_id(tweet_id)
+
+        if not tweet_data:
+            raise serializers.ValidationError("ツイートの取得に失敗しました。")
+
+        # 既に登録されているか確認
+        if Entry.objects.filter(twitter_tweet_id=str(tweet_id)).exists():
+            raise serializers.ValidationError("このツイートは既に登録されています。")
+
+        # エントリー作成
+        entry = fetcher.create_entry_from_tweet(contest, tweet_data)
+
+        if not entry:
+            raise serializers.ValidationError("エントリーの作成に失敗しました。")
+
+        return entry
+
     def get_judge_count(self, obj):
         """審査員の数"""
         return obj.judges.count()
@@ -680,3 +726,49 @@ class ContestDetailSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.judges.filter(id=request.user.id).exists()
         return False
+
+
+class ImportTweetSerializer(serializers.Serializer):
+    """ツイートURL手動登録用シリアライザー"""
+
+    tweet_url = serializers.URLField(
+        required=True,
+        help_text="ツイートのURL（例: https://twitter.com/username/status/1234567890）",
+    )
+
+    def validate_tweet_url(self, value):
+        """ツイートURLからツイートIDを抽出"""
+        from .twitter_integration import TwitterFetcher
+
+        tweet_id = TwitterFetcher.extract_tweet_id_from_url(value)
+        if not tweet_id:
+            raise serializers.ValidationError("有効なツイートURLを入力してください。")
+
+        return value
+
+    def create(self, validated_data):
+        """ツイートをインポートしてエントリーを作成"""
+        from .twitter_integration import TwitterFetcher
+
+        contest = self.context["contest"]
+        tweet_url = validated_data["tweet_url"]
+        tweet_id = TwitterFetcher.extract_tweet_id_from_url(tweet_url)
+
+        # ツイート取得
+        fetcher = TwitterFetcher()
+        tweet_data = fetcher.fetch_tweet_by_id(tweet_id)
+
+        if not tweet_data:
+            raise serializers.ValidationError("ツイートの取得に失敗しました。")
+
+        # 既に登録されているか確認
+        if Entry.objects.filter(twitter_tweet_id=str(tweet_id)).exists():
+            raise serializers.ValidationError("このツイートは既に登録されています。")
+
+        # エントリー作成
+        entry = fetcher.create_entry_from_tweet(contest, tweet_data)
+
+        if not entry:
+            raise serializers.ValidationError("エントリーの作成に失敗しました。")
+
+        return entry

@@ -16,6 +16,7 @@ from .serializers import (
     EntryDetailSerializer,
     EntryListSerializer,
     FlagSerializer,
+    ImportTweetSerializer,
     JudgeScoreCreateSerializer,
     JudgeScoreDetailSerializer,
     JudgingCriteriaSerializer,
@@ -267,6 +268,42 @@ class ContestViewSet(viewsets.ModelViewSet):
                 "unique_voters": unique_voters,
             }
         )
+
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def import_tweet(self, request, slug=None):  # type: ignore
+        """
+        ツイートURLから応募を手動登録（コンテスト作成者のみ）
+        
+        過去7日以前のツイートも登録可能
+        """
+        contest = self.get_object()
+
+        # 作成者または管理者のみ許可
+        if contest.creator != request.user and not request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied("このコンテストに応募を追加する権限がありません。")
+
+        serializer = ImportTweetSerializer(data=request.data, context={"contest": contest})
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            entry = serializer.save()
+            entry_serializer = EntryDetailSerializer(entry, context={"request": request})
+            return Response(
+                {
+                    "detail": "ツイートから応募を作成しました。",
+                    "entry": entry_serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except Exception as e:
+            return Response(
+                {"detail": f"エラーが発生しました: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class EntryViewSet(viewsets.ModelViewSet):

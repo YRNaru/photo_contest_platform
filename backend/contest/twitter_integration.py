@@ -30,6 +30,92 @@ class TwitterFetcher:
                 access_token_secret=settings.TWITTER_ACCESS_TOKEN_SECRET,
             )
 
+    @staticmethod
+    def extract_tweet_id_from_url(url):
+        """
+        ツイートURLからツイートIDを抽出
+        
+        Args:
+            url: ツイートURL (例: https://twitter.com/username/status/1234567890)
+        
+        Returns:
+            str: ツイートID、抽出失敗時はNone
+        """
+        import re
+        # Twitter/X URLのパターン
+        patterns = [
+            r'twitter\.com/\w+/status/(\d+)',
+            r'x\.com/\w+/status/(\d+)',
+            r'mobile\.twitter\.com/\w+/status/(\d+)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, url)
+            if match:
+                return match.group(1)
+        
+        return None
+
+    def fetch_tweet_by_id(self, tweet_id):
+        """
+        ツイートIDから単一ツイートを取得
+        
+        Args:
+            tweet_id: ツイートID
+        
+        Returns:
+            dict: ツイートデータ、エラー時はNone
+        """
+        if not self.client:
+            logger.error("Twitter API client not initialized")
+            return None
+        
+        try:
+            response = self.client.get_tweet(
+                tweet_id,
+                expansions=["author_id", "attachments.media_keys"],
+                tweet_fields=["created_at", "author_id", "text", "attachments"],
+                user_fields=["username", "name"],
+                media_fields=["url", "preview_image_url"],
+            )
+            
+            if not response.data:
+                logger.error(f"Tweet {tweet_id} not found")
+                return None
+            
+            tweet = response.data
+            
+            # ユーザー情報
+            users = {u.id: u for u in response.includes.get("users", [])}
+            user = users.get(tweet.author_id)
+            
+            # メディア情報
+            media_urls = []
+            if hasattr(tweet, "attachments") and "media_keys" in tweet.attachments:
+                media_dict = {m.media_key: m for m in response.includes.get("media", [])}
+                for media_key in tweet.attachments["media_keys"]:
+                    media = media_dict.get(media_key)
+                    if media and hasattr(media, "url"):
+                        media_urls.append(media.url)
+            
+            tweet_data = {
+                "id": tweet.id,
+                "text": tweet.text,
+                "created_at": tweet.created_at,
+                "author_id": tweet.author_id,
+                "author_username": user.username if user else None,
+                "author_name": user.name if user else None,
+                "media_urls": media_urls,
+                "url": f"https://twitter.com/{user.username if user else 'i'}/status/{tweet.id}",
+            }
+            
+            logger.info(f"Successfully fetched tweet {tweet_id}")
+            return tweet_data
+            
+        except Exception as e:
+            logger.error(f"Error fetching tweet {tweet_id}: {str(e)}")
+            return None
+
     def fetch_tweets_by_hashtag(self, hashtag, since_time=None, max_results=10):
         """
         ハッシュタグでツイートを検索
@@ -196,11 +282,11 @@ class TwitterFetcher:
             logger.info(f"Contest {contest.slug} is not in submission period")
             return 0
 
-        # 初回取得: コンテスト開始時刻から
+        # 初回取得: 自動取得を有効にした時点（現在時刻）から
         # 2回目以降: 前回取得時刻から（重複なし）
         if contest.twitter_last_fetch is None:
-            since_time = contest.start_at
-            logger.info(f"First fetch for contest {contest.slug}: fetching from contest start ({since_time})")
+            since_time = now
+            logger.info(f"First fetch for contest {contest.slug}: fetching from now ({since_time})")
         else:
             since_time = contest.twitter_last_fetch
             logger.info(f"Incremental fetch for contest {contest.slug}: fetching since last fetch ({since_time})")
