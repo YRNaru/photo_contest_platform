@@ -87,7 +87,7 @@ export function CategoryItem({ category, isOwner, onEdit, onDelete, onStageAdvan
                     </button>
                     <button
                       onClick={handleAdvanceStage}
-                      disabled={isAdvancing || (advanceCheck && !advanceCheck.can_advance)}
+                      disabled={isAdvancing || (advanceCheck && advanceCheck.can_advance === false)}
                       className="px-3 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                     >
                       {isAdvancing ? '処理中...' : (
