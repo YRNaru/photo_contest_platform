@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.twitter_oauth2",
+    "django_celery_beat",
     # Local apps
     "contest",
     "accounts",
