@@ -185,6 +185,10 @@ class ContestListSerializer(serializers.ModelSerializer):
             return obj.judges.filter(id=request.user.id).exists()
         return False
 
+    def get_judge_count(self, obj):
+        """審査員の人数"""
+        return obj.judges.count()
+
 
 class ImportTweetSerializer(serializers.Serializer):
     """ツイートURL手動登録用シリアライザー"""
