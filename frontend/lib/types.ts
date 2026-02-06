@@ -71,7 +71,7 @@ export interface Entry {
   contest: string
   contest_slug?: string
   contest_title?: string
-  author: User
+  author: User | null
   title: string
   description: string
   tags: string
@@ -85,6 +85,8 @@ export interface Entry {
   average_score?: number
   user_voted?: boolean
   thumbnail?: string
+  twitter_user_id?: string
+  twitter_url?: string
 }
 
 export interface Vote {

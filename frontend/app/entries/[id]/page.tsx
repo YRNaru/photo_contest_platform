@@ -135,7 +135,7 @@ export default function EntryDetailPage() {
           <div className="flex flex-wrap gap-4 mb-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <FaUser />
-              <span>{entry.author?.username || 'Anonymous'}</span>
+              <span>{entry.author?.username || entry.twitter_user_id || 'Anonymous'}</span>
             </div>
             <div className="flex items-center gap-2">
               <FaCalendar />
@@ -145,6 +145,18 @@ export default function EntryDetailPage() {
               <FaEye />
               <span>{entry.view_count} 閲覧</span>
             </div>
+            {entry.twitter_url && (
+              <a
+                href={entry.twitter_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline font-semibold"
+                title="Xで元の投稿を見る"
+              >
+                <span className="text-lg">𝕏</span>
+                <span>投稿元</span>
+              </a>
+            )}
           </div>
 
           {/* 投票ボタン */}

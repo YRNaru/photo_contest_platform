@@ -11,6 +11,8 @@ interface Entry {
   vote_count: number
   view_count: number
   thumbnail?: string
+  twitter_user_id?: string
+  twitter_url?: string
 }
 
 export function EntryCard({ entry }: { entry: Entry }) {
@@ -44,11 +46,11 @@ export function EntryCard({ entry }: { entry: Entry }) {
             <span className="text-purple-600 dark:text-purple-400">👤</span>
             by{' '}
             <span className="font-semibold truncate">
-              {entry.author?.username || '匿名ユーザー'}
+              {entry.author?.username || entry.twitter_user_id || '匿名ユーザー'}
             </span>
           </p>
 
-          <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm">
+          <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm flex-wrap">
             <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700 dark:text-gray-300">
               <FaHeart className="text-red-500 dark:text-red-400 group-hover:scale-125 transition-transform" />
               <span className="font-semibold">{entry.vote_count}</span>
@@ -57,6 +59,19 @@ export function EntryCard({ entry }: { entry: Entry }) {
               <FaEye className="text-blue-500 dark:text-blue-400 group-hover:scale-125 transition-transform" />
               <span className="font-semibold">{entry.view_count}</span>
             </div>
+            {entry.twitter_url && (
+              <a
+                href={entry.twitter_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1 text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline"
+                title="Xで見る"
+              >
+                <span className="text-base">𝕏</span>
+                <span className="text-xs">投稿元</span>
+              </a>
+            )}
           </div>
         </div>
       </div>
