@@ -265,11 +265,9 @@ export default function JudgingPage() {
                           <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                             {entry.title}
                           </h3>
-                          {entry.author && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              投稿者: {entry.author.username}
-                            </p>
-                          )}
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            投稿者: {entry.author ? entry.author.username : entry.twitter_username ? `@${entry.twitter_username}` : '不明'}
+                          </p>
                           
                           <div className="flex gap-2 mt-3">
                             <button

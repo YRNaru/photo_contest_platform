@@ -13,6 +13,7 @@ interface Entry {
   author?: {
     username: string
   }
+  twitter_username?: string
   description?: string
   thumbnail?: string
 }
@@ -271,11 +272,9 @@ export function ResultsDisplay({
                       >
                         {entry.title}
                       </Link>
-                      {entry.author && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          投稿者: {entry.author.username}
-                        </p>
-                      )}
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        投稿者: {entry.author ? entry.author.username : entry.twitter_username ? `@${entry.twitter_username}` : '不明'}
+                      </p>
                       {entry.description && (
                         <p className="text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
                           {entry.description}

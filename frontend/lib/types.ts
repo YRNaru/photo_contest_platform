@@ -86,6 +86,7 @@ export interface Entry {
   user_voted?: boolean
   thumbnail?: string
   twitter_user_id?: string
+  twitter_username?: string
   twitter_url?: string
 }
 

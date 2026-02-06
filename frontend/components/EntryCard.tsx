@@ -12,6 +12,7 @@ interface Entry {
   view_count: number
   thumbnail?: string
   twitter_user_id?: string
+  twitter_username?: string
   twitter_url?: string
 }
 
@@ -46,7 +47,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
             <span className="text-purple-600 dark:text-purple-400">👤</span>
             by{' '}
             <span className="font-semibold truncate">
-              {entry.author?.username || entry.twitter_user_id || '匿名ユーザー'}
+              {entry.author?.username || (entry.twitter_username ? `@${entry.twitter_username}` : '匿名ユーザー')}
             </span>
           </p>
 

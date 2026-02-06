@@ -149,7 +149,7 @@ export default function PendingEntriesPage() {
                   </p>
 
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    <span>👤 {entry.author.username}</span>
+                    <span>👤 {entry.author ? entry.author.username : entry.twitter_username ? `@${entry.twitter_username}` : '不明'}</span>
                     <span>•</span>
                     <span>🏆 {entry.contest_title}</span>
                   </div>
