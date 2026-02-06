@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { CheckIcon } from '@heroicons/react/24/solid'
 
 interface VotingEntryCardProps {
@@ -8,6 +9,7 @@ interface VotingEntryCardProps {
   voted: boolean
   isVoting: boolean
   remainingVotes: number
+  isViewed?: boolean
   onVote: () => void
   onUnvote: () => void
 }
@@ -17,6 +19,7 @@ export function VotingEntryCard({
   voted,
   isVoting,
   remainingVotes,
+  isViewed = false,
   onVote,
   onUnvote,
 }: VotingEntryCardProps) {
@@ -45,12 +48,29 @@ export function VotingEntryCard({
       )}
 
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{entry.title}</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{entry.title}</h3>
+          {isViewed && (
+            <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">
+              ✓ 閲覧済み
+            </span>
+          )}
+        </div>
         {entry.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
             {entry.description}
           </p>
         )}
+
+        {/* 詳細リンク */}
+        <Link
+          href={`/entries/${entry.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block text-sm text-purple-600 dark:text-purple-400 hover:underline mb-4"
+        >
+          詳細を見る →
+        </Link>
 
         {voted ? (
           <button

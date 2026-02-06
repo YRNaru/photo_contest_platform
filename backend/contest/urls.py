@@ -5,6 +5,7 @@ from .views import (
     CategoryViewSet,
     ContestViewSet,
     EntryViewSet,
+    EntryViewViewSet,
     JudgeScoreViewSet,
     JudgingCriteriaViewSet,
     VoteViewSet,
@@ -13,6 +14,7 @@ from .views import (
 router = DefaultRouter()
 router.register(r"contests", ContestViewSet, basename="contest")
 router.register(r"entries", EntryViewSet, basename="entry")
+router.register(r"entry-views", EntryViewViewSet, basename="entryview")
 router.register(r"categories", CategoryViewSet, basename="category")
 router.register(r"judging-criteria", JudgingCriteriaViewSet, basename="judgingcriteria")
 router.register(r"votes", VoteViewSet, basename="vote")

@@ -186,6 +186,7 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
               isOwner={isOwner}
               onEdit={() => handleEdit(category)}
               onDelete={() => handleDelete(category.id)}
+              onStageAdvanced={loadCategories}
             />
           ))}
         </div>

@@ -10,6 +10,15 @@ export interface Category {
   order: number
   max_votes_per_judge: number | null
   entry_count: number
+  enable_stages: boolean
+  stage_count: number
+  stage_settings: Record<string, {
+    name: string
+    max_votes: number
+  }>
+  current_stage: number
+  can_advance: boolean
+  advance_message: string
   created_at: string
 }
 
@@ -31,6 +40,8 @@ export interface Vote {
   category: number | null
   category_name: string | null
   user: number
+  stage: number
+  stage_name: string | null
   created_at: string
 }
 
@@ -58,6 +69,8 @@ export interface JudgeScore {
   }
   total_score: number
   comment: string
+  stage: number
+  stage_name: string | null
   detailed_scores: DetailedScore[]
   created_at: string
   updated_at: string

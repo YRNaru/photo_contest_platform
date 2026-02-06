@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { contestApi, categoryApi } from '@/lib/api'
+import { contestApi, categoryApi, entryViewApi } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import Image from 'next/image'
+import Link from 'next/link'
 import { VotingPanel } from '@/components/judging/VotingPanel'
 import { ScoringPanel } from '@/components/judging/ScoringPanel'
 import { CategoryManager } from '@/components/judging/CategoryManager'
@@ -21,6 +22,8 @@ export default function JudgingPage() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<'judge' | 'manage'>('judge')
   const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null)
+  const [ordering, setOrdering] = useState('-created_at')
+  const [viewedFilter, setViewedFilter] = useState<'all' | 'viewed' | 'unviewed'>('all')
 
   // コンテスト情報を取得
   const { data: contest, isLoading: contestLoading } = useQuery({
@@ -33,9 +36,9 @@ export default function JudgingPage() {
 
   // エントリー一覧を取得
   const { data: entriesData, refetch: refetchEntries } = useQuery({
-    queryKey: ['contest-entries', slug],
+    queryKey: ['contest-entries', slug, ordering],
     queryFn: async () => {
-      const response = await contestApi.getContestEntries(slug)
+      const response = await contestApi.getContestEntries(slug, { ordering })
       return response.data
     },
     enabled: !!contest,
@@ -52,6 +55,16 @@ export default function JudgingPage() {
       return categoriesData as Category[]
     },
     enabled: !!contest,
+  })
+
+  // 閲覧済みエントリーIDを取得
+  const { data: viewedData } = useQuery({
+    queryKey: ['viewed-entries', slug],
+    queryFn: async () => {
+      const response = await entryViewApi.getViewedEntryIds()
+      return response.data.viewed_entry_ids || []
+    },
+    enabled: !!contest && contest.is_judge,
   })
 
   // 審査員チェック
@@ -79,7 +92,16 @@ export default function JudgingPage() {
     )
   }
 
-  const entries = entriesData?.results || entriesData || []
+  const allEntries = entriesData?.results || entriesData || []
+  const viewedEntryIds = (viewedData as string[]) || []
+  
+  // フィルタリング適用
+  const entries = allEntries.filter((entry: { id: string }) => {
+    if (viewedFilter === 'viewed') return viewedEntryIds.includes(entry.id)
+    if (viewedFilter === 'unviewed') return !viewedEntryIds.includes(entry.id)
+    return true
+  })
+  
   const judgingType = contest.judging_type || 'vote'
 
   return (
@@ -143,6 +165,41 @@ export default function JudgingPage() {
       {/* コンテンツ */}
       {activeTab === 'judge' ? (
         <div>
+          {/* ソートとフィルター */}
+          <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  並び順
+                </label>
+                <select
+                  value={ordering}
+                  onChange={e => setOrdering(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="-created_at">🆕 新着順</option>
+                  <option value="created_at">⏰ 古い順</option>
+                  <option value="-vote_count">🔥 人気順</option>
+                  <option value="vote_count">📊 投票数少ない順</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  閲覧状態
+                </label>
+                <select
+                  value={viewedFilter}
+                  onChange={e => setViewedFilter(e.target.value as 'all' | 'viewed' | 'unviewed')}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="all">すべて ({allEntries.length}件)</option>
+                  <option value="unviewed">未閲覧のみ ({allEntries.filter((e: { id: string }) => !viewedEntryIds.includes(e.id)).length}件)</option>
+                  <option value="viewed">閲覧済みのみ ({viewedEntryIds.length}件)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* 投票方式 */}
           {judgingType === 'vote' && (
             <VotingPanel
@@ -151,6 +208,7 @@ export default function JudgingPage() {
               entries={entries}
               maxVotesPerJudge={contest.max_votes_per_judge || 3}
               isJudge={contest.is_judge || false}
+              viewedEntryIds={viewedEntryIds}
               onVoteChange={() => refetchEntries()}
             />
           )}
@@ -188,10 +246,9 @@ export default function JudgingPage() {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {entries.map((entry: { id: number; title: string; thumbnail?: string; author?: { username: string } }) => (
-                      <button
+                      <div
                         key={entry.id}
-                        onClick={() => setSelectedEntryId(entry.id)}
-                        className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-purple-600 dark:hover:border-purple-400 transition-all text-left"
+                        className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-purple-600 dark:hover:border-purple-400 transition-all"
                       >
                         {entry.thumbnail && (
                           <div className="relative h-48 bg-gray-100 dark:bg-gray-900">
@@ -213,8 +270,25 @@ export default function JudgingPage() {
                               投稿者: {entry.author.username}
                             </p>
                           )}
+                          
+                          <div className="flex gap-2 mt-3">
+                            <button
+                              onClick={() => setSelectedEntryId(entry.id)}
+                              className="flex-1 px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
+                            >
+                              採点する
+                            </button>
+                            <Link
+                              href={`/entries/${entry.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                            >
+                              詳細
+                            </Link>
+                          </div>
                         </div>
-                      </button>
+                      </div>
                     ))}
                   </div>
                 </div>

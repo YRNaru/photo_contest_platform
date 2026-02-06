@@ -175,6 +175,18 @@ class Category(models.Model):
         verbose_name="審査員あたり最大投票数",
         help_text="この賞での審査員の最大投票数。未設定の場合はコンテストの設定を使用",
     )
+    # 段階審査設定
+    enable_stages = models.BooleanField(
+        default=False, verbose_name="段階審査を有効化", help_text="一次審査、二次審査など段階的に審査を行う"
+    )
+    stage_count = models.IntegerField(default=1, verbose_name="段階数", help_text="審査の段階数（1以上）")
+    stage_settings = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name="段階別設定",
+        help_text='各段階の設定。例: {"1": {"name": "一次審査", "max_votes": 5}, "2": {"name": "最終審査", "max_votes": 3}}',
+    )
+    current_stage = models.IntegerField(default=1, verbose_name="現在の段階", help_text="現在進行中の審査段階")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -187,9 +199,54 @@ class Category(models.Model):
     def __str__(self):
         return f"{self.contest.title} - {self.name}"
 
-    def get_max_votes(self):
+    def get_max_votes(self, stage=None):
         """この賞の最大投票数を取得（未設定の場合はコンテストの設定）"""
+        # 段階審査が有効で、段階が指定されている場合
+        if self.enable_stages and stage is not None:
+            stage_key = str(stage)
+            if stage_key in self.stage_settings and "max_votes" in self.stage_settings[stage_key]:
+                return self.stage_settings[stage_key]["max_votes"]
+        # 通常の最大投票数
         return self.max_votes_per_judge if self.max_votes_per_judge is not None else self.contest.max_votes_per_judge
+
+    def get_stage_name(self, stage):
+        """段階名を取得"""
+        if not self.enable_stages:
+            return None
+        stage_key = str(stage)
+        if stage_key in self.stage_settings and "name" in self.stage_settings[stage_key]:
+            return self.stage_settings[stage_key]["name"]
+        return f"第{stage}段階"
+
+    def can_advance_stage(self):
+        """次の段階に進めるかチェック"""
+        if not self.enable_stages or self.current_stage >= self.stage_count:
+            return False, "段階審査が無効、または最終段階です"
+
+        # すべての審査員がすべてのエントリーを閲覧済みかチェック
+        from django.db.models import Count, Q
+
+        contest = self.contest
+        judges = contest.judges.all()
+        entries = contest.entries.filter(approved=True)
+
+        for judge in judges:
+            viewed_entries = EntryView.objects.filter(judge=judge, entry__contest=contest).values_list(
+                "entry_id", flat=True
+            )
+            if set(entries.values_list("id", flat=True)) != set(viewed_entries):
+                return False, f"審査員 {judge.username} がすべてのエントリーを閲覧していません"
+
+        # 現在の段階の投票数を満たしているかチェック
+        max_votes = self.get_max_votes(self.current_stage)
+        for judge in judges:
+            vote_count = Vote.objects.filter(
+                user=judge, category=self, entry__contest=contest, stage=self.current_stage
+            ).count()
+            if vote_count < max_votes:
+                return False, f"審査員 {judge.username} の投票数が不足しています（{vote_count}/{max_votes}）"
+
+        return True, "条件を満たしています"
 
 
 class EntryImage(models.Model):
@@ -244,12 +301,13 @@ class Vote(models.Model):
         related_name="votes",
         verbose_name="ユーザー",
     )
+    stage = models.IntegerField(default=1, verbose_name="審査段階", help_text="段階審査の段階番号（1以上）")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "投票"
         verbose_name_plural = "投票"
-        unique_together = ("entry", "user", "category")
+        unique_together = ("entry", "user", "category", "stage")
         ordering = ["-created_at"]
         indexes = [
             models.Index(fields=["category", "user"]),
@@ -261,6 +319,30 @@ class Vote(models.Model):
         entry_title = self.entry.title if self.entry else "(エントリー不明)"
         category_name = self.category.name if self.category else "全体"
         return f"{user_name} → {entry_title} ({category_name})"
+
+
+class EntryView(models.Model):
+    """エントリー閲覧記録モデル - 審査員がエントリーを閲覧したことを記録"""
+
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="views", verbose_name="エントリー")
+    judge = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="entry_views",
+        verbose_name="審査員",
+    )
+    viewed_at = models.DateTimeField(auto_now_add=True, verbose_name="閲覧日時")
+
+    class Meta:
+        verbose_name = "エントリー閲覧記録"
+        verbose_name_plural = "エントリー閲覧記録"
+        ordering = ["-viewed_at"]
+        unique_together = ("entry", "judge")
+
+    def __str__(self):
+        judge_name = self.judge.username if self.judge else "(審査員不明)"
+        entry_title = self.entry.title if self.entry else "(エントリー不明)"
+        return f"{judge_name} → {entry_title}"
 
 
 class JudgingCriteria(models.Model):
@@ -325,13 +407,14 @@ class JudgeScore(models.Model):
         help_text="各評価項目の合計点",
     )
     comment = models.TextField(blank=True, verbose_name="総評コメント")
+    stage = models.IntegerField(default=1, verbose_name="審査段階", help_text="段階審査の段階番号（1以上）")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "審査員スコア"
         verbose_name_plural = "審査員スコア"
-        unique_together = ("entry", "judge", "category")
+        unique_together = ("entry", "judge", "category", "stage")
         ordering = ["-total_score", "-created_at"]
         indexes = [
             models.Index(fields=["category", "judge"]),

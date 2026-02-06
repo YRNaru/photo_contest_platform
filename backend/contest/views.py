@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
 
-from .models import Category, Contest, Entry, Flag, JudgeScore, JudgingCriteria, Vote
+from .models import Category, Contest, Entry, EntryView, Flag, JudgeScore, JudgingCriteria, Vote
 from .permissions import IsJudge, IsModerator
 from .serializers import (
     CategorySerializer,
@@ -15,6 +15,7 @@ from .serializers import (
     EntryCreateSerializer,
     EntryDetailSerializer,
     EntryListSerializer,
+    EntryViewSerializer,
     FlagSerializer,
     ImportTweetSerializer,
     JudgeScoreCreateSerializer,
@@ -486,6 +487,44 @@ class CategoryViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("この部門を削除する権限がありません")
         instance.delete()
 
+    @action(detail=True, methods=["post"])
+    def advance_stage(self, request, pk=None):
+        """次の段階に進む"""
+        from rest_framework.exceptions import PermissionDenied, ValidationError
+
+        category = self.get_object()
+
+        # 権限チェック：コンテスト作成者のみ
+        if category.contest.creator != request.user and not request.user.is_staff:
+            raise PermissionDenied("段階を進める権限がありません")
+
+        # 段階審査が有効かチェック
+        if not category.enable_stages:
+            raise ValidationError("段階審査が有効化されていません")
+
+        # 次の段階に進めるかチェック
+        can_advance, message = category.can_advance_stage()
+        if not can_advance:
+            raise ValidationError(message)
+
+        # 段階を進める
+        category.current_stage += 1
+        category.save(update_fields=["current_stage"])
+
+        serializer = self.get_serializer(category)
+        return Response({"message": f"段階{category.current_stage}に進みました", "category": serializer.data})
+
+    @action(detail=True, methods=["get"])
+    def check_advance_stage(self, request, pk=None):
+        """段階移行の条件をチェック"""
+        category = self.get_object()
+
+        if not category.enable_stages:
+            return Response({"can_advance": False, "message": "段階審査が有効化されていません"})
+
+        can_advance, message = category.can_advance_stage()
+        return Response({"can_advance": can_advance, "message": message, "current_stage": category.current_stage})
+
 
 class JudgingCriteriaViewSet(viewsets.ModelViewSet):
     """審査基準ViewSet"""
@@ -602,3 +641,40 @@ class JudgeScoreViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(scores, many=True)
         return Response(serializer.data)
+
+
+class EntryViewViewSet(viewsets.ModelViewSet):
+    """エントリー閲覧記録ViewSet"""
+
+    queryset = EntryView.objects.all()
+    serializer_class = EntryViewSerializer
+    permission_classes = [permissions.IsAuthenticated, IsJudge]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["entry", "judge"]
+
+    def get_queryset(self):
+        """自分の閲覧記録のみ取得"""
+        return EntryView.objects.filter(judge=self.request.user).select_related("entry", "judge")
+
+    def perform_create(self, serializer):
+        """閲覧記録を作成（審査員として）"""
+        serializer.save()
+
+    @action(detail=False, methods=["get"])
+    def my_views(self, request):
+        """自分の閲覧記録一覧"""
+        views = self.get_queryset()
+
+        page = self.paginate_queryset(views)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(views, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"])
+    def viewed_entry_ids(self, request):
+        """閲覧済みのエントリーIDリストを取得"""
+        entry_ids = self.get_queryset().values_list("entry_id", flat=True)
+        return Response({"viewed_entry_ids": list(entry_ids)})

@@ -7,6 +7,7 @@ import { formatDate, getPhaseLabel, getPhaseColor } from '@/lib/utils'
 import { EntryGrid } from '@/components/EntryGrid'
 import JudgeManager from '@/components/contest/JudgeManager'
 import { ContestStatistics } from '@/components/contest/ContestStatistics'
+import TwitterImporter from '@/components/contest/TwitterImporter'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/lib/auth'
@@ -196,6 +197,9 @@ export default function ContestDetailPage() {
 
       {/* 審査員管理 */}
       {contest.is_owner && <JudgeManager contestSlug={slug} isOwner={contest.is_owner} />}
+
+      {/* ツイートURL手動登録（コンテスト作成者のみ表示） */}
+      {contest.is_owner && <TwitterImporter contestSlug={slug} />}
 
       {/* 統計情報（コンテスト作成者のみ表示） */}
       {contest.is_owner && (

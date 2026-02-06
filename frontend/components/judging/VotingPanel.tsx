@@ -12,6 +12,7 @@ interface VotingPanelProps {
   entries: any[]
   maxVotesPerJudge: number
   isJudge: boolean
+  viewedEntryIds?: string[]
   onVoteChange?: () => void
 }
 
@@ -21,6 +22,7 @@ export function VotingPanel({
   entries,
   maxVotesPerJudge,
   isJudge,
+  viewedEntryIds = [],
   onVoteChange,
 }: VotingPanelProps) {
   const [categories, setCategories] = useState<Category[]>([])
@@ -199,6 +201,7 @@ export function VotingPanel({
             voted={hasVoted(entry.id)}
             isVoting={votingEntry === entry.id}
             remainingVotes={remainingVotes}
+            isViewed={viewedEntryIds.includes(entry.id)}
             onVote={() => handleVote(entry.id)}
             onUnvote={() => handleUnvote(entry.id)}
           />

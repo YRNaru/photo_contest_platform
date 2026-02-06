@@ -22,8 +22,13 @@ class UserModelTest(TestCase):
         self.assertTrue(self.user.check_password("testpass123"))
 
     def test_user_str_representation(self):
-        """ユーザーの文字列表現がメールアドレスである"""
-        self.assertEqual(str(self.user), "test@example.com")
+        """ユーザーの文字列表現がユーザー名である"""
+        self.assertEqual(str(self.user), "testuser")
+
+    def test_user_str_fallback_to_email(self):
+        """ユーザー名がない場合はメールアドレスが使われる"""
+        user_without_username = User.objects.create_user(username="", email="nousername@example.com", password="testpass123")
+        self.assertEqual(str(user_without_username), "nousername@example.com")
 
     def test_email_unique_constraint(self):
         """メールアドレスの一意制約"""

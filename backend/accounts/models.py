@@ -21,7 +21,7 @@ class User(AbstractUser):
         verbose_name_plural = "ユーザー"
 
     def __str__(self):
-        return self.email
+        return self.username or self.email
 
     def get_avatar_url(self):
         """アバター画像のURLを取得"""

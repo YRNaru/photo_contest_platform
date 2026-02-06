@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { entryApi } from '@/lib/api'
+import { entryApi, entryViewApi } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
@@ -13,7 +13,7 @@ import { useState } from 'react'
 export default function EntryDetailPage() {
   const params = useParams()
   const id = params.id as string
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const queryClient = useQueryClient()
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
@@ -29,6 +29,24 @@ export default function EntryDetailPage() {
       return response.data
     },
   })
+
+  // 審査員の場合、閲覧記録を作成
+  useMutation({
+    mutationFn: async () => {
+      if (isAuthenticated && user?.is_judge && entry) {
+        try {
+          await entryViewApi.createView({ entry: entry.id })
+        } catch (err) {
+          // 既に記録がある場合はエラーになるが無視
+          console.debug('Entry view already exists or failed to create:', err)
+        }
+      }
+    },
+    onSuccess: () => {
+      // 閲覧済みリストを更新
+      queryClient.invalidateQueries({ queryKey: ['viewed-entries'] })
+    },
+  }).mutate()
 
   // 投票mutation
   const voteMutation = useMutation({

@@ -10,6 +10,7 @@ from .models import (
     DetailedScore,
     Entry,
     EntryImage,
+    EntryView,
     Flag,
     JudgeScore,
     JudgingCriteria,
@@ -45,6 +46,9 @@ class EntryImageSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     """賞シリアライザー（エントリーは賞に紐づかず、審査時に各賞ごとに投票）"""
 
+    can_advance = serializers.SerializerMethodField()
+    advance_message = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
         fields = (
@@ -54,9 +58,29 @@ class CategorySerializer(serializers.ModelSerializer):
             "description",
             "order",
             "max_votes_per_judge",
+            "enable_stages",
+            "stage_count",
+            "stage_settings",
+            "current_stage",
+            "can_advance",
+            "advance_message",
             "created_at",
         )
-        read_only_fields = ("id", "created_at")
+        read_only_fields = ("id", "created_at", "can_advance", "advance_message")
+
+    def get_can_advance(self, obj):
+        """次の段階に進めるかチェック"""
+        if not obj.enable_stages:
+            return False
+        can_advance, _message = obj.can_advance_stage()
+        return can_advance
+
+    def get_advance_message(self, obj):
+        """段階移行のメッセージ"""
+        if not obj.enable_stages:
+            return None
+        _can_advance, message = obj.can_advance_stage()
+        return message
 
 
 class JudgingCriteriaSerializer(serializers.ModelSerializer):
@@ -464,11 +488,18 @@ class VoteSerializer(serializers.ModelSerializer):
     """投票シリアライザー"""
 
     category_name = serializers.CharField(source="category.name", read_only=True, allow_null=True)
+    stage_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Vote
-        fields = ("id", "entry", "category", "category_name", "user", "created_at")
+        fields = ("id", "entry", "category", "category_name", "user", "stage", "stage_name", "created_at")
         read_only_fields = ("id", "user", "created_at")
+
+    def get_stage_name(self, obj):
+        """段階名を取得"""
+        if obj.category and obj.category.enable_stages:
+            return obj.category.get_stage_name(obj.stage)
+        return None
 
     def validate(self, data):
         """投票のバリデーション"""
@@ -579,6 +610,7 @@ class JudgeScoreDetailSerializer(serializers.ModelSerializer):
     judge = UserSerializer(read_only=True)
     detailed_scores = DetailedScoreSerializer(many=True, read_only=True)
     category_name = serializers.CharField(source="category.name", read_only=True, allow_null=True)
+    stage_name = serializers.SerializerMethodField()
 
     class Meta:
         model = JudgeScore
@@ -590,11 +622,19 @@ class JudgeScoreDetailSerializer(serializers.ModelSerializer):
             "judge",
             "total_score",
             "comment",
+            "stage",
+            "stage_name",
             "detailed_scores",
             "created_at",
             "updated_at",
         )
         read_only_fields = ("id", "judge", "total_score", "created_at", "updated_at")
+
+    def get_stage_name(self, obj):
+        """段階名を取得"""
+        if obj.category and obj.category.enable_stages:
+            return obj.category.get_stage_name(obj.stage)
+        return None
 
 
 class JudgeScoreCreateSerializer(serializers.ModelSerializer):
@@ -604,7 +644,7 @@ class JudgeScoreCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JudgeScore
-        fields = ("id", "entry", "category", "comment", "detailed_scores")
+        fields = ("id", "entry", "category", "stage", "comment", "detailed_scores")
         read_only_fields = ("id",)
 
     def validate(self, data):
@@ -782,3 +822,28 @@ class ImportTweetSerializer(serializers.Serializer):
             raise serializers.ValidationError("エントリーの作成に失敗しました。")
 
         return entry
+
+
+class EntryViewSerializer(serializers.ModelSerializer):
+    """エントリー閲覧記録シリアライザー"""
+
+    judge = UserSerializer(read_only=True)
+    entry_title = serializers.CharField(source="entry.title", read_only=True)
+
+    class Meta:
+        model = EntryView
+        fields = ("id", "entry", "entry_title", "judge", "viewed_at")
+        read_only_fields = ("id", "judge", "viewed_at")
+
+    def create(self, validated_data):
+        """閲覧記録を作成（既存の場合は更新）"""
+        from django.utils import timezone
+
+        judge = self.context["request"].user
+        entry = validated_data["entry"]
+
+        # 既存の記録があれば更新、なければ作成
+        view, _created = EntryView.objects.update_or_create(
+            entry=entry, judge=judge, defaults={"viewed_at": timezone.now()}
+        )
+        return view

@@ -113,6 +113,10 @@ export const contestApi = {
 
   // コンテスト統計
   getContestStatistics: (slug: string) => api.get(`/contests/${slug}/statistics/`),
+
+  // ツイートURL手動登録（作成者のみ）
+  importTweet: (slug: string, tweetUrl: string) =>
+    api.post(`/contests/${slug}/import_tweet/`, { tweet_url: tweetUrl }),
 }
 
 export const entryApi = {
@@ -193,6 +197,12 @@ export const categoryApi = {
 
   // 部門削除
   deleteCategory: (id: number) => api.delete(`/categories/${id}/`),
+
+  // 段階移行チェック
+  checkAdvanceStage: (id: number) => api.get(`/categories/${id}/check_advance_stage/`),
+
+  // 段階を進める
+  advanceStage: (id: number) => api.post(`/categories/${id}/advance_stage/`),
 }
 
 // 審査基準API
@@ -259,4 +269,22 @@ export const judgeScoreApi = {
 
   // スコア削除
   deleteScore: (id: number) => api.delete(`/judge-scores/${id}/`),
+}
+
+// エントリー閲覧記録API
+export const entryViewApi = {
+  // 閲覧記録一覧
+  getViews: (params?: Record<string, unknown>) => api.get('/entry-views/', { params }),
+
+  // 自分の閲覧記録一覧
+  getMyViews: () => api.get('/entry-views/my_views/'),
+
+  // 閲覧済みエントリーIDリスト
+  getViewedEntryIds: () => api.get('/entry-views/viewed_entry_ids/'),
+
+  // 閲覧記録作成
+  createView: (data: { entry: string }) => api.post('/entry-views/', data),
+
+  // 閲覧記録削除
+  deleteView: (id: number) => api.delete(`/entry-views/${id}/`),
 }

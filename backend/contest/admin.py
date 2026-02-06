@@ -6,6 +6,7 @@ from .models import (
     DetailedScore,
     Entry,
     EntryImage,
+    EntryView,
     Flag,
     JudgeScore,
     JudgingCriteria,
@@ -249,3 +250,12 @@ class DetailedScoreAdmin(admin.ModelAdmin):
     list_filter = ("criteria", "created_at")
     search_fields = ("judge_score__judge__username", "criteria__name", "comment")
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(EntryView)
+class EntryViewAdmin(admin.ModelAdmin):
+    list_display = ("entry", "judge", "viewed_at")
+    list_filter = ("viewed_at", "entry__contest")
+    search_fields = ("entry__title", "judge__username", "judge__email")
+    readonly_fields = ("viewed_at",)
+    ordering = ("-viewed_at",)
