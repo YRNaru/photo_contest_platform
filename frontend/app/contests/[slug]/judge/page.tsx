@@ -245,7 +245,7 @@ export default function JudgingPage() {
                     審査する作品を選択してください
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {entries.map((entry: { id: number; title: string; thumbnail?: string; author?: { username: string } }) => (
+                    {entries.map((entry: { id: number; title: string; thumbnail?: string; author?: { username: string }; twitter_username?: string }) => (
                       <div
                         key={entry.id}
                         className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-purple-600 dark:hover:border-purple-400 transition-all"
