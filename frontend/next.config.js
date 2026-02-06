@@ -6,6 +6,10 @@ const nextConfig = {
       fullUrl: false,
     },
   },
+  // CSS/JSプリロード警告を抑制
+  experimental: {
+    optimizeCss: false,
+  },
   images: {
     // Renderの一時ストレージ問題を回避するため、本番環境でも画像最適化を無効化
     // S3/R2を使用する場合は、この設定を変更して画像最適化を有効化可能
@@ -24,7 +28,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'photo-contest-platform-1.onrender.com',
+        hostname: 'photo-contest-platform-backend.onrender.com',
         pathname: '/media/**',
       },
       {
