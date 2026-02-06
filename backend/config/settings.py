@@ -306,12 +306,11 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     "fetch-twitter-entries": {
         "task": "contest.tasks.fetch_twitter_entries",
-        # Twitter API Free tier対応: 15分ごと実行
+        # Twitter API Free tier対応: 20分ごと実行（レート制限回避）
         # since_timeで前回取得時刻以降のみ取得するため、重複なし
         # 取得ツイート数 = 新規投稿数（実際の投稿に依存）
-        # 想定: 平均1件/15分 → 96件/日 → 2,880件/月（Basic tier推奨）
-        # または: 平均0.5件/15分 → 48件/日 → 1,440件/月（Free tier内）
-        "schedule": crontab(minute="*/15"),
+        # 想定: 平均1件/20分 → 72件/日 → 2,160件/月（Free tier内）
+        "schedule": crontab(minute="*/20"),
     },
 }
 
