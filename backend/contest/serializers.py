@@ -265,8 +265,10 @@ class EntryListSerializer(serializers.ModelSerializer):
             "view_count",
             "thumbnail",
             "approved",
+            "twitter_user_id",
+            "twitter_url",
         )
-        read_only_fields = ("id", "created_at", "vote_count", "view_count", "approved")
+        read_only_fields = ("id", "created_at", "vote_count", "view_count", "approved", "twitter_user_id", "twitter_url")
 
     def get_thumbnail(self, obj):
         first_image = obj.images.first()
@@ -317,6 +319,8 @@ class EntryDetailSerializer(serializers.ModelSerializer):
             "user_voted",
             "view_count",
             "approved",
+            "twitter_user_id",
+            "twitter_url",
         )
         read_only_fields = (
             "id",
@@ -325,6 +329,8 @@ class EntryDetailSerializer(serializers.ModelSerializer):
             "vote_count",
             "view_count",
             "approved",
+            "twitter_user_id",
+            "twitter_url",
         )
 
     def get_vote_count(self, obj):

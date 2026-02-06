@@ -215,14 +215,19 @@ class TwitterFetcher:
             # または、Twitter情報だけで仮ユーザーを作成
             author = None
 
-            # ツイート本文からタイトルと説明を抽出
+            # 同じコンテスト内の同じTwitterユーザーのエントリー数をカウント
+            existing_entries_count = Entry.objects.filter(
+                contest=contest,
+                twitter_user_id=str(tweet_data["author_id"])
+            ).count()
+            
+            # タイトルを「ユーザー名_応募N」形式で生成
+            entry_number = existing_entries_count + 1
+            username = tweet_data.get("author_name") or tweet_data.get("author_username") or "不明"
+            title = f"{username}_応募{entry_number}"
+            
+            # 説明はツイート本文をそのまま使用
             text = tweet_data["text"]
-            # ハッシュタグを除去
-            title = text.replace(f"#{contest.twitter_hashtag}", "").strip()
-            if len(title) > 200:
-                title = title[:200]
-            if not title:
-                title = f"Twitter投稿 by @{tweet_data['author_username']}"
 
             # エントリー作成
             entry = Entry.objects.create(
