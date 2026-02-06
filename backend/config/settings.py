@@ -139,12 +139,7 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 ).split(",")
 
 # 本番環境のフロントエンドURLを追加
-if not DEBUG:
-    CORS_ALLOWED_ORIGINS.extend(
-        [
-            "https://photo-contest-platform-1.onrender.com",
-        ]
-    )
+# CORS_ALLOWED_ORIGINS は環境変数で設定済みのため、ここでの追加は不要
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -190,8 +185,8 @@ else:
     CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = False
     CSRF_TRUSTED_ORIGINS = [
-        "https://photo-contest-platform-1.onrender.com",
         "https://photo-contest-platform.onrender.com",
+        "https://photo-contest-platform-backend.onrender.com",
     ]
 
 # Django REST Framework
