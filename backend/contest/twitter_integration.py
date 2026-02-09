@@ -287,11 +287,13 @@ class TwitterFetcher:
             logger.info(f"Contest {contest.slug} is not in submission period")
             return 0
 
-        # 初回取得: 自動取得を有効にした時点（現在時刻）から
+        # 初回取得: 自動取得を有効にした時点から（Twitter API制約: 現在時刻の10秒以上前）
         # 2回目以降: 前回取得時刻から（重複なし）
         if contest.twitter_last_fetch is None:
-            since_time = now
-            logger.info(f"First fetch for contest {contest.slug}: fetching from now ({since_time})")
+            # Twitter APIの制約を満たすため、現在時刻の30秒前から取得
+            from datetime import timedelta
+            since_time = now - timedelta(seconds=30)
+            logger.info(f"First fetch for contest {contest.slug}: fetching from 30 seconds ago ({since_time})")
         else:
             since_time = contest.twitter_last_fetch
             logger.info(f"Incremental fetch for contest {contest.slug}: fetching since last fetch ({since_time})")
