@@ -134,7 +134,20 @@ class TwitterFetcher:
 
         try:
             # クエリ構築
-            query = f"#{hashtag} has:images -is:retweet"
+            # hashtag引数から#と空白を除去して、クエリで明示的に追加
+            import re
+            clean_hashtag = hashtag.lstrip('#').strip()
+            # 英数字、アンダースコア、日本語文字のみ許可（安全性のため）
+            clean_hashtag = re.sub(r'[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]', '', clean_hashtag)
+            
+            if not clean_hashtag:
+                logger.error(f"Invalid hashtag after cleaning: {hashtag}")
+                return []
+            
+            # Twitter API v2のハッシュタグ検索
+            # 注: #演算子が機能しない場合の対策として、テキストマッチも含める
+            query = f"#{clean_hashtag} has:images -is:retweet"
+            logger.info(f"Searching for tweets with query: '{query}' for hashtag: '{hashtag}'")
 
             # since_timeがある場合は追加
             kwargs = {
