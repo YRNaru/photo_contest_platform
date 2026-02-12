@@ -76,7 +76,7 @@ class TwitterFetcher:
                 expansions=["author_id", "attachments.media_keys"],
                 tweet_fields=["created_at", "author_id", "text", "attachments"],
                 user_fields=["username", "name"],
-                media_fields=["url", "preview_image_url"],
+                media_fields=["url", "preview_image_url", "type"],
             )
             
             if not response.data:
@@ -86,17 +86,23 @@ class TwitterFetcher:
             tweet = response.data
             
             # ユーザー情報
-            users = {u.id: u for u in response.includes.get("users", [])}
+            includes = response.includes or {}
+            users = {u.id: u for u in includes.get("users", [])}
             user = users.get(tweet.author_id)
             
             # メディア情報
             media_urls = []
             if hasattr(tweet, "attachments") and "media_keys" in tweet.attachments:
-                media_dict = {m.media_key: m for m in response.includes.get("media", [])}
+                media_dict = {m.media_key: m for m in includes.get("media", [])}
                 for media_key in tweet.attachments["media_keys"]:
                     media = media_dict.get(media_key)
-                    if media and hasattr(media, "url"):
+                    if media and media.type == "photo" and hasattr(media, "url"):
                         media_urls.append(media.url)
+                    elif media:
+                        logger.debug(
+                            f"Skipping media {media_key}: type={getattr(media, 'type', None)}, "
+                            f"has_url={hasattr(media, 'url')}"
+                        )
             
             tweet_data = {
                 "id": tweet.id,
@@ -109,7 +115,11 @@ class TwitterFetcher:
                 "url": f"https://twitter.com/{user.username if user else 'i'}/status/{tweet.id}",
             }
             
-            logger.info(f"Successfully fetched tweet {tweet_id}")
+            logger.info(
+                f"Successfully fetched tweet {tweet_id}: "
+                f"author_id={tweet.author_id}, author_username={user.username if user else None}, "
+                f"media_count={len(media_urls)}"
+            )
             return tweet_data
             
         except Exception as e:
@@ -170,8 +180,9 @@ class TwitterFetcher:
                 return []
 
             # ユーザー情報とメディア情報を取得
-            users = {user.id: user for user in (response.includes.get("users", []))}
-            media = {m.media_key: m for m in (response.includes.get("media", []))}
+            includes = response.includes or {}
+            users = {user.id: user for user in includes.get("users", [])}
+            media = {m.media_key: m for m in includes.get("media", [])}
 
             tweets = []
             for tweet in response.data:
@@ -183,8 +194,22 @@ class TwitterFetcher:
                 if hasattr(tweet, "attachments") and "media_keys" in tweet.attachments:
                     for media_key in tweet.attachments["media_keys"]:
                         media_obj = media.get(media_key)
-                        if media_obj and media_obj.type == "photo":
+                        if media_obj and media_obj.type == "photo" and hasattr(media_obj, "url"):
                             media_urls.append(media_obj.url)
+                        elif media_obj:
+                            logger.debug(
+                                f"Skipping media {media_key} in tweet {tweet.id}: "
+                                f"type={getattr(media_obj, 'type', None)}, has_url={hasattr(media_obj, 'url')}"
+                            )
+                        else:
+                            logger.warning(f"Media key {media_key} not found in includes for tweet {tweet.id}")
+                
+                logger.debug(
+                    f"Tweet {tweet.id}: author_id={tweet.author_id}, "
+                    f"author_username={user.username if user else None}, "
+                    f"media_keys={tweet.attachments.get('media_keys', []) if hasattr(tweet, 'attachments') else []}, "
+                    f"media_urls={len(media_urls)}"
+                )
 
                 tweets.append(
                     {
@@ -228,6 +253,11 @@ class TwitterFetcher:
             # または、Twitter情報だけで仮ユーザーを作成
             author = None
 
+            # author_idの存在確認
+            if not tweet_data.get("author_id"):
+                logger.error(f"Tweet {tweet_data['id']} has no author_id: {tweet_data}")
+                return None
+            
             # 同じコンテスト内の同じTwitterユーザーのエントリー数をカウント
             existing_entries_count = Entry.objects.filter(
                 contest=contest,
@@ -256,10 +286,18 @@ class TwitterFetcher:
                 twitter_url=tweet_data["url"],
                 approved=contest.twitter_auto_approve,
             )
+            
+            logger.info(
+                f"Created entry {entry.id}: tweet_id={tweet_data['id']}, "
+                f"author_id={tweet_data['author_id']}, author_username={tweet_data['author_username']}, "
+                f"media_count={len(tweet_data['media_urls'])}"
+            )
 
             # 画像をダウンロードして保存
+            downloaded_count = 0
             for idx, media_url in enumerate(tweet_data["media_urls"][: contest.max_images_per_entry]):
                 try:
+                    logger.debug(f"Downloading image {idx + 1} from {media_url}")
                     response = requests.get(media_url, timeout=10)
                     if response.status_code == 200:
                         # ファイル名生成
@@ -268,12 +306,18 @@ class TwitterFetcher:
                         # EntryImage作成
                         entry_image = EntryImage(entry=entry, order=idx)
                         entry_image.image.save(filename, ContentFile(response.content), save=True)
+                        downloaded_count += 1
 
-                        logger.info(f"Downloaded image {idx + 1} for tweet {tweet_data['id']}")
+                        logger.info(f"Downloaded image {idx + 1}/{len(tweet_data['media_urls'])} for tweet {tweet_data['id']}")
+                    else:
+                        logger.error(f"Failed to download image: HTTP {response.status_code}")
                 except Exception as e:
                     logger.error(f"Error downloading image from {media_url}: {str(e)}")
 
-            logger.info(f"Created entry {entry.id} from tweet {tweet_data['id']}")
+            logger.info(
+                f"Entry {entry.id} creation complete: "
+                f"downloaded {downloaded_count}/{len(tweet_data['media_urls'])} images"
+            )
             return entry
 
         except Exception as e:
