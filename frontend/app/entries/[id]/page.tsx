@@ -8,7 +8,7 @@ import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaHeart, FaRegHeart, FaEye, FaCalendar, FaUser } from 'react-icons/fa'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export default function EntryDetailPage() {
   const params = useParams()
@@ -31,22 +31,20 @@ export default function EntryDetailPage() {
   })
 
   // 審査員の場合、閲覧記録を作成
-  useMutation({
-    mutationFn: async () => {
-      if (isAuthenticated && user?.is_judge && entry) {
-        try {
-          await entryViewApi.createView({ entry: entry.id })
-        } catch (err) {
+  const viewRecorded = useRef(false)
+  useEffect(() => {
+    if (isAuthenticated && user?.is_judge && entry && !viewRecorded.current) {
+      viewRecorded.current = true
+      entryViewApi.createView({ entry: entry.id })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ['viewed-entries'] })
+        })
+        .catch((err) => {
           // 既に記録がある場合はエラーになるが無視
           console.debug('Entry view already exists or failed to create:', err)
-        }
-      }
-    },
-    onSuccess: () => {
-      // 閲覧済みリストを更新
-      queryClient.invalidateQueries({ queryKey: ['viewed-entries'] })
-    },
-  }).mutate()
+        })
+    }
+  }, [isAuthenticated, user?.is_judge, entry, queryClient])
 
   // 投票mutation
   const voteMutation = useMutation({
@@ -161,7 +159,7 @@ export default function EntryDetailPage() {
             </div>
             <div className="flex items-center gap-2">
               <FaEye />
-              <span>{entry.view_count} 閲覧</span>
+              <span>{entry.view_count ?? 0} 閲覧</span>
             </div>
             {entry.twitter_url && (
               <a
@@ -213,7 +211,7 @@ export default function EntryDetailPage() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2">タグ</h2>
               <div className="flex flex-wrap gap-2">
-                {entry.tags.split(',').map((tag: string, index: number) => (
+                {(entry.tags || '').split(',').filter(Boolean).map((tag: string, index: number) => (
                   <span
                     key={index}
                     className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
