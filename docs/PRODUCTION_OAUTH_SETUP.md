@@ -1,6 +1,6 @@
 # 本番環境 OAuth設定ガイド
 
-本番環境（Render.com）でGoogle/Twitter OAuth認証を設定する手順です。
+本番環境で Google / Twitter OAuth を設定する手順です。**Render.com** と書かれている箇所は、自前 VPS の本番 URL（例: `https://api.example.com`）に読み替えてください。VPS 全体の手順は [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) を参照してください。
 
 ## 📋 目次
 

@@ -4,11 +4,11 @@ SECRET_KEY=demo-secret-key-change-this-in-production
 ALLOWED_HOSTS=localhost,127.0.0.1
 DJANGO_SETTINGS_MODULE=config.settings
 
-# データベース
-DATABASE_URL=mysql://contestuser:contestpass@db:3306/contest
+# データベース（コンテナ間は db:5432。ホスト直結なら localhost:15432）
+DATABASE_URL=postgresql://contestuser:contestpass@db:5432/contest
 
-# Redis
-REDIS_URL=redis://redis:16379/0
+# Redis（コンテナ間は redis:6379。ホスト直結なら localhost:16379）
+REDIS_URL=redis://redis:6379/0
 
 # CORS
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:13000
@@ -36,8 +36,8 @@ JWT_REFRESH_TOKEN_LIFETIME=1440
 USE_S3=False
 
 # Celery
-CELERY_BROKER_URL=redis://redis:16379/0
-CELERY_RESULT_BACKEND=redis://redis:16379/0
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 # フロントエンド
 NEXT_PUBLIC_API_URL=http://localhost:18000/api

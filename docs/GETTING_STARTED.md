@@ -37,8 +37,8 @@ SECRET_KEY=demo-secret-key-change-in-production
 ALLOWED_HOSTS=localhost,127.0.0.1
 DJANGO_SETTINGS_MODULE=config.settings
 
-# データベース
-DATABASE_URL=mysql://contestuser:contestpass@db:3306/contest
+# データベース（Compose 内はサービス名 db・ポート 5432）
+DATABASE_URL=postgresql://contestuser:contestpass@db:5432/contest
 
 # Redis
 REDIS_URL=redis://redis:6379/0
@@ -364,7 +364,7 @@ make migrate     # マイグレーション
 ## 次のステップ
 
 ✅ **認証を設定**: Google/Twitter認証を有効化  
-✅ **本番デプロイ**: [DEPLOYMENT.md](./DEPLOYMENT.md)参照  
+✅ **本番デプロイ**: [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) / [DEPLOYMENT.md](./DEPLOYMENT.md)  
 ✅ **カスタマイズ**: コードを編集して機能追加  
 ✅ **Twitter自動取得**: ハッシュタグ投稿を自動収集  
 
@@ -374,7 +374,8 @@ make migrate     # マイグレーション
 
 - [README.md](../README.md) - プロジェクト概要
 - [TWITTER_SETUP.md](./TWITTER_SETUP.md) - Twitter連携詳細
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番環境デプロイ
+- [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) - 本番（VPS・推奨）
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番概要・環境変数
 - [TESTING.md](./TESTING.md) - テストガイド
 - [ACHIEVEMENT.md](./ACHIEVEMENT.md) - テスト品質達成記録
 - [PORT_CONFIG.md](./PORT_CONFIG.md) - ポート設定

@@ -19,7 +19,9 @@
 - [PORT_CONFIG.md](./PORT_CONFIG.md) - ポート設定
 
 ### 🚢 デプロイ・運用
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番環境デプロイ（Render推奨）
+- **[RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md)** - レンタルサーバー（VPS）デプロイ【推奨】
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番デプロイ概要・環境変数・ストレージ
+- [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) - Render 向け手順（参考・旧）
 - [CLOUDFLARE_VERCEL_SETUP.md](./CLOUDFLARE_VERCEL_SETUP.md) - Cloudflare + Vercel セットアップガイド【NEW】
 - [CLOUDFLARE_OPTIMIZATION.md](./CLOUDFLARE_OPTIMIZATION.md) - Cloudflare 最適化設定ガイド【NEW】
 - [LOG_VIEWING.md](./LOG_VIEWING.md) - 本番環境でのログ確認方法【NEW】

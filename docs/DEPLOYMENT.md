@@ -1,380 +1,112 @@
 # デプロイメントガイド
 
-このガイドでは、VRChatフォトコンテストプラットフォームをRenderにデプロイする手順を説明します。
+本番の**推奨手順**は、**レンタルサーバー（VPS）**上に Nginx・systemd・PostgreSQL・Redis を載せて運用することです。詳細は **[RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md)** を参照してください。
+
+共有レンタルサーバー（PHP 専用プラン等）では、本プロジェクトの要件（Python 常駐、PostgreSQL、Redis、Celery、Node.js）を満たせないことが多いです。
 
 ## 概要
 
-- **バックエンド**: Render Web Service (Docker)
-- **フロントエンド**: Render Web Service (Docker) または Static Site
-- **データベース**: Render PostgreSQL または外部MySQL
-- **Redis**: Render Redis
-- **ストレージ**: AWS S3 または Cloudflare R2
+| 層 | 推奨 |
+|----|------|
+| **バックエンド** | Gunicorn + Django（`entrypoint.sh` または手動 migrate/collectstatic） |
+| **フロントエンド** | `next build` → `next start`（同一 VPS または別サーバー） |
+| **データベース** | 同一 VPS 上の PostgreSQL、またはマネージド PostgreSQL |
+| **Redis** | 同一 VPS 上の `redis-server`、またはマネージド Redis |
+| **メディア** | ローカルディスク（バックアップ必須）または S3 / Cloudflare R2（`USE_S3=True`） |
+
+PaaS（Render 等）向けの旧手順は [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) に残しています（参考用）。
 
 ## 1. 事前準備
 
-### 必要なアカウント
-- [Render](https://render.com/)アカウント
-- [AWS](https://aws.amazon.com/)アカウント（S3使用の場合）
-- [Google Cloud](https://console.cloud.google.com/)アカウント（OAuth）
+- VPS または同等の root / sudo 権限
+- ドメイン（API 用・フロント用のサブドメイン分割を推奨）
+- [Google Cloud](https://console.cloud.google.com/)（Google OAuth 利用時）
+- [Twitter Developer Portal](https://developer.twitter.com/)（Twitter 利用時）
+- メディアをクラウドに置く場合: [AWS S3](https://aws.amazon.com/s3/) または [Cloudflare R2](https://www.cloudflare.com/developer-platform/r2/)
 
-### リポジトリ
-GitHubリポジトリを公開またはRenderに接続できる状態にしてください。
+## 2. 環境変数（本番チェックリスト）
 
-## 2. データベースのセットアップ
-
-### オプション A: Render PostgreSQL（推奨）
-
-1. Renderダッシュボードで「New PostgreSQL」を選択
-2. 設定:
-   - Name: `photo-contest-db`
-   - Region: 最寄りのリージョン
-   - Plan: Starter（無料）または有料プラン
-3. 作成後、Internal Database URLをメモ
-
-### オプション B: 外部MySQL
-
-PlanetScaleやDigital OceanなどのMySQLサービスを使用できます。
-
-## 3. Redisのセットアップ
-
-1. Renderダッシュボードで「New Redis」を選択
-2. 設定:
-   - Name: `photo-contest-redis`
-   - Region: データベースと同じリージョン
-   - Plan: Starter（無料）または有料プラン
-3. 作成後、Internal Redis URLをメモ
-
-## 4. S3ストレージのセットアップ
-
-### AWS S3の場合
-
-1. S3バケットを作成
-   - バケット名: `vrchat-photo-contest-media`
-   - リージョン: 任意
-   - パブリックアクセス: 一部許可（画像配信用）
-
-2. IAMユーザーを作成
-   - 権限: S3へのフルアクセス
-   - アクセスキーとシークレットキーをメモ
-
-3. CORS設定
-
-```json
-[
-    {
-        "AllowedHeaders": ["*"],
-        "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
-        "AllowedOrigins": ["*"],
-        "ExposeHeaders": []
-    }
-]
-```
-
-### Cloudflare R2の場合
-
-1. R2バケットを作成
-2. API トークンを生成
-3. エンドポイントURLをメモ
-
-## 5. バックエンドのデプロイ
-
-### 5.1 Render Web Service作成
-
-1. Renderダッシュボードで「New Web Service」を選択
-2. GitHubリポジトリを接続
-3. 設定:
-
-```yaml
-Name: photo-contest-backend
-Region: Singapore (または最寄り)
-Branch: main
-Root Directory: backend
-Environment: Docker
-Instance Type: Starter（または必要に応じて）
-```
-
-### 5.2 環境変数の設定
-
-Renderの環境変数タブで以下を設定：
+VPS では `/etc/photo_contest.env` 等に集約し、`systemd` の `EnvironmentFile=` で読み込む運用が扱いやすいです。
 
 ```bash
-# Django
 DEBUG=False
 SECRET_KEY=<強力なランダム文字列>
-ALLOWED_HOSTS=your-backend-url.onrender.com,your-frontend-url.onrender.com
-CORS_ALLOWED_ORIGINS=https://your-frontend-url.onrender.com
-
-# Database (Render PostgreSQLの場合)
-DATABASE_URL=<Render PostgreSQL Internal URL>
-
-# Redis
-REDIS_URL=<Render Redis Internal URL>
-
-# Google OAuth
-GOOGLE_OAUTH_CLIENT_ID=<your-google-client-id>
-GOOGLE_OAUTH_CLIENT_SECRET=<your-google-client-secret>
-
-# AWS S3
-USE_S3=True
-AWS_ACCESS_KEY_ID=<your-aws-access-key>
-AWS_SECRET_ACCESS_KEY=<your-aws-secret-key>
-AWS_STORAGE_BUCKET_NAME=vrchat-photo-contest-media
-AWS_S3_REGION_NAME=ap-northeast-1
-
-# その他
 DJANGO_SETTINGS_MODULE=config.settings
+DATABASE_URL=postgresql://ユーザー:パス@127.0.0.1:5432/contest
+REDIS_URL=redis://127.0.0.1:6379/0
+CELERY_BROKER_URL=redis://127.0.0.1:6379/0
+CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/0
+ALLOWED_HOSTS=api.example.com,www.example.com
+CORS_ALLOWED_ORIGINS=https://www.example.com
+
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=...
+TWITTER_OAUTH_CLIENT_ID=...
+TWITTER_OAUTH_CLIENT_SECRET=...
+TWITTER_API_KEY=...
+TWITTER_API_SECRET=...
+TWITTER_BEARER_TOKEN=...
 ```
 
-### 5.3 ビルドコマンドとスタートコマンド
-
-Render.yamlを使用する場合（推奨）:
-
-`render.yaml`をプロジェクトルートに作成:
-
-```yaml
-services:
-  - type: web
-    name: photo-contest-backend
-    env: docker
-    region: singapore
-    plan: starter
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: photo-contest-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: photo-contest-redis
-          property: connectionString
-    healthCheckPath: /admin/
-
-databases:
-  - name: photo-contest-db
-    region: singapore
-    plan: starter
-
-  - name: photo-contest-redis
-    region: singapore
-    plan: starter
-```
-
-## 6. Celeryワーカーのデプロイ
-
-Celeryワーカーを別のBackground Workerとしてデプロイ:
-
-1. 「New Background Worker」を選択
-2. 同じリポジトリを接続
-3. 設定:
-   - Name: `photo-contest-celery`
-   - Build Command: (空)
-   - Start Command: `celery -A config worker -l info`
-   - 環境変数: バックエンドと同じ
-
-## 7. フロントエンドのデプロイ
-
-### オプション A: Render Web Service（推奨）
-
-1. 「New Web Service」を選択
-2. 設定:
-
-```yaml
-Name: photo-contest-frontend
-Region: Singapore
-Branch: main
-Root Directory: frontend
-Environment: Docker
-```
-
-3. 環境変数:
+フロント（ビルド時に埋め込む）:
 
 ```bash
-NEXT_PUBLIC_API_URL=https://your-backend-url.onrender.com/api
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=<your-google-client-id>
+NEXT_PUBLIC_API_URL=https://api.example.com/api
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=...
+NEXT_PUBLIC_TWITTER_ENABLED=true
 NODE_ENV=production
 ```
 
-### オプション B: Vercel（代替案）
+### スーパーユーザー自動作成（任意）
 
-Next.jsアプリはVercelにデプロイすることもできます。
-
-## 8. Google OAuthの更新
-
-### 8.1 Google Cloud Consoleでの設定
-
-Google Cloud Consoleで認証情報を更新:
-
-1. 承認済みのJavaScript生成元:
-   - `https://your-frontend-url.onrender.com`
-
-2. **承認済みのリダイレクトURI（重要）**:
-   - `https://your-backend-url.onrender.com/accounts/google/login/callback/`
-   - ⚠️ 末尾の `/` を忘れずに追加してください
-
-### 8.2 Django Siteモデルの更新
-
-本番環境では、DjangoのSiteモデルのドメインを本番環境のドメインに更新する必要があります。
-
-Renderのシェルから実行（またはデプロイ後のスクリプトで自動実行）:
+[backend/entrypoint.sh](../backend/entrypoint.sh) 経由で起動する場合、以下で初回のみ作成できます。
 
 ```bash
-python scripts/update_site_domain.py your-backend-url.onrender.com
-```
-
-または、Django管理画面から手動で更新:
-1. `https://your-backend-url.onrender.com/admin/sites/site/1/change/` にアクセス
-2. Domain nameを `your-backend-url.onrender.com` に変更
-3. Display nameを適切な名前に変更
-4. 保存
-
-**重要**: Siteモデルのドメインが正しく設定されていないと、OAuthのリダイレクトURIがlocalhostになってしまいます。
-
-### 8.3 Twitter OAuthの設定
-
-Twitter Developer Portalでも同様に、Callback URIに本番環境のURLを追加:
-
-- `https://your-backend-url.onrender.com/accounts/twitter_oauth2/login/callback/`
-
-## 9. GitHub Actionsの設定
-
-### 9.1 Renderデプロイフックの取得
-
-1. Renderダッシュボードで各サービスの「Settings」
-2. 「Deploy Hook」のURLをコピー
-
-### 9.2 GitHubシークレットの設定
-
-GitHubリポジトリの「Settings」→「Secrets and variables」→「Actions」で追加:
-
-- `RENDER_API_KEY`: RenderのAPIキー
-- `RENDER_SERVICE_ID`: RenderサービスID
-
-## 10. 初回デプロイ後の設定
-
-### 10.1 スーパーユーザーの作成（環境変数から自動作成）
-
-**無料プランでも利用可能な方法:**
-
-Renderの環境変数に以下を設定:
-
-```
 DJANGO_SUPERUSER_EMAIL=admin@example.com
 DJANGO_SUPERUSER_PASSWORD=your-secure-password
-DJANGO_SUPERUSER_USERNAME=admin  # オプション（デフォルト: admin）
+DJANGO_SUPERUSER_USERNAME=admin
 ```
 
-アプリケーション起動時に自動的にスーパーユーザーが作成されます。
-既に存在する場合はスキップされます。
+## 3. オブジェクトストレージ（推奨: 本番）
 
-**注意:** セキュリティのため、本番環境では強力なパスワードを設定してください。
+ローカル `media/` のみだとディスク喪失・拡張に弱いため、本番では **S3 または R2** を検討してください。
 
-### 10.2 マイグレーションと静的ファイル収集
+- AWS S3: バケット作成、IAM、CORS（既存の S3 手順は旧版 [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) 内の JSON 例を参照可能）
+- Cloudflare R2: [CLOUDFLARE_R2_SETUP.md](./CLOUDFLARE_R2_SETUP.md)（ダッシュボードの「Render」という表記は **本番サーバーの環境変数** に読み替えてください）
 
-これらは起動スクリプト（`entrypoint.sh`）で自動実行されますが、
-手動で実行する場合はRenderのシェルから:
+## 4. OAuth（本番 URL）
+
+バックエンドの公開 URL（例: `https://api.example.com`）に合わせて、Google / Twitter のコールバック URI を登録します。Django **Sites** のドメインも一致させます。手順の詳細は [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md)（表記は Render 例が残る場合がありますが、URL を自ドメインに置き換えてください）。
+
+## 5. デプロイ更新（VPS）
 
 ```bash
-python manage.py migrate
-python manage.py collectstatic --noinput
+cd /srv/photo_contest && git pull
+cd backend && source venv/bin/activate && pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
+cd ../frontend && npm ci --legacy-peer-deps && npm run build
+sudo systemctl restart photo-contest-backend photo-contest-frontend
 ```
 
-**注意:** 無料プランではシェルアクセスが利用できないため、
-環境変数からの自動作成方法（10.1）を使用してください。
+サービス名は [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) の例に合わせて調整してください。
 
-## 11. ヘルスチェックとモニタリング
+## 6. ヘルスチェックとモニタリング
 
-### ヘルスチェックエンドポイント
+本番では `/admin/` や専用 `health/` エンドポイントで死活監視できます。ログは `journalctl -u photo-contest-backend -f` 等で確認します。
 
-`backend/config/urls.py`に追加:
+Sentry を使う場合は `SENTRY_DSN` を環境変数に設定します。
 
-```python
-from django.http import JsonResponse
+## 7. バックアップ
 
-def health_check(request):
-    return JsonResponse({"status": "ok"})
+- **PostgreSQL**: `pg_dump` を定期実行
+- **メディア**: S3/R2 の場合はプロバイダの仕様に従う。ローカルのみの場合はファイル同期またはスナップショット
 
-urlpatterns = [
-    path('health/', health_check),
-    # ...
-]
-```
+## 8. トラブルシューティング
 
-### Sentryの設定（推奨）
-
-環境変数に追加:
-```bash
-SENTRY_DSN=<your-sentry-dsn>
-```
-
-## 12. パフォーマンス最適化
-
-### CDNの設定
-
-CloudflareをDNSプロキシとして使用:
-
-1. Cloudflareアカウントでドメイン追加
-2. DNSレコードを設定
-3. SSL/TLSをFullに設定
-4. キャッシュルールを設定
-
-### 画像最適化
-
-S3 + CloudFront または Cloudflare R2 + Workers を使用して画像配信を最適化
-
-## 13. バックアップ戦略
-
-### データベース
-
-Render PostgreSQLは自動バックアップ機能があります。
-
-手動バックアップ:
-```bash
-pg_dump -h <host> -U <user> -d <database> > backup.sql
-```
-
-### メディアファイル
-
-S3のバージョニング機能を有効化するか、定期的にバックアップスクリプトを実行
-
-## 14. トラブルシューティング
-
-### ログの確認
-
-```bash
-# Renderダッシュボードの「Logs」タブで確認
-# または
-render logs -s <service-name>
-```
-
-### データベース接続エラー
-
-- DATABASE_URLが正しく設定されているか確認
-- データベースとバックエンドが同じリージョンにあるか確認
-
-### 静的ファイルが表示されない
-
-- `collectstatic`が実行されているか確認
-- WhiteNoiseが正しく設定されているか確認
-
-### Celeryタスクが実行されない
-
-- Celeryワーカーが起動しているか確認
-- Redis URLが正しいか確認
-
-## 15. スケーリング
-
-トラフィックが増加した場合:
-
-1. Renderのインスタンスタイプをアップグレード
-2. 水平スケーリング（複数インスタンス）
-3. データベースのスケールアップ
-4. CDNの活用
-5. キャッシュ戦略の最適化
+- **DB 接続**: `DATABASE_URL`、PostgreSQL の `listen_addresses` / `pg_hba.conf`
+- **静的ファイル**: `collectstatic` と WhiteNoise（`USE_S3=False` 時）
+- **Celery**: Redis 起動確認、`CELERY_BROKER_URL`、`ENABLE_CELERY` または別 unit で worker/beat が動いているか
+- **CORS**: `CORS_ALLOWED_ORIGINS` にフロントのオリジン（スキーム付き）を列挙
 
 ---
 
-問題が発生した場合は、[Issues](https://github.com/yourusername/photo_contest_platform/issues)で報告してください。
-
+問題が発生した場合は、[Issues](https://github.com/yourusername/photo_contest_platform/issues) で報告してください。

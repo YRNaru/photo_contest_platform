@@ -1,6 +1,8 @@
 # Renderへのデプロイガイド
 
-このガイドでは、photo_contest_platformをRenderにデプロイする手順を説明します。
+> **注意**: 本プロジェクトの**推奨本番手順**はレンタルサーバー（VPS）です。まず [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) と [DEPLOYMENT.md](./DEPLOYMENT.md) を参照してください。以下は Render 利用時の**参考資料**です。
+
+このガイドでは、photo_contest_platform を Render にデプロイする手順を説明します。
 
 ## 前提条件
 
@@ -182,9 +184,11 @@ Twitter自動取得や画像処理を使用する場合：
 3. **カスタムドメイン設定**（オプション）
    - Vercel/Renderの設定でカスタムドメインを追加
 
-### 6. GitHub Actionsによる自動デプロイ設定
+### 6. GitHub Actionsによる自動デプロイ設定（参考・レガシー）
 
-git pushで自動的にRenderにデプロイされるように設定します。
+> **リポジトリ現状**: `main` への push で Render を叩くワークフローは**削除済み**です。本番は [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) の VPS 運用を推奨します。Render を使い続ける場合は、ダッシュボードの **Manual Deploy** や Render 公式の Git 連携でデプロイしてください。
+
+以下は、以前 GitHub Secrets と Render API で自動デプロイしていたときの記録です。
 
 #### 6.1 Render API Keyの取得
 

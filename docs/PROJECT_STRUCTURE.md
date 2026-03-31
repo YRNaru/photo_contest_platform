@@ -100,7 +100,7 @@ frontend/
 
 主要な設定項目：
 
-- **データベース**: MySQLdb4対応（絵文字サポート）
+- **データベース**: PostgreSQL（`dj_database_url` / psycopg）
 - **CORS**: フロントエンド許可設定
 - **OAuth**: Twitter/Google認証設定
 - **JWT**: SimpleJWT設定

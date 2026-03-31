@@ -51,7 +51,7 @@ cp .env.example .env
 ### その他の設定
 
 - `SECRET_KEY`: Django用のシークレットキー（本番環境では必ず変更）
-- `MYSQL_PASSWORD`: MySQLのパスワード（必要に応じて変更）
+- `POSTGRES_PASSWORD` / `DATABASE_URL`: PostgreSQL の認証情報（`docker-compose.yml` の `db` と一致させる）
 
 ## 注意事項
 
