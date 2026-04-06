@@ -22,15 +22,6 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
-# Render.comのドメインを追加
-if not DEBUG:
-    ALLOWED_HOSTS.extend(
-        [
-            "photo-contest-platform.onrender.com",
-            ".onrender.com",
-        ]
-    )
-
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -94,7 +85,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 DATABASES = {
     "default": dj_database_url.config(
-        default="postgresql://contestuser:contestpass@localhost:5432/contest",
+        default="mysql://contestuser:contestpass@localhost:3306/contest",
         conn_max_age=600,
         conn_health_checks=True,
     )
@@ -185,10 +176,8 @@ else:
     CSRF_COOKIE_SAMESITE = "None"
     CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = False
-    CSRF_TRUSTED_ORIGINS = [
-        "https://photo-contest-platform.onrender.com",
-        "https://photo-contest-platform-backend.onrender.com",
-    ]
+    _csrf_trusted = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_trusted.split(",") if o.strip()]
 
 # Django REST Framework
 REST_FRAMEWORK = {

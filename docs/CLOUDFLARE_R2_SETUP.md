@@ -1,6 +1,6 @@
 # Cloudflare R2 セットアップガイド
 
-このガイドでは、Cloudflare R2 を設定して本番バックエンド（**VPS 上の Django** など）で使用する手順を説明します。環境変数は **自前サーバー** の `EnvironmentFile` やシェルに設定してください。文中の「Render」は歴史的な表記が残る場合があります。
+このガイドでは、Cloudflare R2 を設定して本番バックエンド（**VPS 上の Django** など）で使用する手順を説明します。環境変数は **自前サーバー** の `EnvironmentFile` やシェルに設定してください。
 
 ## 📋 前提条件
 
@@ -148,7 +148,7 @@
 
    **Client IP Address Filtering（IPアドレスフィルタリング）**
    - **デフォルトのまま（すべてのIPアドレス）でOK**
-     - RenderなどのPaaSではIPアドレスが動的に変わるため
+     - VPS の固定出口 IP のみ許可する場合はここで制限できる
      - 特定のIPアドレスを指定すると接続できなくなる可能性があります
    - セキュリティ要件で特定のIPアドレスのみ許可したい場合のみ設定
 
@@ -179,17 +179,11 @@
    - 形式: `pub-xxxxx.r2.dev`
    - または、カスタムドメインを設定した場合はそのドメイン
 
-### ステップ4: Renderの環境変数設定
+### ステップ4: 本番サーバー（Django）の環境変数
 
-1. **Renderダッシュボードにアクセス**
-   - https://dashboard.render.com/ にログイン
-
-2. **バックエンドサービスを選択**
-   - バックエンドのWeb Serviceを開く
-
-3. **「Environment」タブを開く**
-
-4. **以下の環境変数を追加**
+1. **環境変数ファイルを編集**（例: `/etc/photo_contest.env` や systemd の `EnvironmentFile=`）
+2. **バックエンドプロセスが読み込むよう配置する**
+3. **以下の環境変数を追加**
 
 ```bash
 # R2ストレージを有効化
@@ -215,18 +209,11 @@ AWS_S3_CUSTOM_DOMAIN=pub-xxxxx.r2.dev
 # AWS_S3_CUSTOM_DOMAIN=img.your-photocontest.com
 ```
 
-### ステップ5: 設定の確認
+### ステップ5: 設定の反映と確認
 
-1. **環境変数を保存**
-   - 「Save Changes」をクリック
-
-2. **サービスを再デプロイ**
-   - 環境変数の変更後、自動的に再デプロイが開始されます
-   - または、手動で「Manual Deploy」→「Deploy latest commit」を実行
-
-3. **ログを確認**
-   - 「Logs」タブでエラーがないか確認
-   - R2への接続エラーがないか確認
+1. **環境変数を保存**したうえでバックエンド（Gunicorn 等）を **再起動**
+2. **ログを確認**（例: `journalctl -u photo-contest-backend -f`）
+   - R2 への接続エラーがないか確認
 
 ### ステップ6: 動作確認
 
@@ -287,8 +274,8 @@ AWS_S3_CUSTOM_DOMAIN=pub-xxxxx.r2.dev
 [
   {
     "AllowedOrigins": [
-      "https://photo-contest-platform-1.onrender.com",
-      "https://photo-contest-platform.onrender.com",
+      "https://www.example.com",
+      "https://api.example.com",
       "http://localhost:3000"
     ],
     "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
@@ -301,15 +288,15 @@ AWS_S3_CUSTOM_DOMAIN=pub-xxxxx.r2.dev
 
    - 「Save」をクリック
 
-2. **フロントエンドを再デプロイ**
-   - Render（フロントエンド）のダッシュボードで「Manual Deploy」→「Deploy latest commit」を実行
-   - `next.config.js`の変更（`unoptimized: true`）が反映されます
+2. **フロントエンドを再ビルド・再起動**
+   - `npm run build` を実行し、`next start`（または PM2 / systemd）でプロセスを再起動
+   - `next.config.js` の `remotePatterns` に R2 / API のホストが含まれるか確認
 
-**原因3**: フロントエンドが再デプロイされていない
+**原因3**: フロントのビルドが古い
 
 **解決策**:
-- Renderのフロントエンドサービスを再デプロイ
-- `next.config.js`の`unoptimized: true`設定が反映されます
+- フロントを再ビルドしてプロセスを再起動する
+- `next.config.js` の画像・リライト設定が意図どおりか確認
 
 ## 📝 環境変数の例
 
@@ -327,7 +314,7 @@ AWS_S3_CUSTOM_DOMAIN=pub-xxxxx.r2.dev
 
 ## 🎉 完了
 
-これで、Renderの再起動後も画像が永続的に保存されるようになりました！
+これで、サーバー再起動後も画像は R2 側に永続保存されます。
 
 ## 📚 参考資料
 

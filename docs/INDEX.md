@@ -1,63 +1,71 @@
 # ドキュメント索引
 
-## 📚 全ドキュメント一覧
-
-### 🚀 スタートガイド
-- **[GETTING_STARTED.md](./GETTING_STARTED.md)** - 総合セットアップガイド【推奨】
-- [README.md](../README.md) - プロジェクト概要（ルート）
-
-### 🔐 認証設定
-- [OAUTH_SETUP.md](./OAUTH_SETUP.md) - Google/Twitter OAuth設定統合ガイド（開発環境）
-- [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md) - 本番環境OAuth設定ガイド【NEW】
-- [OAUTH_TROUBLESHOOTING.md](./OAUTH_TROUBLESHOOTING.md) - OAuth認証トラブルシューティング【NEW】
-- [TWITTER_SETUP.md](./TWITTER_SETUP.md) - Twitter連携詳細設定
-- [TWITTER_API_OPTIMIZATION.md](./TWITTER_API_OPTIMIZATION.md) - Twitter API利用料最適化ガイド【NEW】
-
-### 🛠️ セットアップ・設定
-- [ENV_TEMPLATE.md](./ENV_TEMPLATE.md) - 環境変数テンプレート
-- [ENV_SETUP.md](./ENV_SETUP.md) - 環境変数セットアップガイド
-- [PORT_CONFIG.md](./PORT_CONFIG.md) - ポート設定
-
-### 🚢 デプロイ・運用
-- **[RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md)** - レンタルサーバー（VPS）デプロイ【推奨】
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番デプロイ概要・環境変数・ストレージ
-- [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) - Render 向け手順（参考・旧）
-- [CLOUDFLARE_VERCEL_SETUP.md](./CLOUDFLARE_VERCEL_SETUP.md) - Cloudflare + Vercel セットアップガイド【NEW】
-- [CLOUDFLARE_OPTIMIZATION.md](./CLOUDFLARE_OPTIMIZATION.md) - Cloudflare 最適化設定ガイド【NEW】
-- [LOG_VIEWING.md](./LOG_VIEWING.md) - 本番環境でのログ確認方法【NEW】
-
-### 👥 開発・貢献
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - 開発ガイドライン
-- [TESTING.md](./TESTING.md) - テストガイド
-- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) - プロジェクト構造
-- [IDE_SETUP.md](./IDE_SETUP.md) - IDE設定
-- [LINTER_SETUP.md](./LINTER_SETUP.md) - Linter設定
-
-### 📊 品質・実績
-- [ACHIEVEMENT.md](./ACHIEVEMENT.md) - カバレッジ93%達成記録
-- [TEST_QUALITY_REPORT.md](./TEST_QUALITY_REPORT.md) - テスト品質レポート
-- [JUDGING_SYSTEM.md](./JUDGING_SYSTEM.md) - 審査システム詳細
-
-### 📝 履歴・整理記録
-- [CHANGELOG.md](./CHANGELOG.md) - 変更履歴
-- [FILE_ORGANIZATION_2024.md](./FILE_ORGANIZATION_2024.md) - ファイル整理完了レポート（2024年12月10日）
-- [CLEANUP_SUMMARY.md](./CLEANUP_SUMMARY.md) - プロジェクト整理完了レポート
-- [CLEANUP_DONE.md](./CLEANUP_DONE.md) - コード整理完了レポート（旧）
+**このファイルがドキュメントの正本の目次です。** 全ファイルへのリンクはここから辿れます。
 
 ---
 
-## 🛠️ スクリプト
+## はじめに
 
-スクリプトは `../scripts/` ディレクトリに配置されています：
+- **[GETTING_STARTED.md](./GETTING_STARTED.md)** — ローカル起動・Docker（推奨）
+- [README.md](../README.md) — プロジェクト概要（リポジトリルート）
 
-- [test_all.sh](../scripts/test_all.sh) - 全テスト実行
-- [test_backend.sh](../scripts/test_backend.sh) - バックエンドテスト
-- [test_frontend.sh](../scripts/test_frontend.sh) - フロントエンドテスト
-- [create_twitter_app.py](../scripts/create_twitter_app.py) - Twitter App作成スクリプト（開発環境）
-- [set_google_oauth.py](../scripts/set_google_oauth.py) - Google OAuth設定（開発環境）
-- [update_google_oauth.sh](../scripts/update_google_oauth.sh) - Google OAuth更新（開発環境）
-- [setup_production_oauth.py](../scripts/setup_production_oauth.py) - 本番環境OAuth設定【NEW】
-- [check_oauth_config.py](../scripts/check_oauth_config.py) - OAuth設定確認【NEW】
+## 認証・Twitter
 
-詳細は [scripts/README.md](../scripts/README.md) を参照してください。
+- [OAUTH_SETUP.md](./OAUTH_SETUP.md) — Google / Twitter OAuth（開発）
+- [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md) — 本番 OAuth
+- [OAUTH_TROUBLESHOOTING.md](./OAUTH_TROUBLESHOOTING.md) — OAuth トラブルシューティング
+- [TWITTER_SETUP.md](./TWITTER_SETUP.md) — Twitter 連携・ハッシュタグ取得
+- [TWITTER_API_OPTIMIZATION.md](./TWITTER_API_OPTIMIZATION.md) — Twitter API 利用の最適化
 
+## 環境・ローカル開発
+
+- [ENV_TEMPLATE.md](./ENV_TEMPLATE.md) — 環境変数テンプレート
+- [ENV_SETUP.md](./ENV_SETUP.md) — 環境変数の説明
+- [PORT_CONFIG.md](./PORT_CONFIG.md) — ポート一覧・変更方法
+
+## デプロイ・運用
+
+- **[RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md)** — さくら VPS 等（Nginx + Gunicorn + systemd）
+- [DEPLOYMENT.md](./DEPLOYMENT.md) — 本番概要・環境変数・ストレージ
+- [CLOUDFLARE_R2_SETUP.md](./CLOUDFLARE_R2_SETUP.md) — Cloudflare R2
+- [CLOUDFLARE_OPTIMIZATION.md](./CLOUDFLARE_OPTIMIZATION.md) — Cloudflare 最適化
+- [LOG_VIEWING.md](./LOG_VIEWING.md) — 本番ログの見方
+- **本番用テンプレート**（リポジトリルート）: [deploy/README.md](../deploy/README.md) — Nginx / systemd / Gunicorn 設定例
+
+## CI/CD
+
+- [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — バックエンド・フロントのテスト・ビルド
+- [`.github/workflows/tests.yml`](../.github/workflows/tests.yml) — テスト（カバレッジ）・Lint・型チェック
+- [`.gitlab-ci.yml`](../.gitlab-ci.yml) — GitLab CI（GitHub ミラー用）
+
+## 開発・品質・構造
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — コントリビューション
+- [TESTING.md](./TESTING.md) — テストの書き方・実行
+- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) — ディレクトリ構成
+- [IDE_SETUP.md](./IDE_SETUP.md) — IDE 設定
+- [LINTER_SETUP.md](./LINTER_SETUP.md) — Linter 設定
+- [JUDGING_SYSTEM.md](./JUDGING_SYSTEM.md) — 審査システム
+
+## アーカイブ（履歴・旧レポート）
+
+過去の整理記録・品質レポート。通常の開発手順には不要です。
+
+- [archive/ACHIEVEMENT.md](./archive/ACHIEVEMENT.md)
+- [archive/TEST_QUALITY_REPORT.md](./archive/TEST_QUALITY_REPORT.md)
+- [archive/FILE_ORGANIZATION_2024.md](./archive/FILE_ORGANIZATION_2024.md)
+- [archive/CLEANUP_SUMMARY.md](./archive/CLEANUP_SUMMARY.md)
+- [archive/CLEANUP_DONE.md](./archive/CLEANUP_DONE.md)
+
+## 変更履歴
+
+- [CHANGELOG.md](./CHANGELOG.md)
+
+---
+
+## スクリプト
+
+`../scripts/` 配下。詳細は [scripts/README.md](../scripts/README.md)。
+
+- [test_all.sh](../scripts/test_all.sh) / [test_backend.sh](../scripts/test_backend.sh) / [test_frontend.sh](../scripts/test_frontend.sh)
+- [setup_production_oauth.py](../scripts/setup_production_oauth.py) / [check_oauth_config.py](../scripts/check_oauth_config.py) など

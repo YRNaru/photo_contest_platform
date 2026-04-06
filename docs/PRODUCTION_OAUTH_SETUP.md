@@ -1,6 +1,6 @@
 # 本番環境 OAuth設定ガイド
 
-本番環境で Google / Twitter OAuth を設定する手順です。**Render.com** と書かれている箇所は、自前 VPS の本番 URL（例: `https://api.example.com`）に読み替えてください。VPS 全体の手順は [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) を参照してください。
+本番環境で Google / Twitter OAuth を設定する手順です。例として `https://api.example.com`（バックエンド）と `https://www.example.com`（フロント）を使います。実際のドメインに置き換えてください。VPS 全体の手順は [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) を参照してください。
 
 ## 📋 目次
 
@@ -13,17 +13,17 @@
 
 ## 環境変数の設定
 
-### Render.comのダッシュボードで設定
+### 本番サーバーで環境変数を設定
 
-1. Render.comのダッシュボードにアクセス
+1. 本番サーバーの環境変数（EnvironmentFile 等）を編集
 2. バックエンドサービスを選択
 3. **Environment** タブをクリック
 4. 以下の環境変数を追加：
 
 ```bash
 # 必須
-FRONTEND_URL=https://photo-contest-platform-1.onrender.com
-PRODUCTION_DOMAIN=photo-contest-platform.onrender.com
+FRONTEND_URL=https://www.example.com
+PRODUCTION_DOMAIN=api.example.com
 
 # Google OAuth（Google Cloud Consoleから取得）
 GOOGLE_OAUTH_CLIENT_ID=your-google-client-id
@@ -38,8 +38,8 @@ TWITTER_OAUTH_CLIENT_SECRET=your-twitter-client-secret
 
 | 変数名 | 説明 | 例 |
 |--------|------|-----|
-| `FRONTEND_URL` | フロントエンドのURL（プロトコル含む） | `https://photo-contest-platform-1.onrender.com` |
-| `ALLOWED_HOSTS` | バックエンドのドメイン（カンマ区切り） | `photo-contest-platform.onrender.com,.onrender.com` |
+| `FRONTEND_URL` | フロントエンドのURL（プロトコル含む） | `https://www.example.com` |
+| `ALLOWED_HOSTS` | バックエンドのドメイン（カンマ区切り） | `api.example.com` |
 | `GOOGLE_OAUTH_CLIENT_ID` | Google Cloud ConsoleのクライアントID | `123456789-abc...apps.googleusercontent.com` |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Google Cloud Consoleのクライアントシークレット | `GOCSPX-...` |
 | `TWITTER_OAUTH_CLIENT_ID` | Twitter Developer PortalのClient ID | `abc123...` |
@@ -72,7 +72,7 @@ TWITTER_OAUTH_CLIENT_SECRET=your-twitter-client-secret
 #### ステップ1: 管理画面にアクセス
 
 ```
-https://photo-contest-platform.onrender.com/admin/
+https://api.example.com/admin/
 ```
 
 スーパーユーザーでログイン（環境変数`DJANGO_SUPERUSER_EMAIL`と`DJANGO_SUPERUSER_PASSWORD`で作成されます）
@@ -82,7 +82,7 @@ https://photo-contest-platform.onrender.com/admin/
 1. **Sites** → **Sites** をクリック
 2. Site ID 1を選択
 3. 以下を設定：
-   - **Domain name**: `photo-contest-platform.onrender.com`
+   - **Domain name**: `api.example.com`
    - **Display name**: `VRChat Photo Contest (Production)`
 4. **保存**をクリック
 
@@ -95,7 +95,7 @@ https://photo-contest-platform.onrender.com/admin/
    - **Name**: `Google OAuth2 (Production)`
    - **Client id**: 環境変数`GOOGLE_OAUTH_CLIENT_ID`の値
    - **Secret key**: 環境変数`GOOGLE_OAUTH_CLIENT_SECRET`の値
-   - **Sites**: `photo-contest-platform.onrender.com`を選択（右側から追加）
+   - **Sites**: `api.example.com`を選択（右側から追加）
 4. **保存**をクリック
 
 #### ステップ4: Twitter OAuthの設定
@@ -107,7 +107,7 @@ https://photo-contest-platform.onrender.com/admin/
    - **Name**: `Twitter OAuth2 (Production)`
    - **Client id**: 環境変数`TWITTER_OAUTH_CLIENT_ID`の値
    - **Secret key**: 環境変数`TWITTER_OAUTH_CLIENT_SECRET`の値
-   - **Sites**: `photo-contest-platform.onrender.com`を選択（右側から追加）
+   - **Sites**: `api.example.com`を選択（右側から追加）
 4. **保存**をクリック
 
 ### 方法3: ローカルからスクリプトを実行（開発環境のみ）
@@ -135,7 +135,7 @@ docker-compose exec backend python scripts/setup_production_oauth.py
 5. **承認済みのリダイレクトURI** に以下を追加：
 
 ```
-https://photo-contest-platform.onrender.com/accounts/google/login/callback/
+https://api.example.com/accounts/google/login/callback/
 ```
 
 ⚠️ **重要**: 末尾の `/` を必ず含めてください
@@ -148,7 +148,7 @@ https://photo-contest-platform.onrender.com/accounts/google/login/callback/
 4. **Callback URI / Redirect URL** に以下を追加：
 
 ```
-https://photo-contest-platform.onrender.com/accounts/twitter_oauth2/login/callback/
+https://api.example.com/accounts/twitter_oauth2/login/callback/
 ```
 
 ⚠️ **重要**: 末尾の `/` を必ず含めてください
@@ -164,7 +164,7 @@ https://photo-contest-platform.onrender.com/accounts/twitter_oauth2/login/callba
 **原因と対処法**:
 
 #### 1. 環境変数が未設定
-**対処**: Render.comのダッシュボードで環境変数を追加
+**対処**: 本番サーバーに環境変数を追加
 
 #### 2. SocialAppが未設定
 **対処**: 
@@ -172,13 +172,13 @@ https://photo-contest-platform.onrender.com/accounts/twitter_oauth2/login/callba
 - または、Django管理画面から手動設定（方法2を参照）
 
 #### 3. デプロイログを確認
-Render.comのダッシュボード → **Logs** タブで以下を確認：
+本番バックエンドのログ（journalctl 等）で以下を確認：
 - `✅ OAuth setup completed!` が表示されているか
 - エラーメッセージがないか
 
 #### 3. リダイレクトURIが未登録
 - Google Cloud Console / Twitter Developer PortalでリダイレクトURIを確認
-- `https://photo-contest-platform.onrender.com/accounts/.../callback/` が登録されているか確認
+- `https://api.example.com/accounts/.../callback/` が登録されているか確認
 
 #### 4. Siteの設定が誤っている
 ```bash
@@ -187,11 +187,11 @@ python manage.py shell
 
 from django.contrib.sites.models import Site
 print(Site.objects.get(pk=1).domain)
-# => photo-contest-platform.onrender.com であるべき
+# => api.example.com であるべき
 
 # 修正
 site = Site.objects.get(pk=1)
-site.domain = 'photo-contest-platform.onrender.com'
+site.domain = 'api.example.com'
 site.name = 'VRChat Photo Contest (Production)'
 site.save()
 ```
@@ -218,14 +218,14 @@ site.save()
 
 本番環境のログを確認する方法：
 
-1. Render.comのダッシュボードで **Logs** タブを開く
+1. 本番バックエンドのログを開く（例: journalctl -u photo-contest-backend -f）
 2. デプロイ時のログを確認
 
 **正常なログ例**:
 ```
 Setting up OAuth from environment variables...
-Setting up Site: photo-contest-platform.onrender.com
-✅ Site updated: photo-contest-platform.onrender.com
+Setting up Site: api.example.com
+✅ Site updated: api.example.com
 Setting up Google OAuth...
 ✅ Google OAuth updated
 ✅ Google OAuth - Site linked
@@ -247,7 +247,7 @@ Setting up Twitter OAuth...
 
 本番環境のOAuth設定が完了したか確認：
 
-- [ ] Render.comで環境変数を設定
+- [ ] 本番サーバーで環境変数を設定
   - [ ] `FRONTEND_URL`
   - [ ] `ALLOWED_HOSTS`
   - [ ] `GOOGLE_OAUTH_CLIENT_ID`
@@ -270,7 +270,7 @@ Setting up Twitter OAuth...
 - [Google OAuth 2.0 Documentation](https://developers.google.com/identity/protocols/oauth2)
 - [Twitter OAuth 2.0 Documentation](https://developer.twitter.com/en/docs/authentication/oauth-2-0)
 - [Django Allauth Documentation](https://django-allauth.readthedocs.io/)
-- [Render.com Documentation](https://render.com/docs)
+- [Django Sites](https://docs.djangoproject.com/en/stable/ref/contrib/sites/)
 
 ---
 

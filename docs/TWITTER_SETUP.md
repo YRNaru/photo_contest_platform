@@ -11,7 +11,7 @@
 ### 2. Twitter投稿の自動取得
 - 指定したハッシュタグ付きのツイートを自動取得
 - 画像付きツイートをエントリーとして登録
-- **15分ごとに自動実行**（取得漏れなし）
+- **Celery Beat で定期自動実行**（デフォルトは `settings.py` で **6 時間ごと**。`CELERY_BEAT_SCHEDULE` で変更可）
 - **重複なし**: `since_time`で前回取得時刻以降のみ取得
 - **初回取得**: コンテスト開始時刻から全ツイートを取得
 - API利用料は新規投稿数に依存（実際の投稿活動による）
@@ -140,26 +140,25 @@ docker-compose exec backend python manage.py fetch_twitter --contest=vrchat-phot
 
 ### Celery Beat（デフォルト設定済み）
 
-デフォルトで15分ごとに実行されます。
+デフォルトは `backend/config/settings.py` の `CELERY_BEAT_SCHEDULE` に従います（現状は **6 時間ごと**。Twitter API Free tier のレート制限を避けるため）。
 
 設定変更: `backend/config/settings.py`
 
 ```python
 CELERY_BEAT_SCHEDULE = {
-    'fetch-twitter-entries': {
-        'task': 'contest.tasks.fetch_twitter_entries',
-        'schedule': crontab(minute='*/15'),  # 15分ごと（デフォルト、取得漏れなし）
-        # 'schedule': crontab(minute='*/30'),  # 30分ごと
-        # 'schedule': crontab(minute='0'),     # 1時間ごと
+    "fetch-twitter-entries": {
+        "task": "contest.tasks.fetch_twitter_entries",
+        "schedule": crontab(minute="0", hour="*/6"),  # 6時間ごと（リポジトリのデフォルト）
+        # 例: crontab(minute="*/15"),  # 15分ごと（API 上限に注意）
     },
 }
 ```
 
 **最適化の仕組み**:
-- **実行頻度**: 15分ごと（96回/日）
-- **取得方法**: `since_time`パラメータで前回取得時刻以降のみ取得
+- **実行頻度**: 上記スケジュールに依存（デフォルトは 4 回/日程度）
+- **取得方法**: `since_time` パラメータで前回取得時刻以降のみ取得
 - **重複排除**: 既に取得したツイートは再取得しない
-- **取得漏れ防止**: 通常15分間で10件を超える投稿は稀なため、確実に全件取得
+- **間隔を短くする場合**: 投稿ペースと Twitter API のレート上限を確認すること
 - **初回取得**: コンテスト開始時刻から全ツイートを取得（`twitter_last_fetch`がnullの場合）
 
 **API利用料の計算**:
@@ -263,11 +262,11 @@ docker-compose exec backend python manage.py fetch_twitter --contest=your-contes
 
 ### 本プラットフォームの最適化
 
-**デフォルト設定（取得漏れなし、重複なし）**:
-- 実行頻度: 15分ごと → **96回/日**
+**デフォルト設定（リポジトリ現状、重複なし）**:
+- 実行頻度: `CELERY_BEAT_SCHEDULE` に従う（デフォルトは **6 時間ごと** → 約 **4 回/日**）
 - `since_time`: 前回取得時刻以降のみ取得 → **重複なし**
-- 取得件数: 実際の新規投稿数に依存（max_results=10）
-- **API利用料 = 実際の新規投稿数**
+- 取得件数: 実際の新規投稿数に依存（タスク内の `max_results` 等）
+- **API利用料 = 実際の新規投稿数**（プランによる）
 
 **想定API使用量**:
 
@@ -291,9 +290,9 @@ docker-compose exec backend python manage.py fetch_twitter --contest=your-contes
 
 1. **初回取得**: コンテスト開始時は全ツイートを取得
 2. **増分取得**: 2回目以降は`since_time`で新規のみ取得
-3. **取得漏れ防止**: 15分間隔で確実に取得（通常15分で10件を超えることは稀）
-4. **コスト管理**: 投稿活動が活発な場合はBasic tier検討
-3. エラー時のリトライロジックを実装
+3. **実行間隔**: 短くしすぎるとレート制限に当たる。`settings.py` のコメントと [TWITTER_API_OPTIMIZATION.md](./TWITTER_API_OPTIMIZATION.md) を参照
+4. **コスト管理**: 投稿活動が活発な場合はプランを検討
+5. **エラー時**: ログとリトライ方針を確認
 
 ## モデレーション
 

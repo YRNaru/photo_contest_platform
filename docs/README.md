@@ -1,70 +1,17 @@
-# ドキュメント一覧
+# ドキュメント
 
-VRChatフォトコンテストプラットフォームの全ドキュメントです。
+**完全な一覧・分類は [INDEX.md](./INDEX.md) を参照してください。**（ここが正本の目次です）
 
-## 📖 セットアップ・利用ガイド
+## 最短導線
 
-### 初めての方向け
-
-| ドキュメント | 説明 | 所要時間 |
-|------------|------|---------|
-| **[GETTING_STARTED.md](./GETTING_STARTED.md)** | 📖 **総合セットアップガイド**（推奨） | 5-15分 |
-| [README.md](../README.md) | プロジェクト概要と基本情報 | 5分 |
-
-### 認証設定
-
-| ドキュメント | 説明 |
-|------------|------|
-| [OAUTH_SETUP.md](./OAUTH_SETUP.md) | 🔐 Google/Twitter OAuth設定統合ガイド |
-| [TWITTER_SETUP.md](./TWITTER_SETUP.md) | 🐦 Twitter連携・自動取得の詳細手順 |
-
-## 🚀 デプロイ・運用
-
-| ドキュメント | 説明 |
-|------------|------|
-| [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) | 本番デプロイ（VPS・推奨） |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | 本番概要・環境変数・ストレージ |
-| [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) | Render 向け（参考） |
-| [PORT_CONFIG.md](./PORT_CONFIG.md) | ポート設定一覧と変更方法 |
-
-## 🤝 開発・貢献
-
-| ドキュメント | 説明 |
-|------------|------|
-| [CONTRIBUTING.md](./CONTRIBUTING.md) | コントリビューションガイド・開発規約 |
-| [CHANGELOG.md](./CHANGELOG.md) | 変更履歴 |
-
-## 📝 参考情報
-
-| ドキュメント | 説明 |
-|------------|------|
-| [ENV_TEMPLATE.md](./ENV_TEMPLATE.md) | 環境変数テンプレート |
-| [TESTING.md](./TESTING.md) | テストガイド |
-| [LICENSE](../LICENSE) | MITライセンス |
+| やりたいこと | ドキュメント |
+|-------------|-------------|
+| すぐ起動する | [GETTING_STARTED.md](./GETTING_STARTED.md) |
+| OAuth を設定する | [OAUTH_SETUP.md](./OAUTH_SETUP.md)（開発） / [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md)（本番） |
+| 本番デプロイする | [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) → [deploy/README.md](../deploy/README.md) |
+| テストを回す | [TESTING.md](./TESTING.md) |
+| 環境変数を確認する | [ENV_TEMPLATE.md](./ENV_TEMPLATE.md) |
 
 ---
 
-## 🎯 目的別ガイド
-
-### すぐに起動したい
-→ [GETTING_STARTED.md](./GETTING_STARTED.md) の「クイックスタート（5分）」
-
-### Google/Twitter認証を設定したい
-→ [OAUTH_SETUP.md](./OAUTH_SETUP.md) または [TWITTER_SETUP.md](./TWITTER_SETUP.md)
-
-### Twitterのハッシュタグ投稿を自動取得したい
-→ [TWITTER_SETUP.md](./TWITTER_SETUP.md)
-
-### 本番環境にデプロイしたい
-→ [DEPLOYMENT.md](./DEPLOYMENT.md)
-
-### ポート番号を変更したい
-→ [PORT_CONFIG.md](./PORT_CONFIG.md)
-
-### 開発に貢献したい
-→ [CONTRIBUTING.md](./CONTRIBUTING.md)
-
----
-
-最終更新: 2024-12-05
-
+最終更新: 2026-04-06

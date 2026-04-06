@@ -37,8 +37,8 @@ SECRET_KEY=demo-secret-key-change-in-production
 ALLOWED_HOSTS=localhost,127.0.0.1
 DJANGO_SETTINGS_MODULE=config.settings
 
-# データベース（Compose 内はサービス名 db・ポート 5432）
-DATABASE_URL=postgresql://contestuser:contestpass@db:5432/contest
+# データベース（Compose 内はサービス名 db・ポート 3306）
+DATABASE_URL=mysql://contestuser:contestpass@db:3306/contest
 
 # Redis
 REDIS_URL=redis://redis:6379/0
@@ -275,7 +275,7 @@ docker-compose exec backend python manage.py fetch_twitter
 
 ### 5. 自動実行
 
-15分ごとに自動実行されます（Celery Beat）。`since_time`で重複取得を排除し、取得漏れを防止。
+Celery Beat のスケジュールに従って自動実行されます（デフォルトは `settings.py` で **6 時間ごと**）。`since_time` で重複取得を排除します。間隔は `CELERY_BEAT_SCHEDULE` で変更できます。
 
 ✅ **詳細**: [TWITTER_SETUP.md](./TWITTER_SETUP.md)
 
@@ -377,7 +377,7 @@ make migrate     # マイグレーション
 - [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) - 本番（VPS・推奨）
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - 本番概要・環境変数
 - [TESTING.md](./TESTING.md) - テストガイド
-- [ACHIEVEMENT.md](./ACHIEVEMENT.md) - テスト品質達成記録
+- [archive/ACHIEVEMENT.md](./archive/ACHIEVEMENT.md) - テスト品質達成記録（アーカイブ）
 - [PORT_CONFIG.md](./PORT_CONFIG.md) - ポート設定
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - 開発ガイドライン
 

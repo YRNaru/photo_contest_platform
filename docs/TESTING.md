@@ -394,28 +394,18 @@ npm test -- --clearCache
 
 ### GitHub Actions
 
-`.github/workflows/test.yml` でCI/CDパイプラインを設定できます。
+実体はリポジトリ直下の次のワークフローです（内容はファイルを参照）。
 
-```yaml
-name: Tests
+| ファイル | 内容の概要 |
+|---------|-------------|
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | `main` / `develop` の push・PR で、MySQL 8.0・Redis 7 のサービスコンテナ上でバックエンド（migrate → pytest）、フロント（lint・test・build）。バックエンドの `mysqlclient` 用に `default-libmysqlclient-dev` をインストール。 |
+| [`.github/workflows/tests.yml`](../.github/workflows/tests.yml) | 同トリガーでバックエンドの pytest + カバレッジ（Codecov）、フロントのカバレッジ、別ジョブで flake8 / black（参考）・ESLint・`tsc`。 |
 
-on: [push, pull_request]
+### GitLab CI
 
-jobs:
-  backend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run backend tests
-        run: ./test_backend.sh --coverage
-  
-  frontend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run frontend tests
-        run: ./test_frontend.sh --coverage
-```
+GitHub を正としつつミラーする場合は [`.gitlab-ci.yml`](../.gitlab-ci.yml) が使われます。ステージは `lint` / `test` / `build` で、バックエンドは MySQL 8.0 と Redis をサービスとして起動します。
+
+詳細なジョブ定義は上記 YAML を直接確認してください。
 
 ## まとめ
 

@@ -1,0 +1,40 @@
+# バックエンド（Django / Gunicorn）用 Nginx server ブロック
+# /etc/nginx/sites-available/photo-contest-api にコピーし、
+# /etc/nginx/sites-enabled/ にシンボリックリンクを張って利用する。
+#
+# ドメイン名は自分の環境に合わせて書き換えること。
+# SSL は certbot --nginx で自動追加される想定。
+
+upstream django_backend {
+    server 127.0.0.1:8000;
+}
+
+server {
+    listen 80;
+    server_name api.example.com;
+
+    client_max_body_size 10M;
+
+    # 静的ファイル（WhiteNoise を使わず Nginx で直接配信する場合）
+    location /static/ {
+        alias /srv/photo_contest/backend/staticfiles/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # メディアファイル（USE_S3=False のとき）
+    location /media/ {
+        alias /srv/photo_contest/backend/media/;
+        expires 7d;
+    }
+
+    # Django へのプロキシ
+    location / {
+        proxy_pass http://django_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+}

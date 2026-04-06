@@ -22,11 +22,18 @@ class Command(BaseCommand):
             # ALLOWED_HOSTSから最初のドメインを取得
             allowed_hosts = os.environ.get("ALLOWED_HOSTS", "")
             if allowed_hosts:
-                # カンマ区切りから最初のドメインを取得（.onrender.comは除外）
+                # カンマ区切りから最初のドメインを取得（ワイルドカード形式は除外）
                 domains = [d.strip() for d in allowed_hosts.split(",")]
                 production_domain = next((d for d in domains if d and not d.startswith(".")), "")
 
-        production_domain = production_domain or "photo-contest-platform.onrender.com"
+        if not production_domain:
+            self.stdout.write(
+                self.style.ERROR(
+                    "PRODUCTION_DOMAIN または ALLOWED_HOSTS（実ドメイン）を設定してください。"
+                    " OAuth の Site 更新をスキップします。"
+                )
+            )
+            return
 
         # 実際の環境変数名に合わせる
         google_client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", os.environ.get("GOOGLE_CLIENT_ID", ""))

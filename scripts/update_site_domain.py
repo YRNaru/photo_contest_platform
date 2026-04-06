@@ -28,7 +28,7 @@ if not domain:
     print("使用方法:")
     print("  python update_site_domain.py <DOMAIN>")
     print("  または環境変数 BACKEND_DOMAIN を設定")
-    print("  例: python update_site_domain.py photo-contest-platform.onrender.com")
+    print("  例: python update_site_domain.py api.example.com")
     print("=" * 60)
     sys.exit(1)
 

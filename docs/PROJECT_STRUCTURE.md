@@ -9,7 +9,8 @@ photo_contest_platform/
 ├── backend/              # Djangoバックエンド
 ├── frontend/             # Next.jsフロントエンド
 ├── scripts/              # ユーティリティスクリプト
-├── docs/                 # 詳細ドキュメント
+├── docs/                 # 詳細ドキュメント（目次は docs/INDEX.md）
+├── deploy/               # 本番用 Nginx / systemd / Gunicorn テンプレート
 ├── docker-compose.yml    # Docker構成
 ├── .gitignore           # Git除外設定
 ├── Makefile             # 便利コマンド
@@ -21,6 +22,7 @@ photo_contest_platform/
 | ファイル | 説明 |
 |---------|------|
 | `README.md` | プロジェクト概要とクイックスタート |
+| `docs/INDEX.md` | **ドキュメント索引（正本の目次）** |
 | `GETTING_STARTED.md` | 詳細セットアップガイド（5分で起動） |
 | `ENV_TEMPLATE.md` | 環境変数テンプレート |
 | `DEPLOYMENT.md` | 本番環境デプロイガイド |
@@ -100,7 +102,7 @@ frontend/
 
 主要な設定項目：
 
-- **データベース**: PostgreSQL（`dj_database_url` / psycopg）
+- **データベース**: MySQL（`dj_database_url` / mysqlclient）
 - **CORS**: フロントエンド許可設定
 - **OAuth**: Twitter/Google認証設定
 - **JWT**: SimpleJWT設定

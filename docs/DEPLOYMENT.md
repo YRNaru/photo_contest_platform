@@ -1,20 +1,18 @@
 # デプロイメントガイド
 
-本番の**推奨手順**は、**レンタルサーバー（VPS）**上に Nginx・systemd・PostgreSQL・Redis を載せて運用することです。詳細は **[RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md)** を参照してください。
+本番の**推奨手順**は、**さくら VPS 等**に Nginx・systemd・MySQL・Redis を載せて運用することです。詳細は **[RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md)** を参照してください。
 
-共有レンタルサーバー（PHP 専用プラン等）では、本プロジェクトの要件（Python 常駐、PostgreSQL、Redis、Celery、Node.js）を満たせないことが多いです。
+共有レンタルサーバー（PHP 専用プラン等）では、本プロジェクトの要件（Python 常駐、MySQL、Redis、Celery、Node.js）を満たせないことが多いです。
 
 ## 概要
 
 | 層 | 推奨 |
 |----|------|
-| **バックエンド** | Gunicorn + Django（`entrypoint.sh` または手動 migrate/collectstatic） |
-| **フロントエンド** | `next build` → `next start`（同一 VPS または別サーバー） |
-| **データベース** | 同一 VPS 上の PostgreSQL、またはマネージド PostgreSQL |
+| **バックエンド** | Gunicorn + Django（`deploy/gunicorn.conf.py` を使用） |
+| **フロントエンド** | `next build` -> `next start`（同一 VPS または別サーバー） |
+| **データベース** | 同一 VPS 上の MySQL 8.0、またはマネージド MySQL |
 | **Redis** | 同一 VPS 上の `redis-server`、またはマネージド Redis |
 | **メディア** | ローカルディスク（バックアップ必須）または S3 / Cloudflare R2（`USE_S3=True`） |
-
-PaaS（Render 等）向けの旧手順は [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) に残しています（参考用）。
 
 ## 1. 事前準備
 
@@ -32,12 +30,13 @@ VPS では `/etc/photo_contest.env` 等に集約し、`systemd` の `Environment
 DEBUG=False
 SECRET_KEY=<強力なランダム文字列>
 DJANGO_SETTINGS_MODULE=config.settings
-DATABASE_URL=postgresql://ユーザー:パス@127.0.0.1:5432/contest
+DATABASE_URL=mysql://contestuser:パス@127.0.0.1:3306/contest
 REDIS_URL=redis://127.0.0.1:6379/0
 CELERY_BROKER_URL=redis://127.0.0.1:6379/0
 CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/0
 ALLOWED_HOSTS=api.example.com,www.example.com
 CORS_ALLOWED_ORIGINS=https://www.example.com
+CSRF_TRUSTED_ORIGINS=https://www.example.com,https://api.example.com
 
 GOOGLE_OAUTH_CLIENT_ID=...
 GOOGLE_OAUTH_CLIENT_SECRET=...
@@ -71,12 +70,12 @@ DJANGO_SUPERUSER_USERNAME=admin
 
 ローカル `media/` のみだとディスク喪失・拡張に弱いため、本番では **S3 または R2** を検討してください。
 
-- AWS S3: バケット作成、IAM、CORS（既存の S3 手順は旧版 [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) 内の JSON 例を参照可能）
-- Cloudflare R2: [CLOUDFLARE_R2_SETUP.md](./CLOUDFLARE_R2_SETUP.md)（ダッシュボードの「Render」という表記は **本番サーバーの環境変数** に読み替えてください）
+- AWS S3: バケット作成、IAM、CORS（プロバイダ公式ドキュメントに従う）
+- Cloudflare R2: [CLOUDFLARE_R2_SETUP.md](./CLOUDFLARE_R2_SETUP.md)
 
 ## 4. OAuth（本番 URL）
 
-バックエンドの公開 URL（例: `https://api.example.com`）に合わせて、Google / Twitter のコールバック URI を登録します。Django **Sites** のドメインも一致させます。手順の詳細は [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md)（表記は Render 例が残る場合がありますが、URL を自ドメインに置き換えてください）。
+バックエンドの公開 URL（例: `https://api.example.com`）に合わせて、Google / Twitter のコールバック URI を登録します。Django **Sites** のドメインも一致させます。手順の詳細は [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md)。
 
 ## 5. デプロイ更新（VPS）
 
@@ -84,7 +83,7 @@ DJANGO_SUPERUSER_USERNAME=admin
 cd /srv/photo_contest && git pull
 cd backend && source venv/bin/activate && pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
 cd ../frontend && npm ci --legacy-peer-deps && npm run build
-sudo systemctl restart photo-contest-backend photo-contest-frontend
+sudo systemctl restart photo-contest-backend photo-contest-frontend photo-contest-celery-worker photo-contest-celery-beat
 ```
 
 サービス名は [RENTAL_SERVER_DEPLOYMENT.md](./RENTAL_SERVER_DEPLOYMENT.md) の例に合わせて調整してください。
@@ -97,15 +96,16 @@ Sentry を使う場合は `SENTRY_DSN` を環境変数に設定します。
 
 ## 7. バックアップ
 
-- **PostgreSQL**: `pg_dump` を定期実行
+- **MySQL**: `mysqldump` を定期実行
 - **メディア**: S3/R2 の場合はプロバイダの仕様に従う。ローカルのみの場合はファイル同期またはスナップショット
 
 ## 8. トラブルシューティング
 
-- **DB 接続**: `DATABASE_URL`、PostgreSQL の `listen_addresses` / `pg_hba.conf`
+- **DB 接続**: `DATABASE_URL`、MySQL の `bind-address` / ユーザー権限
 - **静的ファイル**: `collectstatic` と WhiteNoise（`USE_S3=False` 時）
-- **Celery**: Redis 起動確認、`CELERY_BROKER_URL`、`ENABLE_CELERY` または別 unit で worker/beat が動いているか
+- **Celery**: Redis 起動確認、`CELERY_BROKER_URL`、別 unit で worker/beat が動いているか
 - **CORS**: `CORS_ALLOWED_ORIGINS` にフロントのオリジン（スキーム付き）を列挙
+- **CSRF**: `DEBUG=False` 時は `CSRF_TRUSTED_ORIGINS` にフロント・API の HTTPS オリジン（カンマ区切り）を設定
 
 ---
 

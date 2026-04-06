@@ -145,7 +145,7 @@ Name: img
 Content: pub-xxxxx.r2.dev
 Proxy: Proxied（オレンジ）
 
-# Renderの環境変数を更新
+# 本番サーバーの環境変数を更新
 AWS_S3_CUSTOM_DOMAIN=img.your-photocontest.com
 ```
 
@@ -315,8 +315,7 @@ Freeプラン: 100,000 リクエスト/日
 - [ ] Cloudflare DNS設定完了
 - [ ] SSL/TLS: Full (strict)
 - [ ] R2バケット作成＆CORS設定
-- [ ] Vercelカスタムドメイン設定
-- [ ] Render環境変数設定（R2含む）
+- [ ] 本番サーバーの環境変数設定（R2含む）
 - [ ] セキュリティヘッダー設定
 - [ ] ページルール設定
 - [ ] Bot Fight Mode有効化
@@ -328,5 +327,4 @@ Freeプラン: 100,000 リクエスト/日
 詳細は公式ドキュメントも参照してください:
 - [Cloudflare Docs](https://developers.cloudflare.com/)
 - [Cloudflare R2](https://developers.cloudflare.com/r2/)
-- [Vercel Docs](https://vercel.com/docs)
 

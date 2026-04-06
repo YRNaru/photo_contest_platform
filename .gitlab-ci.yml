@@ -1,0 +1,88 @@
+stages:
+  - lint
+  - test
+  - build
+
+variables:
+  MYSQL_ROOT_PASSWORD: root
+  MYSQL_DATABASE: test_db
+  MYSQL_USER: testuser
+  MYSQL_PASSWORD: testpass
+  DATABASE_URL: "mysql://testuser:testpass@mysql:3306/test_db"
+  REDIS_URL: "redis://redis:6379/0"
+  SECRET_KEY: "test-secret-key"
+  DEBUG: "True"
+
+# ---------------------------------------------------------------------------
+# Lint
+# ---------------------------------------------------------------------------
+
+backend-lint:
+  stage: lint
+  image: python:3.11-slim
+  before_script:
+    - pip install --quiet flake8 black
+  script:
+    - cd backend
+    - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+frontend-lint:
+  stage: lint
+  image: node:22-alpine
+  before_script:
+    - cd frontend && npm install --legacy-peer-deps
+  script:
+    - npm run lint
+    - npm run type-check
+
+# ---------------------------------------------------------------------------
+# Test
+# ---------------------------------------------------------------------------
+
+backend-test:
+  stage: test
+  image: python:3.11-slim
+  services:
+    - name: mysql:8.0
+      alias: mysql
+      variables:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: test_db
+        MYSQL_USER: testuser
+        MYSQL_PASSWORD: testpass
+      command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    - name: redis:7-alpine
+      alias: redis
+  before_script:
+    - apt-get update && apt-get install -y default-libmysqlclient-dev pkg-config gcc
+    - cd backend
+    - pip install --quiet -r requirements.txt
+    - pip install --quiet pytest pytest-django pytest-cov
+  script:
+    - python manage.py migrate
+    - pytest --cov=. --cov-report=term -v
+
+frontend-test:
+  stage: test
+  image: node:22-alpine
+  before_script:
+    - cd frontend && npm install --legacy-peer-deps
+  script:
+    - npm run test:coverage
+
+# ---------------------------------------------------------------------------
+# Build (validation only -- ensures the apps can be built)
+# ---------------------------------------------------------------------------
+
+frontend-build:
+  stage: build
+  image: node:22-alpine
+  before_script:
+    - cd frontend && npm install --legacy-peer-deps
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/.next/
+    expire_in: 1 day

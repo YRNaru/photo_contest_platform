@@ -21,10 +21,14 @@ if not production_domain_env:
     # ALLOWED_HOSTSから最初のドメインを取得
     allowed_hosts = os.environ.get("ALLOWED_HOSTS", "")
     if allowed_hosts:
-        # カンマ区切りから最初のドメインを取得（.onrender.comは除外）
+        # カンマ区切りから最初のドメインを取得（ワイルドカード形式は除外）
         domains = [d.strip() for d in allowed_hosts.split(",")]
         production_domain_env = next((d for d in domains if d and not d.startswith(".")), "")
-PRODUCTION_DOMAIN = production_domain_env or "photo-contest-platform.onrender.com"
+PRODUCTION_DOMAIN = production_domain_env
+
+if not PRODUCTION_DOMAIN:
+    print("エラー: PRODUCTION_DOMAIN または ALLOWED_HOSTS（実ドメイン）を設定してください。")
+    sys.exit(1)
 
 # 実際の環境変数名に合わせる
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", os.environ.get("GOOGLE_CLIENT_ID", ""))
@@ -148,7 +152,7 @@ else:
 print("\n" + "=" * 80)
 print("次のステップ")
 print("=" * 80)
-print("\n1. 以下の環境変数がRender.comに設定されているか確認：")
+print("\n1. 本番サーバーの環境変数が設定されているか確認：")
 print("   - FRONTEND_URL")
 print("   - ALLOWED_HOSTS (PRODUCTION_DOMAINが未設定の場合)")
 print("   - GOOGLE_OAUTH_CLIENT_ID")

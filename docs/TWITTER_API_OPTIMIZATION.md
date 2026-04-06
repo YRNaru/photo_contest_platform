@@ -1,8 +1,10 @@
 # Twitter API利用料最適化ガイド
 
+> **注意**: リポジトリの **デフォルトの Celery Beat 間隔** は `backend/config/settings.py` の `CELERY_BEAT_SCHEDULE` に定義されています（現状は **6 時間ごと**）。本書の「15 分ごと」は、より高頻度にしたい場合の**設計例・試算**として読んでください。
+
 ## 概要
 
-本プラットフォームでは、`since_time`パラメータによる重複排除で、取得漏れなく効率的にツイートを取得します。
+本プラットフォームでは、`since_time` パラメータによる重複排除で、効率的にツイートを取得します。
 
 ## 実装された最適化
 
@@ -28,22 +30,23 @@ def fetch_and_create_entries(self, contest):
 
 ### 2. 実行頻度の最適化
 
-**採用**: 15分ごと（1日96回）
+**リポジトリのデフォルト**: 6 時間ごと（1 日 4 回前後）。Free tier のレート制限を意識した設定です。
 
 ```python
-# backend/config/settings.py
+# backend/config/settings.py（抜粋・現行の例）
 CELERY_BEAT_SCHEDULE = {
     "fetch-twitter-entries": {
         "task": "contest.tasks.fetch_twitter_entries",
-        "schedule": crontab(minute="*/15"),  # 15分ごとに実行
+        "schedule": crontab(minute="0", hour="*/6"),
     },
 }
 ```
 
-**理由**:
-- API利用料は**取得ツイート数**で決まる（API呼び出し回数ではない）
-- 15分間隔なら通常10件を超えることは稀 → 取得漏れなし
-- `since_time`で重複排除 → 無駄な取得なし
+**高頻度にする場合の例**（下記「シナリオ比較」参照）:
+
+- API 利用料は主に**取得ツイート数**で決まる（プラン・エンドポイントによる）
+- 短い間隔にすると、ハッシュタグが活発なときにレート制限に当たりやすい
+- `since_time` で重複排除すれば、間隔が長くても「未取得の新規」は次回に取り込める
 
 ### 3. 取得件数の設定
 

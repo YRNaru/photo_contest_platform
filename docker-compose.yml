@@ -1,20 +1,22 @@
 name: photocontest
 services:
   db:
-    image: postgres:16-alpine
+    image: mysql:8.0
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-contest}
-      POSTGRES_USER: ${POSTGRES_USER:-contestuser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-contestpass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-contest}
+      MYSQL_USER: ${MYSQL_USER:-contestuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-contestpass}
     ports:
-      - "15432:5432"
+      - "13306:3306"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-contestuser}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 10
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   redis:
     image: redis:7-alpine
@@ -38,7 +40,7 @@ services:
       - "18000:8000"
     environment:
       - DEBUG=${DEBUG}
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=mysql://${MYSQL_USER:-contestuser}:${MYSQL_PASSWORD:-contestpass}@db:3306/${MYSQL_DATABASE:-contest}
       - REDIS_URL=${REDIS_URL}
       - SECRET_KEY=${SECRET_KEY}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
@@ -82,7 +84,7 @@ services:
     command: celery -A config worker -l info
     environment:
       - DEBUG=${DEBUG}
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=mysql://${MYSQL_USER:-contestuser}:${MYSQL_PASSWORD:-contestpass}@db:3306/${MYSQL_DATABASE:-contest}
       - REDIS_URL=${REDIS_URL}
       - SECRET_KEY=${SECRET_KEY}
       # Twitter API v2
@@ -104,7 +106,7 @@ services:
     command: celery -A config beat -l info
     environment:
       - DEBUG=${DEBUG}
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=mysql://${MYSQL_USER:-contestuser}:${MYSQL_PASSWORD:-contestpass}@db:3306/${MYSQL_DATABASE:-contest}
       - REDIS_URL=${REDIS_URL}
       - SECRET_KEY=${SECRET_KEY}
       # Twitter API v2
@@ -151,4 +153,3 @@ volumes:
   db_data:
   media_data:
   static_data:
-

@@ -11,24 +11,13 @@ const nextConfig = {
     optimizeCss: false,
   },
   images: {
-    // Renderの一時ストレージ問題を回避するため、本番環境でも画像最適化を無効化
-    // S3/R2を使用する場合は、この設定を変更して画像最適化を有効化可能
+    // 自前APIの /media や S3/R2 等は remotePatterns にホストを追加して許可する
     unoptimized: true,
     remotePatterns: [
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '18000',
-        pathname: '/media/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'photo-contest-platform.onrender.com',
-        pathname: '/media/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'photo-contest-platform-backend.onrender.com',
         pathname: '/media/**',
       },
       {

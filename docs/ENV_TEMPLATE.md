@@ -4,14 +4,17 @@ SECRET_KEY=demo-secret-key-change-this-in-production
 ALLOWED_HOSTS=localhost,127.0.0.1
 DJANGO_SETTINGS_MODULE=config.settings
 
-# データベース（コンテナ間は db:5432。ホスト直結なら localhost:15432）
-DATABASE_URL=postgresql://contestuser:contestpass@db:5432/contest
+# データベース（コンテナ間は db:3306。ホスト直結なら localhost:13306）
+DATABASE_URL=mysql://contestuser:contestpass@db:3306/contest
 
 # Redis（コンテナ間は redis:6379。ホスト直結なら localhost:16379）
 REDIS_URL=redis://redis:6379/0
 
 # CORS
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:13000
+
+# CSRF（本番で DEBUG=False のとき必須。HTTPS オリジンをカンマ区切り）
+# CSRF_TRUSTED_ORIGINS=https://www.example.com,https://api.example.com
 
 # Google OAuth（使用する場合は実際の値に変更）
 GOOGLE_OAUTH_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
@@ -48,4 +51,3 @@ NODE_ENV=development
 # その他
 TZ=Asia/Tokyo
 LANGUAGE_CODE=ja
-EOF
