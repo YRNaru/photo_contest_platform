@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# docker compose run backend python manage.py migrate のように、
+# 明示したコマンドだけ実行して終了する（引数が無いときだけ通常起動）
+if [ "$#" -gt 0 ]; then
+  exec "$@"
+fi
+
 # 静的ファイル収集（必須、先に実行）
 echo "Collecting static files..."
 python manage.py collectstatic --noinput || echo "Warning: Static file collection failed."
