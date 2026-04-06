@@ -91,6 +91,15 @@ DATABASES = {
     )
 }
 
+# CI（GitHub Actions 等）の MySQL では MYSQL_USER に CREATE DATABASE が無く、
+# Django が test_<dbname> を作れず sys.exit(2) になる。migrate 済みの DB 名をそのまま TEST に使う。
+if os.environ.get("CI") == "true":
+    _default_db = DATABASES["default"]
+    _name = _default_db.get("NAME")
+    if _name and _default_db.get("ENGINE", "").endswith("mysql"):
+        _default_db.setdefault("TEST", {})
+        _default_db["TEST"]["NAME"] = _name
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
