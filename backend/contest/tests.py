@@ -250,8 +250,8 @@ class VoteTest(TestCase):
         self.assertEqual(Vote.objects.filter(entry=self.entry, user=self.user2).count(), 1)
 
         # 同じユーザーと同じエントリーで2つ目の投票は作成できない
-        # unique_together制約があることを確認
-        self.assertIn(("entry", "user", "category"), Vote._meta.unique_together)
+        # unique_together制約があることを確認（段階審査で stage を含む）
+        self.assertIn(("entry", "user", "category", "stage"), Vote._meta.unique_together)
 
     def test_multiple_users_can_vote(self):
         """複数のユーザーが投票できる"""

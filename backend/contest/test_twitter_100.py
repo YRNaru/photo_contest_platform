@@ -78,9 +78,9 @@ class TwitterIntegration100Test(TestCase):
 
         result = fetcher.create_entry_from_tweet(self.contest, tweet_data)
 
-        # タイトルがユーザー名から生成されることを確認（行136）
+        # タイトルが「ユーザー名_応募N」形式で生成されることを確認
         self.assertIsNotNone(result)
-        self.assertIn("@user", result.title)
+        self.assertEqual(result.title, "user_応募1")
 
     @override_settings(TWITTER_BEARER_TOKEN="token")
     @patch("contest.twitter_integration.tweepy.Client")

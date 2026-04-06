@@ -27,7 +27,11 @@ class UserModelTest(TestCase):
 
     def test_user_str_fallback_to_email(self):
         """ユーザー名がない場合はメールアドレスが使われる"""
-        user_without_username = User.objects.create_user(username="", email="nousername@example.com", password="testpass123")
+        user_without_username = User.objects.create_user(
+            username="tmp_username", email="nousername@example.com", password="testpass123"
+        )
+        User.objects.filter(pk=user_without_username.pk).update(username="")
+        user_without_username.refresh_from_db()
         self.assertEqual(str(user_without_username), "nousername@example.com")
 
     def test_email_unique_constraint(self):

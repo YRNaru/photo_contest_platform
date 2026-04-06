@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -6,8 +7,8 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from .models import Contest, Entry
-from .views import ContestViewSet, EntryViewSet
+from .models import Contest, Entry, EntryView, JudgeScore
+from .views import ContestViewSet, EntryViewSet, EntryViewViewSet, JudgeScoreViewSet
 
 User = get_user_model()
 
@@ -81,8 +82,6 @@ class ViewSetPaginationTest(APITestCase):
 
     def test_my_contests_force_no_pagination(self):
         """ページネーションを無効化してmy_contestsを取得"""
-        from unittest.mock import patch
-
         self.client.force_authenticate(user=self.user)
 
         # paginate_queryset が None を返すようにモック
@@ -94,8 +93,6 @@ class ViewSetPaginationTest(APITestCase):
 
     def test_contest_entries_force_no_pagination(self):
         """ページネーションを無効化してコンテストエントリーを取得"""
-        from unittest.mock import patch
-
         Entry.objects.create(contest=self.contest, author=self.user, title="Entry 1", approved=True)
 
         with patch.object(ContestViewSet, "paginate_queryset", return_value=None):
@@ -104,8 +101,6 @@ class ViewSetPaginationTest(APITestCase):
 
     def test_pending_entries_force_no_pagination(self):
         """ページネーションを無効化して承認待ちエントリーを取得"""
-        from unittest.mock import patch
-
         moderator = User.objects.create_user(
             username="moderator",
             email="moderator@example.com",
@@ -197,3 +192,95 @@ class EntryViewSetTest(TestCase):
         viewset.action = "list"
 
         self.assertEqual(viewset.get_serializer_class(), EntryListSerializer)
+
+
+class EntryViewViewSetAPITests(APITestCase):
+    """EntryViewViewSet（審査員の閲覧記録）API"""
+
+    def setUp(self):
+        self.judge = User.objects.create_user(
+            username="judge1",
+            email="judge1@example.com",
+            password="testpass123",
+            is_judge=True,
+        )
+        self.author = User.objects.create_user(username="author1", email="a1@example.com", password="testpass123")
+        self.contest = Contest.objects.create(
+            slug="evs-contest",
+            title="EVS",
+            creator=self.author,
+            start_at=timezone.now(),
+            end_at=timezone.now() + timedelta(days=30),
+        )
+        self.entry = Entry.objects.create(
+            contest=self.contest,
+            author=self.author,
+            title="Work",
+            approved=True,
+        )
+        self.client.force_authenticate(user=self.judge)
+
+    def test_my_views_empty_list(self):
+        response = self.client.get("/api/entry-views/my_views/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch.object(EntryViewViewSet, "paginate_queryset", return_value=None)
+    def test_my_views_without_pagination_returns_list(self, _mock):
+        response = self.client.get("/api/entry-views/my_views/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+
+    def test_viewed_entry_ids_empty(self):
+        response = self.client.get("/api/entry-views/viewed_entry_ids/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["viewed_entry_ids"], [])
+
+    def test_create_entry_view_record(self):
+        response = self.client.post("/api/entry-views/", {"entry": str(self.entry.id)}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(EntryView.objects.filter(entry=self.entry, judge=self.judge).exists())
+
+    def test_list_shows_only_own_views(self):
+        other = User.objects.create_user(username="j2", email="j2@example.com", password="x", is_judge=True)
+        EntryView.objects.create(entry=self.entry, judge=other)
+        EntryView.objects.create(entry=self.entry, judge=self.judge)
+        response = self.client.get("/api/entry-views/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = [row["entry"] for row in response.data["results"]] if "results" in response.data else [row["entry"] for row in response.data]
+        self.assertEqual(len(ids), 1)
+
+
+class JudgeScoreMyScoresAPITests(APITestCase):
+    """JudgeScoreViewSet.my_scores の非ページネーション経路"""
+
+    def setUp(self):
+        self.judge = User.objects.create_user(
+            username="js_judge",
+            email="js_judge@example.com",
+            password="testpass123",
+            is_judge=True,
+        )
+        self.author = User.objects.create_user(username="js_author", email="js_a@example.com", password="testpass123")
+        self.contest = Contest.objects.create(
+            slug="js-contest",
+            title="JS",
+            creator=self.author,
+            judging_type="score",
+            start_at=timezone.now(),
+            end_at=timezone.now() + timedelta(days=30),
+        )
+        self.entry = Entry.objects.create(
+            contest=self.contest,
+            author=self.author,
+            title="Scored",
+            approved=True,
+        )
+        JudgeScore.objects.create(entry=self.entry, judge=self.judge, category=None, total_score="8.5")
+        self.client.force_authenticate(user=self.judge)
+
+    @patch.object(JudgeScoreViewSet, "paginate_queryset", return_value=None)
+    def test_my_scores_without_pagination(self, _mock):
+        response = self.client.get("/api/judge-scores/my_scores/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        self.assertGreaterEqual(len(response.data), 1)

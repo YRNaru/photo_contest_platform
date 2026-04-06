@@ -143,3 +143,79 @@ class CustomSocialAccountAdapterTest(TestCase):
 
             # superのsave_userが呼ばれたことを確認
             mock_super.assert_called_once()
+
+    @patch("accounts.adapter.login")
+    def test_pre_social_login_email_from_extra_data(self, mock_login):
+        """extra_data からメールを取得し既存ユーザーへ接続"""
+        User.objects.create_user(username="ext", email="extra@example.com")
+        request = self.factory.get("/")
+        request.user = Mock()
+        request.user.is_authenticated = False
+
+        sociallogin = Mock()
+        sociallogin.is_existing = False
+        sociallogin.email_addresses = []
+        sociallogin.account = Mock()
+        sociallogin.account.extra_data = {"email": "extra@example.com"}
+        sociallogin.connect = Mock()
+
+        with self.assertRaises(ImmediateHttpResponse):
+            self.adapter.pre_social_login(request, sociallogin)
+        sociallogin.connect.assert_called_once()
+        mock_login.assert_called_once()
+
+    @patch("accounts.adapter.login")
+    def test_pre_social_login_existing_user_connect_and_login(self, mock_login):
+        """既存メールユーザーへソーシャル接続してリダイレクト"""
+        User.objects.create_user(username="match", email="match@example.com")
+        request = self.factory.get("/")
+        request.user = Mock()
+        request.user.is_authenticated = False
+
+        sociallogin = Mock()
+        sociallogin.is_existing = False
+        email_obj = Mock()
+        email_obj.email = "match@example.com"
+        sociallogin.email_addresses = [email_obj]
+        sociallogin.account = Mock()
+        sociallogin.connect = Mock()
+
+        with self.assertRaises(ImmediateHttpResponse):
+            self.adapter.pre_social_login(request, sociallogin)
+        mock_login.assert_called_once()
+
+    def test_pre_social_login_outer_exception_logged_and_reraised(self):
+        """pre_social_login 内の予期しない例外はログ後に再送出"""
+        request = self.factory.get("/")
+        request.user = Mock()
+        request.user.is_authenticated = False
+
+        sociallogin = Mock()
+        sociallogin.is_existing = False
+        sociallogin.email_addresses = [Mock(email="x@y.com")]
+        sociallogin.account = Mock()
+        sociallogin.account.provider = "google"
+
+        with patch("accounts.adapter.User.objects.filter", side_effect=RuntimeError("db down")):
+            with self.assertRaises(RuntimeError):
+                self.adapter.pre_social_login(request, sociallogin)
+
+    def test_save_user_connect_raises(self):
+        """save_user で connect が失敗すると例外を再送出"""
+        User.objects.create_user(username="e", email="e@example.com")
+        request = self.factory.get("/")
+        sociallogin = Mock()
+        sociallogin.email_addresses = [Mock(email="e@example.com")]
+        sociallogin.connect = Mock(side_effect=ValueError("connect failed"))
+
+        with self.assertRaises(ValueError):
+            self.adapter.save_user(request, sociallogin)
+
+    def test_save_user_outer_exception(self):
+        """save_user の例外ハンドラ（参照用 email ログ）"""
+        request = self.factory.get("/")
+        sociallogin = Mock()
+        sociallogin.email_addresses = [Mock(email="z@z.com")]
+        with patch.object(CustomSocialAccountAdapter.__bases__[0], "save_user", side_effect=OSError("fail")):
+            with self.assertRaises(OSError):
+                self.adapter.save_user(request, sociallogin)
