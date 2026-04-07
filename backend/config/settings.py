@@ -156,6 +156,17 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # Session & CSRF Cookie settings
+# 本番(DEBUG=False)でも HTTP のみ（IP 直・TLS 前）では Secure クッキーがブラウザに保存されず
+# 管理画面ログインで CSRF 検証が失敗する。SESSION_CSRF_COOKIE_SECURE=False で無効化する。
+# HTTPS 運用時は True（未設定時の本番デフォルト）のままにすること。
+_session_csrf_secure_raw = os.environ.get("SESSION_CSRF_COOKIE_SECURE", "").strip().lower()
+if _session_csrf_secure_raw in ("false", "0", "no"):
+    _SESSION_CSRF_COOKIE_SECURE = False
+elif _session_csrf_secure_raw in ("true", "1", "yes"):
+    _SESSION_CSRF_COOKIE_SECURE = True
+else:
+    _SESSION_CSRF_COOKIE_SECURE = not DEBUG
+
 if DEBUG:
     SESSION_COOKIE_SAMESITE = "Lax"  # Noneは開発環境（HTTP）では使えない
     SESSION_COOKIE_SECURE = False  # 開発環境ではFalse
@@ -173,8 +184,13 @@ if DEBUG:
     ]
 else:
     # 本番環境の設定
-    SESSION_COOKIE_SAMESITE = "None"
-    SESSION_COOKIE_SECURE = True
+    if _SESSION_CSRF_COOKIE_SECURE:
+        SESSION_COOKIE_SAMESITE = "None"
+        CSRF_COOKIE_SAMESITE = "None"
+    else:
+        SESSION_COOKIE_SAMESITE = "Lax"
+        CSRF_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = _SESSION_CSRF_COOKIE_SECURE
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_DOMAIN = None
     # セッションの有効期限を延長（OAuth認証に時間がかかる場合があるため）
@@ -182,8 +198,7 @@ else:
     # セッションをデータベースに保存（デフォルト）
     SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
-    CSRF_COOKIE_SAMESITE = "None"
-    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = _SESSION_CSRF_COOKIE_SECURE
     CSRF_COOKIE_HTTPONLY = False
     _csrf_trusted = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
     CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_trusted.split(",") if o.strip()]
