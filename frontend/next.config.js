@@ -39,7 +39,8 @@ const nextConfig = {
   },
   async rewrites() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:18000/api'
-    const baseUrl = apiUrl.replace('/api', '')
+    // 先頭の https://api. の /api まで消さないよう、末尾の /api のみ除去する
+    const baseUrl = apiUrl.replace(/\/api\/?$/, '')
     
     return [
       {
