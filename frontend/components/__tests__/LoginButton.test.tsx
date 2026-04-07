@@ -26,9 +26,8 @@ describe('LoginButton', () => {
     const loginButton = screen.getByText('ログイン')
     await user.click(loginButton)
 
-    // ログインオプションが表示される
-    expect(screen.getByText('Googleでログイン')).toBeInTheDocument()
-    expect(screen.getByText('Twitterでログイン')).toBeInTheDocument()
+    expect(await screen.findByText('Twitterでログイン')).toBeInTheDocument()
+    expect(await screen.findByText('Googleでログイン')).toBeInTheDocument()
   })
 
   it('redirects to Google login when Google option clicked', async () => {
@@ -38,7 +37,7 @@ describe('LoginButton', () => {
     const loginButton = screen.getByText('ログイン')
     await user.click(loginButton)
 
-    const googleButton = screen.getByText('Googleでログイン')
+    const googleButton = await screen.findByText('Googleでログイン')
     await user.click(googleButton)
 
     // Google OAuth URLにリダイレクトされる
@@ -52,7 +51,7 @@ describe('LoginButton', () => {
     const loginButton = screen.getByText('ログイン')
     await user.click(loginButton)
 
-    const twitterButton = screen.getByText('Twitterでログイン')
+    const twitterButton = await screen.findByText('Twitterでログイン')
     await user.click(twitterButton)
 
     // Twitter OAuth URLにリダイレクトされる

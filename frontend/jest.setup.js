@@ -1,5 +1,13 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+import React from 'react'
+
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: function MockImage({ src, alt, fill: _f, priority: _p, unoptimized: _u, ...rest }) {
+    return React.createElement('img', { src, alt, ...rest })
+  },
+}))
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

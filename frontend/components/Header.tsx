@@ -22,8 +22,8 @@ export function Header() {
   }, [loadUser])
 
   return (
-    <header className="bg-white/95 dark:bg-black backdrop-blur-xl border-b-2 border-gray-200 dark:border-gray-800 sticky top-0 z-50 shadow-lg">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center animate-fadeInUp">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
+      <div className="container mx-auto flex items-center justify-between px-4 py-3 animate-fadeInUp sm:py-4">
         <div className="flex items-center gap-2 sm:gap-4">
           <SidebarToggleButton isOpen={isLeftOpen} onClick={toggleLeft} variant="left" />
           <Logo />

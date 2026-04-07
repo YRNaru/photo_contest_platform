@@ -2,6 +2,20 @@ import { render, screen } from '@testing-library/react'
 import { Header } from '../Header'
 import React from 'react'
 
+const mockPush = jest.fn()
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush, replace: jest.fn(), prefetch: jest.fn() }),
+}))
+
+jest.mock('../../lib/auth', () => ({
+  useAuth: () => ({
+    isAuthenticated: false,
+    user: null,
+    loadUser: jest.fn(),
+    logout: jest.fn(),
+  }),
+}))
+
 // Mock Next.js Link
 jest.mock('next/link', () => {
   const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
@@ -14,10 +28,10 @@ jest.mock('next/link', () => {
 // Mock SidebarProvider and ThemeProvider
 jest.mock('../../lib/sidebar-context', () => ({
   useSidebar: () => ({
-    isOpen: false,
-    toggle: jest.fn(),
-    open: jest.fn(),
-    close: jest.fn(),
+    isLeftOpen: false,
+    isRightOpen: false,
+    toggleLeft: jest.fn(),
+    toggleRight: jest.fn(),
   }),
   SidebarProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
@@ -25,7 +39,7 @@ jest.mock('../../lib/sidebar-context', () => ({
 jest.mock('../../lib/theme-context', () => ({
   useTheme: () => ({
     theme: 'light',
-    setTheme: jest.fn(),
+    toggleTheme: jest.fn(),
   }),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))

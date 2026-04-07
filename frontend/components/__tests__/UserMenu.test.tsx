@@ -3,14 +3,10 @@ import userEvent from '@testing-library/user-event'
 import { UserMenu } from '../UserMenu'
 import React from 'react'
 
-// Mock Next.js Link
-jest.mock('next/link', () => {
-  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
-    return <a href={href}>{children}</a>
-  }
-  MockLink.displayName = 'MockLink'
-  return MockLink
-})
+const mockPush = jest.fn()
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush, replace: jest.fn(), prefetch: jest.fn() }),
+}))
 
 // Mock auth
 const mockLogout = jest.fn()
@@ -29,6 +25,7 @@ jest.mock('../../lib/auth', () => ({
 describe('UserMenu', () => {
   beforeEach(() => {
     mockLogout.mockClear()
+    mockPush.mockClear()
   })
 
   it('renders user avatar', () => {
@@ -42,12 +39,10 @@ describe('UserMenu', () => {
     const user = userEvent.setup()
     render(<UserMenu />)
 
-    // アバターをクリック
-    const avatar = screen.getByText('testuser')
-    await user.click(avatar)
+    const trigger = screen.getByText('testuser')
+    await user.click(trigger)
 
-    // メニューが表示される
-    expect(screen.getByText('プロフィール')).toBeInTheDocument()
+    expect(await screen.findByText('プロフィール')).toBeInTheDocument()
     expect(screen.getByText('ログアウト')).toBeInTheDocument()
   })
 
@@ -55,12 +50,10 @@ describe('UserMenu', () => {
     const user = userEvent.setup()
     render(<UserMenu />)
 
-    // アバターをクリック
-    const avatar = screen.getByText('testuser')
-    await user.click(avatar)
+    const trigger = screen.getByText('testuser')
+    await user.click(trigger)
 
-    // ログアウトをクリック
-    const logoutButton = screen.getByText('ログアウト')
+    const logoutButton = await screen.findByText('ログアウト')
     await user.click(logoutButton)
 
     expect(mockLogout).toHaveBeenCalled()

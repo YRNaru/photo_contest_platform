@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { ContestBanner } from './card/ContestBanner'
 import { PhaseBadge } from './card/PhaseBadge'
 import { ContestDates } from './card/ContestDates'
+import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 interface Contest {
   slug: string
@@ -21,33 +23,40 @@ interface ContestCardProps {
 
 export function ContestCard({ contest, priority = false }: ContestCardProps) {
   return (
-    <Link href={`/contests/${contest.slug}`}>
-      <div className="group bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl shadow-lg dark:shadow-purple-500/10 overflow-hidden hover:shadow-2xl dark:hover:shadow-purple-500/20 transition-all duration-300 hover:scale-105 transform-gpu border border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-600">
+    <Link href={`/contests/${contest.slug}`} className="group block h-full">
+      <Card
+        className={cn(
+          'h-full overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-xl',
+          'hover:-translate-y-0.5'
+        )}
+      >
         <ContestBanner
           bannerImage={contest.banner_image}
           title={contest.title}
           priority={priority}
         />
 
-        <div className="p-4 sm:p-5 lg:p-6">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <CardContent className="space-y-3 p-4 sm:p-5 lg:p-6">
+          <div className="flex items-center justify-between gap-2">
             <PhaseBadge phase={contest.phase} />
-            <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1">
-              <span className="text-purple-600 dark:text-purple-400">📸</span>
+            <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground sm:text-sm">
+              <span className="text-primary" aria-hidden>
+                📸
+              </span>
               {contest.entry_count} 件
             </span>
           </div>
 
-          <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2">
+          <h3 className="line-clamp-2 text-lg font-bold text-foreground transition-colors group-hover:text-primary sm:text-xl">
             {contest.title}
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
+          <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
             {contest.description}
           </p>
 
           <ContestDates startAt={contest.start_at} endAt={contest.end_at} />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </Link>
   )
 }

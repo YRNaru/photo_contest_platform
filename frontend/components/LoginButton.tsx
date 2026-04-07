@@ -1,24 +1,27 @@
 'use client'
 
 import { FaGoogle, FaTwitter } from 'react-icons/fa'
-import { useState } from 'react'
 import { getBackendBaseUrl } from '@/lib/backend-url'
+import { Button, buttonVariants } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 
 interface LoginButtonProps {
   variant?: 'default' | 'sidebar'
 }
 
 export function LoginButton({ variant = 'default' }: LoginButtonProps) {
-  const [showOptions, setShowOptions] = useState(false)
-
   const handleGoogleLogin = () => {
-    // Google OAuth2フローを開始
     const backendUrl = getBackendBaseUrl()
     window.location.href = `${backendUrl}/accounts/google/login/`
   }
 
   const handleTwitterLogin = () => {
-    // Twitter OAuth2フローを開始
     const backendUrl = getBackendBaseUrl()
     window.location.href = `${backendUrl}/accounts/twitter_oauth2/login/`
   }
@@ -26,65 +29,49 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
   if (variant === 'sidebar') {
     return (
       <div className="space-y-3">
-        {/* 本番環境ではGoogleログインを非表示 */}
         {process.env.NODE_ENV !== 'production' && (
-          <button
+          <Button
+            type="button"
             onClick={handleGoogleLogin}
-            className="group flex items-center gap-3 px-4 py-3 w-full rounded-xl bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 text-white hover:shadow-2xl hover:scale-105 font-bold transform-gpu transition-all duration-300"
+            className={cn(
+              'h-auto w-full justify-start gap-3 rounded-xl border-0 bg-gradient-to-r from-red-500 to-red-600 py-3 font-bold text-white shadow-md hover:opacity-95 dark:from-red-600 dark:to-red-700'
+            )}
           >
-            <FaGoogle className="text-2xl group-hover:scale-125 transition-transform duration-300" />
-            <span>Googleでログイン</span>
-          </button>
+            <FaGoogle className="text-2xl" aria-hidden />
+            Googleでログイン
+          </Button>
         )}
-
-        <button
+        <Button
+          type="button"
           onClick={handleTwitterLogin}
-          className="group flex items-center gap-3 px-4 py-3 w-full rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 text-white hover:shadow-2xl hover:scale-105 font-bold transform-gpu transition-all duration-300"
+          className={cn(
+            'h-auto w-full justify-start gap-3 rounded-xl border-0 bg-gradient-to-r from-sky-500 to-blue-600 py-3 font-bold text-white shadow-md hover:opacity-95 dark:from-sky-600 dark:to-blue-700'
+          )}
         >
-          <FaTwitter className="text-2xl group-hover:scale-125 transition-transform duration-300" />
-          <span>Twitterでログイン</span>
-        </button>
+          <FaTwitter className="text-2xl" aria-hidden />
+          Twitterでログイン
+        </Button>
       </div>
     )
   }
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setShowOptions(!showOptions)}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition"
-      >
+    <DropdownMenu>
+      <DropdownMenuTrigger className={cn(buttonVariants(), 'font-semibold')}>
         ログイン
-      </button>
-
-      {showOptions && (
-        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
-          {/* 本番環境ではGoogleログインを非表示 */}
-          {process.env.NODE_ENV !== 'production' && (
-            <button
-              onClick={() => {
-                handleGoogleLogin()
-                setShowOptions(false)
-              }}
-              className="flex items-center gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-900 dark:text-gray-100"
-            >
-              <FaGoogle className="text-red-500" />
-              <span>Googleでログイン</span>
-            </button>
-          )}
-
-          <button
-            onClick={() => {
-              handleTwitterLogin()
-              setShowOptions(false)
-            }}
-            className="flex items-center gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-900 dark:text-gray-100"
-          >
-            <FaTwitter className="text-blue-400" />
-            <span>Twitterでログイン</span>
-          </button>
-        </div>
-      )}
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        {process.env.NODE_ENV !== 'production' && (
+          <DropdownMenuItem onClick={handleGoogleLogin}>
+            <FaGoogle className="text-red-500" />
+            Googleでログイン
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem onClick={handleTwitterLogin}>
+          <FaTwitter className="text-sky-500" />
+          Twitterでログイン
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

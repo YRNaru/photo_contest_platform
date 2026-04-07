@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Separator } from '@/components/ui/separator'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -185,7 +186,7 @@ export function Footer() {
           </div>
         </div>
 
-        <hr className="my-8 border-gray-700 dark:border-gray-800 opacity-30" />
+        <Separator className="my-8 bg-border opacity-60" />
 
         {/* コピーライト */}
         <div

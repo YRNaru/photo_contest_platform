@@ -32,7 +32,7 @@ export function LeftSidebar() {
 
   return (
     <aside
-      className={`bg-gray-50 dark:bg-black border-r-2 border-gray-200 dark:border-gray-800 h-[calc(100vh-4rem)] sticky top-16 transition-all duration-700 ease-in-out shadow-sm z-40 ${
+      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-r border-border bg-muted/30 shadow-sm transition-all duration-700 ease-in-out dark:bg-muted/10 ${
         isLeftOpen ? 'w-80 opacity-100' : 'w-0 opacity-0'
       }`}
     >
@@ -42,7 +42,7 @@ export function LeftSidebar() {
         }`}
       >
         <div
-          className="mb-6 pb-4 border-b-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+          className="mb-6 border-b border-border pb-4 transition-all duration-500"
           style={{
             transitionDelay: isLeftOpen ? '150ms' : '0ms',
             opacity: isLeftOpen ? 1 : 0,
@@ -83,7 +83,7 @@ export function LeftSidebar() {
 
         {!isAuthenticated && (
           <div
-            className="mt-6 pt-4 border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+            className="mt-6 border-t border-border pt-4 transition-all duration-500"
             style={{
               transitionDelay: isLeftOpen ? `${150 + menuItems.length * 80}ms` : '0ms',
               opacity: isLeftOpen ? 1 : 0,
@@ -106,7 +106,7 @@ export function LeftSidebar() {
         {isAuthenticated && (
           <>
             <div
-              className="my-6 border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+              className="my-6 border-t border-border transition-all duration-500"
               style={{
                 transitionDelay: isLeftOpen ? `${150 + menuItems.length * 80}ms` : '0ms',
                 opacity: isLeftOpen ? 1 : 0,

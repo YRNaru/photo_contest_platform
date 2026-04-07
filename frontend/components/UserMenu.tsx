@@ -1,43 +1,34 @@
 'use client'
 
 import { useAuth } from '@/lib/auth'
-import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 import { FaUser, FaSignOutAlt, FaCog, FaImage } from 'react-icons/fa'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export function UserMenu() {
   const { user, logout } = useAuth()
-  const [isOpen, setIsOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  
-  // 画像URLにキャッシュバスターを追加（avatar_urlが変更されたときにのみ更新）
+  const router = useRouter()
+
   const avatarUrlWithCacheBuster = useMemo(() => {
     if (!user?.avatar_url) return null
     return `${user.avatar_url}${user.avatar_url.includes('?') ? '&' : '?'}t=${Date.now()}`
   }, [user?.avatar_url])
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
   if (!user) return null
 
   return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-      >
+    <DropdownMenu>
+      <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background">
         {avatarUrlWithCacheBuster ? (
-          <div className="relative w-8 h-8 rounded-full overflow-hidden">
+          <div className="relative size-8 shrink-0 overflow-hidden rounded-full">
             <Image
               key={avatarUrlWithCacheBuster}
               src={avatarUrlWithCacheBuster}
@@ -48,58 +39,38 @@ export function UserMenu() {
             />
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
             {user.username[0].toUpperCase()}
           </div>
         )}
-        <span className="font-medium">{user.username}</span>
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
-          <Link
-            href="/profile"
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-            onClick={() => setIsOpen(false)}
-          >
-            <FaUser />
-            <span>プロフィール</span>
-          </Link>
-
-          <Link
-            href="/my-entries"
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-            onClick={() => setIsOpen(false)}
-          >
-            <FaImage />
-            <span>マイ投稿</span>
-          </Link>
-
-          {user.is_moderator && (
-            <Link
-              href="/admin/moderation"
-              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-              onClick={() => setIsOpen(false)}
-            >
-              <FaCog />
-              <span>モデレーション</span>
-            </Link>
-          )}
-
-          <hr className="my-2 border-gray-200 dark:border-gray-700" />
-
-          <button
-            onClick={() => {
-              logout()
-              setIsOpen(false)
-            }}
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-          >
-            <FaSignOutAlt />
-            <span>ログアウト</span>
-          </button>
-        </div>
-      )}
-    </div>
+        <span className="max-w-[8rem] truncate">{user.username}</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuItem onClick={() => router.push('/profile')}>
+          <FaUser className="size-3.5" />
+          プロフィール
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push('/my-entries')}>
+          <FaImage className="size-3.5" />
+          マイ投稿
+        </DropdownMenuItem>
+        {user.is_moderator && (
+          <DropdownMenuItem onClick={() => router.push('/admin/moderation')}>
+            <FaCog className="size-3.5" />
+            モデレーション
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={() => {
+            logout()
+          }}
+        >
+          <FaSignOutAlt className="size-3.5" />
+          ログアウト
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

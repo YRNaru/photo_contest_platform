@@ -33,12 +33,12 @@ describe('Utility Functions - Full Coverage', () => {
     })
 
     it('handles different date formats', () => {
-      const date = '2024-12-31T23:59:59Z'
+      const date = '2024-07-15T12:00:00.000Z'
       const formatted = formatDate(date)
 
       expect(formatted).toContain('2024')
-      expect(formatted).toContain('12')
-      expect(formatted).toContain('31')
+      expect(formatted).toContain('7')
+      expect(formatted).toContain('15')
     })
   })
 

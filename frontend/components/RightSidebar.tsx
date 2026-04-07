@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSidebar } from '@/lib/sidebar-context'
 import { contestApi } from '@/lib/api'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Separator } from '@/components/ui/separator'
 
 interface TrendingContest {
   slug: string
@@ -46,7 +48,7 @@ export function RightSidebar() {
 
   return (
     <aside
-      className={`bg-gray-50 dark:bg-black border-l-2 border-gray-200 dark:border-gray-800 h-[calc(100vh-4rem)] sticky top-16 transition-all duration-700 ease-in-out shadow-sm z-40 ${
+      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-l border-border bg-muted/30 shadow-sm transition-all duration-700 ease-in-out dark:bg-muted/10 ${
         isRightOpen ? 'w-96 opacity-100' : 'w-0 opacity-0'
       }`}
     >
@@ -70,18 +72,17 @@ export function RightSidebar() {
           </h2>
           <div className="space-y-3">
             {loading ? (
-              // ローディング表示
               <div className="space-y-3">
                 {[1, 2, 3].map(i => (
                   <div
                     key={i}
-                    className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 animate-pulse"
+                    className="rounded-xl border border-border bg-card p-4"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                      <Skeleton className="size-6 rounded-md" />
+                      <div className="flex flex-1 flex-col gap-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
                       </div>
                     </div>
                   </div>
@@ -96,7 +97,7 @@ export function RightSidebar() {
                   style={{
                     transitionDelay: isRightOpen ? `${150 + (index + 1) * 80}ms` : '0ms',
                   }}
-                  className={`group block p-4 rounded-xl bg-white dark:bg-gray-900 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 hover:scale-105 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-xl transform-gpu transition-all duration-500 ${
+                  className={`group block rounded-xl border border-border bg-card p-4 transition-all duration-500 hover:border-primary/40 hover:bg-accent/50 hover:shadow-md ${
                     isRightOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
                   }`}
                 >
@@ -125,8 +126,8 @@ export function RightSidebar() {
           </div>
         </div>
 
-        <div
-          className="border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+        <Separator
+          className="transition-all duration-500"
           style={{
             transitionDelay: isRightOpen ? `${150 + (trending.length + 1) * 80}ms` : '0ms',
             opacity: isRightOpen ? 1 : 0,
@@ -168,8 +169,8 @@ export function RightSidebar() {
           </div>
         </div>
 
-        <div
-          className="border-t-2 border-gray-200 dark:border-gray-700 transition-all duration-500"
+        <Separator
+          className="transition-all duration-500"
           style={{
             transitionDelay: isRightOpen ? `${150 + (trending.length + 3) * 80}ms` : '0ms',
             opacity: isRightOpen ? 1 : 0,
