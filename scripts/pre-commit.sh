@@ -8,15 +8,21 @@ echo "🔍 Pre-commit checks..."
 # Backend checks
 echo "  🐍 Backend: flake8..."
 cd "$(git rev-parse --show-toplevel)/backend"
-if [ -d ".venv" ]; then
-    source .venv/bin/activate 2>/dev/null || true
-elif [ -d "venv" ]; then
-    source venv/bin/activate 2>/dev/null || true
+BACKEND_PY="python3"
+if [ -x ".venv/bin/python" ]; then
+    BACKEND_PY=".venv/bin/python"
+elif [ -x "venv/bin/python" ]; then
+    BACKEND_PY="venv/bin/python"
 fi
-python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics 2>/dev/null || {
-    echo "  ❌ Backend flake8 failed"
+if ! "$BACKEND_PY" -m flake8 --version >/dev/null 2>&1; then
+    echo "  ❌ flake8 が見つかりません。次でインストールしてください:"
+    echo "     cd backend && $BACKEND_PY -m pip install flake8"
     exit 1
-}
+fi
+if ! "$BACKEND_PY" -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics; then
+    echo "  ❌ Backend flake8 failed（上の出力を参照）"
+    exit 1
+fi
 echo "  ✅ Backend: OK"
 
 # Frontend checks
