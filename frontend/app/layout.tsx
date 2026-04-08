@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Geist } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
@@ -18,6 +18,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'VRChat フォトコンテスト',
   description: 'VRChatのフォトコンテストプラットフォーム',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -54,7 +59,9 @@ export default function RootLayout({
                 <Header />
                 <div className="flex flex-1 bg-background transition-colors duration-300">
                   <LeftSidebar />
-                  <main className="flex-1 min-w-0 bg-background">{children}</main>
+                  <main className="flex-1 min-w-0 w-full max-w-full overflow-x-clip bg-background">
+                    <div className="page-cq min-h-0 w-full min-w-0 max-w-full">{children}</div>
+                  </main>
                   <RightSidebar />
                 </div>
                 <Footer />

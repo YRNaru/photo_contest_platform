@@ -17,7 +17,7 @@ export function Footer() {
         ></div>
       </div>
 
-      <div className="relative container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="content-container relative py-8 sm:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 animate-fadeInUp">
           {/* サイト情報 */}
           <div className="animate-fadeInLeft">

@@ -1,4 +1,4 @@
-.PHONY: help build up down logs shell-backend shell-frontend migrate createsuperuser test lint clean
+.PHONY: help build up down logs shell-backend shell-frontend migrate createsuperuser test lint clean validate
 
 help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -82,4 +82,12 @@ ps: ## 実行中のサービスを表示
 	docker-compose ps
 
 init: build up-d migrate createsuperuser ## 初期セットアップ（ビルド、起動、マイグレーション、スーパーユーザー作成）
+
+validate: ## 全検証（lint + 型チェック + テスト）
+	docker-compose exec backend flake8 .
+	docker-compose exec backend black --check .
+	docker-compose exec backend isort --check-only .
+	docker-compose exec backend pytest
+	docker-compose exec frontend npm run validate
+
 

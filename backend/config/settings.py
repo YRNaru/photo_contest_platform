@@ -179,8 +179,8 @@ if DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         "http://localhost:13000",
         "http://127.0.0.1:13000",
-        "http://localhost:18000",
-        "http://127.0.0.1:18000",
+        "http://localhost:18001",
+        "http://127.0.0.1:18001",
     ]
 else:
     # 本番環境の設定

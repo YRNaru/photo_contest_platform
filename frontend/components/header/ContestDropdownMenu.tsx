@@ -18,9 +18,9 @@ export function ContestDropdownMenu({ isAuthenticated }: ContestDropdownMenuProp
   const router = useRouter()
 
   return (
-    <div className="relative hidden md:block">
+    <div className="relative hidden shrink-0 md:block">
       <DropdownMenu>
-        <DropdownMenuTrigger className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background">
+        <DropdownMenuTrigger className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background">
           コンテスト
           <ChevronDown className="size-4 opacity-70" />
         </DropdownMenuTrigger>

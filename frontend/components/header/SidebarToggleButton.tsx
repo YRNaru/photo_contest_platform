@@ -29,7 +29,7 @@ export function SidebarToggleButton({ isOpen, onClick, variant }: SidebarToggleB
       onClick={onClick}
       title={title}
       className={cn(
-        'h-auto gap-2 rounded-xl border-0 bg-gradient-to-r px-3 py-2 text-white shadow-lg hover:opacity-95 sm:px-4 sm:py-2.5',
+        'h-auto shrink-0 gap-2 rounded-xl border-0 bg-gradient-to-r px-3 py-2 text-white shadow-lg hover:opacity-95 sm:px-4 sm:py-2.5',
         gradient
       )}
     >

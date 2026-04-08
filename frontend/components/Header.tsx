@@ -22,18 +22,18 @@ export function Header() {
   }, [loadUser])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
-      <div className="container mx-auto flex items-center justify-between px-4 py-3 animate-fadeInUp sm:py-4">
-        <div className="flex items-center gap-2 sm:gap-4">
+    <header className="sticky top-0 z-50 overflow-x-clip border-b border-border bg-background/85 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
+      <div className="content-container flex min-w-0 items-center justify-between gap-2 py-3 animate-fadeInUp sm:py-4">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
           <SidebarToggleButton isOpen={isLeftOpen} onClick={toggleLeft} variant="left" />
           <Logo />
         </div>
 
-        <nav className="flex items-center gap-3 sm:gap-4 md:gap-6">
+        <nav className="nav-scroll flex shrink-0 items-center gap-2 overflow-x-auto sm:gap-3 md:gap-6">
           <ContestDropdownMenu isAuthenticated={isAuthenticated} />
           {isAuthenticated && <SubmitDropdownMenu />}
           <ThemeToggleButton theme={theme} onClick={toggleTheme} />
-          <div className="hidden md:block">{isAuthenticated ? <UserMenu /> : <LoginButton />}</div>
+          <div className="hidden shrink-0 md:block">{isAuthenticated ? <UserMenu /> : <LoginButton />}</div>
           <SidebarToggleButton isOpen={isRightOpen} onClick={toggleRight} variant="right" />
         </nav>
       </div>

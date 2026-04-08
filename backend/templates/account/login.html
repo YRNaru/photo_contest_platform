@@ -14,14 +14,10 @@
             <span style="font-size: 20px; margin-right: 10px;">𝕏</span>
             Twitter (X) でログイン
         </a>
-        
-        {# 本番環境ではGoogleログインを非表示 #}
-        {% if settings.DEBUG %}
         <a href="{% url 'google_login' %}" class="social-btn social-btn-google">
             <span style="font-size: 20px; margin-right: 10px;">G</span>
             Google でログイン
         </a>
-        {% endif %}
     </div>
 </div>
 

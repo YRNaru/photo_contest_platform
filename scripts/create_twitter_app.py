@@ -15,7 +15,7 @@ print("=" * 60)
 
 # Siteを取得または作成
 site, created = Site.objects.get_or_create(
-    domain="127.0.0.1:18000", defaults={"name": "VRChat Photo Contest"}
+    domain="127.0.0.1:18001", defaults={"name": "VRChat Photo Contest"}
 )
 if created:
     print(f"✅ 新しいSiteを作成: {site.domain}")
@@ -63,6 +63,6 @@ print("\n" + "=" * 60)
 print("設定完了！")
 print("=" * 60)
 print("\n管理画面で確認:")
-print("http://localhost:18000/admin/socialaccount/socialapp/")
+print("http://localhost:18001/admin/socialaccount/socialapp/")
 print("\nTwitterログインをテスト:")
 print("http://localhost:13000")

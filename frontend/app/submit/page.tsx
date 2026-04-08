@@ -3,6 +3,10 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useQuery, useMutation } from '@tanstack/react-query'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { contestApi, entryApi } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { ContestSelect } from '@/components/submit/ContestSelect'
@@ -13,18 +17,36 @@ import { ErrorDisplay } from '@/components/submit/ErrorDisplay'
 import { SubmitButton } from '@/components/submit/SubmitButton'
 import { TagSelector } from '@/components/submit/TagSelector'
 
+const submitSchema = z.object({
+  contest: z.string().min(1, 'コンテストを選択してください'),
+  title: z.string().min(1, 'タイトルを入力してください').max(100, 'タイトルは100文字以内で入力してください'),
+  description: z.string().optional(),
+  tags: z.array(z.string()),
+  images: z.array(z.any()).min(1, '画像を1枚以上アップロードしてください').max(5, '画像は最大5枚までアップロードできます'),
+})
+
+type SubmitFormValues = z.infer<typeof submitSchema>
+
 function SubmitPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const contestSlug = searchParams.get('contest')
   const { isAuthenticated } = useAuth()
 
-  const [selectedContest, setSelectedContest] = useState(contestSlug || '')
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [images, setImages] = useState<File[]>([])
   const [error, setError] = useState('')
+
+  const form = useForm<SubmitFormValues>({
+    resolver: zodResolver(submitSchema),
+    defaultValues: {
+      contest: contestSlug || '',
+      title: '',
+      description: '',
+      tags: [],
+      images: [],
+    },
+  })
+
+  const selectedContest = form.watch('contest')
 
   // コンテスト一覧取得
   const { data: contests } = useQuery({
@@ -61,12 +83,18 @@ function SubmitPageContent() {
 
   // 画像追加ハンドラー
   const handleImagesAdd = (acceptedFiles: File[]) => {
-    if (images.length + acceptedFiles.length > 5) {
-      setError('画像は最大5枚までアップロードできます')
+    const currentImages = form.getValues('images')
+    if (currentImages.length + acceptedFiles.length > 5) {
+      form.setError('images', { type: 'manual', message: '画像は最大5枚までアップロードできます' })
       return
     }
-    setImages([...images, ...acceptedFiles])
-    setError('')
+    form.setValue('images', [...currentImages, ...acceptedFiles], { shouldValidate: true })
+    form.clearErrors('images')
+  }
+
+  const removeImage = (index: number) => {
+    const currentImages = form.getValues('images')
+    form.setValue('images', currentImages.filter((_, i) => i !== index), { shouldValidate: true })
   }
 
   // 投稿mutation
@@ -122,60 +150,24 @@ function SubmitPageContent() {
     },
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // デバッグ: 認証状態を確認
-    console.log('認証状態:', isAuthenticated)
-    console.log(
-      'アクセストークン:',
-      localStorage.getItem('access_token') ? '存在する' : '存在しない'
-    )
-
+  const onSubmit = (values: SubmitFormValues) => {
     if (!isAuthenticated) {
       setError('ログインしてください')
       return
     }
 
-    if (!selectedContest) {
-      setError('コンテストを選択してください')
-      return
-    }
-
-    if (!title.trim()) {
-      setError('タイトルを入力してください')
-      return
-    }
-
-    if (images.length === 0) {
-      setError('画像を1枚以上アップロードしてください')
-      return
-    }
-
     const formData = new FormData()
-    formData.append('contest', selectedContest)
-    formData.append('title', title)
-    formData.append('description', description)
-    formData.append('tags', selectedTags.join(', '))
-    images.forEach(image => {
-      formData.append('images', image)
+    formData.append('contest', values.contest)
+    formData.append('title', values.title)
+    if (values.description) {
+      formData.append('description', values.description)
+    }
+    formData.append('tags', values.tags.join(', '))
+    values.images.forEach(image => {
+      formData.append('images', image as File)
     })
 
-    // デバッグ: FormDataの内容を確認
-    console.log('送信するFormData:')
-    for (const [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`  ${key}:`, value.name, value.type, value.size, 'bytes')
-      } else {
-        console.log(`  ${key}:`, value)
-      }
-    }
-
     submitMutation.mutate(formData)
-  }
-
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index))
   }
 
   if (!isAuthenticated) {
@@ -207,50 +199,107 @@ function SubmitPageContent() {
         />
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-8 animate-fadeInUp"
-        style={{ animationDelay: '100ms' }}
-      >
-        <ContestSelect value={selectedContest} onChange={setSelectedContest} contests={contests} />
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 animate-fadeInUp"
+          style={{ animationDelay: '100ms' }}
+        >
+          <FormField
+            control={form.control}
+            name="contest"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <ContestSelect value={field.value} onChange={field.onChange} contests={contests} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormInput
-          label="タイトル"
-          icon="✏️"
-          required
-          value={title}
-          onChange={setTitle}
-          placeholder="作品のタイトルを入力"
-        />
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FormInput
+                    label="タイトル"
+                    icon="✏️"
+                    required
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="作品のタイトルを入力"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormInput
-          label="説明"
-          icon="📝"
-          value={description}
-          onChange={setDescription}
-          placeholder="作品の説明を入力"
-          multiline
-        />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FormInput
+                    label="説明"
+                    icon="📝"
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    placeholder="作品の説明を入力"
+                    multiline
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* タグ選択 */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-purple-500/10 p-6 border border-gray-200 dark:border-gray-800">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-2xl">🏷️</span>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">タグ</h2>
-          </div>
-          <TagSelector selectedTags={selectedTags} onTagsChange={setSelectedTags} />
-        </div>
+          {/* タグ選択 */}
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-purple-500/10 p-6 border border-gray-200 dark:border-gray-800">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-2xl">🏷️</span>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">タグ</h2>
+                    </div>
+                    <TagSelector selectedTags={field.value} onTagsChange={field.onChange} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <ImageUploadSection
-          images={images}
-          onImagesAdd={handleImagesAdd}
-          onImageRemove={removeImage}
-          maxImages={5}
-        />
+          <FormField
+            control={form.control}
+            name="images"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <ImageUploadSection
+                    images={field.value}
+                    onImagesAdd={handleImagesAdd}
+                    onImageRemove={removeImage}
+                    maxImages={5}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <ErrorDisplay error={error} />
-        <SubmitButton isSubmitting={submitMutation.isPending} />
-      </form>
+          <ErrorDisplay error={error} />
+          <SubmitButton isSubmitting={form.formState.isSubmitting || submitMutation.isPending} />
+        </form>
+      </Form>
     </div>
   )
 }

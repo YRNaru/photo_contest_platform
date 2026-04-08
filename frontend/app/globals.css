@@ -77,9 +77,64 @@
   }
 }
 
+@layer components {
+  /* メイン列の実幅を基準にグリッド列数を変える（サイドバー表示時も整合） */
+  .page-cq {
+    container-type: inline-size;
+    container-name: page;
+  }
+
+  @container page (min-width: 30rem) {
+    .cq-hero-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container page (min-width: 36rem) {
+    .cq-contest-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cq-features-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cq-features-wide {
+      grid-column: span 2 / span 2;
+    }
+  }
+
+  @container page (min-width: 56rem) {
+    .cq-contest-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cq-features-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cq-features-wide {
+      grid-column: auto;
+    }
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .content-container {
+    @apply mx-auto w-full min-w-0 max-w-6xl px-4 sm:px-6;
+  }
+
+  .nav-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .nav-scroll::-webkit-scrollbar {
+    display: none;
   }
 
   .container {

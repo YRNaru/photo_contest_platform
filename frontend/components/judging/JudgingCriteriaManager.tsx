@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { JudgingCriteria, Category, CreateJudgingCriteriaRequest } from '@/types/judging'
 import { judgingCriteriaApi, categoryApi } from '@/lib/api'
 import { PlusIcon } from '@heroicons/react/24/outline'
-import { JudgingCriteriaForm } from './JudgingCriteriaForm'
+import { JudgingCriteriaForm, CriteriaFormValues } from './JudgingCriteriaForm'
 import { JudgingCriteriaItem } from './JudgingCriteriaItem'
 import { CategoryFilter } from './CategoryFilter'
 
@@ -22,7 +22,7 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
   const [editingCriterion, setEditingCriterion] = useState<JudgingCriteria | null>(null)
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | null>(null)
 
-  const [formData, setFormData] = useState({
+  const [initialData, setInitialData] = useState<CriteriaFormValues>({
     name: '',
     description: '',
     max_score: 10,
@@ -55,17 +55,15 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
     loadData()
   }, [loadData])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const handleSubmit = async (values: CriteriaFormValues) => {
     try {
       const data: CreateJudgingCriteriaRequest = {
         contest: contestId,
-        name: formData.name,
-        description: formData.description,
-        max_score: formData.max_score,
-        order: formData.order,
-        category: formData.category_id ? parseInt(formData.category_id) : null,
+        name: values.name,
+        description: values.description || '',
+        max_score: values.max_score,
+        order: values.order,
+        category: values.category_id ? parseInt(values.category_id) : null,
       }
 
       if (editingCriterion) {
@@ -100,7 +98,7 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
 
   const handleEdit = (criterion: JudgingCriteria) => {
     setEditingCriterion(criterion)
-    setFormData({
+    setInitialData({
       name: criterion.name,
       description: criterion.description,
       max_score: criterion.max_score,
@@ -111,7 +109,7 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
   }
 
   const resetForm = () => {
-    setFormData({
+    setInitialData({
       name: '',
       description: '',
       max_score: 10,
@@ -168,12 +166,11 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
       {/* 審査基準追加/編集フォーム */}
       {isAddingCriterion && isOwner && (
         <JudgingCriteriaForm
-          formData={formData}
+          initialData={initialData}
           isEditing={!!editingCriterion}
           categories={categories}
           onSubmit={handleSubmit}
           onCancel={resetForm}
-          onChange={data => setFormData({ ...formData, ...data })}
         />
       )}
 

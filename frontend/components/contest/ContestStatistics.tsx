@@ -3,31 +3,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { contestApi } from '@/lib/api'
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
   Tooltip,
-  Legend,
-  Filler,
-} from 'chart.js'
-import { Line } from 'react-chartjs-2'
-
-// Chart.jsの登録
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-)
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 interface ContestStatisticsProps {
   contestSlug: string
@@ -76,77 +59,13 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
   }
 
   // グラフデータの準備
-  const labels = statistics.daily_entries.map(item => {
+  const chartData = statistics.daily_entries.map(item => {
     const date = new Date(item.date)
-    return `${date.getMonth() + 1}/${date.getDate()}`
+    return {
+      date: `${date.getMonth() + 1}/${date.getDate()}`,
+      count: item.count,
+    }
   })
-
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: '応募数',
-        data: statistics.daily_entries.map(item => item.count),
-        borderColor: 'rgb(147, 51, 234)',
-        backgroundColor: 'rgba(147, 51, 234, 0.1)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        pointBackgroundColor: 'rgb(147, 51, 234)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-      },
-    ],
-  }
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: false,
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        padding: 12,
-        titleFont: {
-          size: 14,
-        },
-        bodyFont: {
-          size: 13,
-        },
-        callbacks: {
-          label: function (context: { parsed: { y: number | null } }) {
-            return `応募数: ${context.parsed.y ?? 0}件`
-          },
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-          color: '#9CA3AF',
-        },
-        grid: {
-          color: 'rgba(156, 163, 175, 0.1)',
-        },
-      },
-      x: {
-        ticks: {
-          color: '#9CA3AF',
-        },
-        grid: {
-          color: 'rgba(156, 163, 175, 0.1)',
-        },
-      },
-    },
-  }
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -207,7 +126,19 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
               日別応募数の推移
             </h3>
             <div className="h-64 md:h-80">
-              <Line data={data} options={options} />
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                  <Line type="monotone" dataKey="count" stroke="#9333ea" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                  <CartesianGrid stroke="#ccc" strokeDasharray="5 5" opacity={0.2} vertical={false} />
+                  <XAxis dataKey="date" tick={{ fill: '#9ca3af' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fill: '#9ca3af' }} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', color: '#fff' }}
+                    itemStyle={{ color: '#fff' }}
+                    formatter={(value: any) => [`${value}件`, '応募数']}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         ) : (

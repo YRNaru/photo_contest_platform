@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Category, CreateCategoryRequest } from '@/types/judging'
 import { categoryApi } from '@/lib/api'
 import { PlusIcon } from '@heroicons/react/24/outline'
-import { CategoryForm } from './CategoryForm'
+import { CategoryForm, CategoryFormValues } from './CategoryForm'
 import { CategoryItem } from './CategoryItem'
 
 interface CategoryManagerProps {
@@ -20,7 +20,7 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
 
-  const [formData, setFormData] = useState({
+  const [initialData, setInitialData] = useState<CategoryFormValues>({
     name: '',
     description: '',
     order: 0,
@@ -47,17 +47,15 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
     loadCategories()
   }, [loadCategories])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  const handleSubmit = async (values: CategoryFormValues) => {
     try {
       const data: CreateCategoryRequest = {
         contest: contestId,
-        name: formData.name,
-        description: formData.description,
-        order: formData.order,
-        max_votes_per_judge: formData.max_votes_per_judge
-          ? parseInt(formData.max_votes_per_judge)
+        name: values.name,
+        description: values.description || '',
+        order: values.order,
+        max_votes_per_judge: values.max_votes_per_judge
+          ? parseInt(values.max_votes_per_judge)
           : null,
       }
 
@@ -113,7 +111,7 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category)
-    setFormData({
+    setInitialData({
       name: category.name,
       description: category.description,
       order: category.order,
@@ -123,7 +121,7 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
   }
 
   const resetForm = () => {
-    setFormData({
+    setInitialData({
       name: '',
       description: '',
       order: categories.length,
@@ -161,11 +159,10 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
       {/* 賞の追加/編集フォーム */}
       {isAddingCategory && isOwner && (
         <CategoryForm
-          formData={formData}
+          initialData={initialData}
           isEditing={!!editingCategory}
           onSubmit={handleSubmit}
           onCancel={resetForm}
-          onChange={data => setFormData({ ...formData, ...data })}
         />
       )}
 

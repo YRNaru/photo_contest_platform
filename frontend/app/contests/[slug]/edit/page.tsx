@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { contestApi } from '@/lib/api'
 import { ContestBasicInfoForm } from '@/components/contest/ContestBasicInfoForm'
 import { ContestDatesForm } from '@/components/contest/ContestDatesForm'
@@ -14,6 +18,29 @@ import { Contest } from '@/lib/types'
 import { JudgingType } from '@/types/judging'
 import { useAuth } from '@/lib/auth'
 
+const editContestSchema = z.object({
+  title: z.string().min(1, 'タイトルを入力してください').max(100, 'タイトルは100文字以内で入力してください'),
+  description: z.string().optional(),
+  start_at: z.string().min(1, '開始日時を入力してください'),
+  end_at: z.string().min(1, '終了日時を入力してください'),
+  voting_end_at: z.string().optional(),
+  is_public: z.boolean(),
+  max_entries_per_user: z.string(),
+  max_images_per_entry: z.string(),
+  unlimitedEntries: z.boolean(),
+  unlimitedImages: z.boolean(),
+  judging_type: z.enum(['vote', 'score']),
+  max_votes_per_judge: z.number().min(1),
+  auto_approve_entries: z.boolean(),
+  twitter_hashtag: z.string().optional(),
+  twitter_auto_fetch: z.boolean(),
+  twitter_auto_approve: z.boolean(),
+  require_twitter_account: z.boolean(),
+  bannerImage: z.any().optional(),
+})
+
+type EditContestFormValues = z.infer<typeof editContestSchema>
+
 export default function EditContestPage() {
   const router = useRouter()
   const params = useParams()
@@ -24,27 +51,29 @@ export default function EditContestPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    start_at: '',
-    end_at: '',
-    voting_end_at: '',
-    is_public: true,
-    max_entries_per_user: '10',
-    max_images_per_entry: '100',
-    judging_type: 'vote' as JudgingType,
-    max_votes_per_judge: 3,
-    auto_approve_entries: false,
-    twitter_hashtag: '',
-    twitter_auto_fetch: false,
-    twitter_auto_approve: false,
-    require_twitter_account: false,
+  const form = useForm<EditContestFormValues>({
+    resolver: zodResolver(editContestSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      start_at: '',
+      end_at: '',
+      voting_end_at: '',
+      is_public: true,
+      max_entries_per_user: '10',
+      max_images_per_entry: '100',
+      unlimitedEntries: false,
+      unlimitedImages: false,
+      judging_type: 'vote',
+      max_votes_per_judge: 3,
+      auto_approve_entries: false,
+      twitter_hashtag: '',
+      twitter_auto_fetch: false,
+      twitter_auto_approve: false,
+      require_twitter_account: false,
+      bannerImage: null,
+    },
   })
-
-  const [bannerImage, setBannerImage] = useState<File | null>(null)
-  const [unlimitedEntries, setUnlimitedEntries] = useState(false)
-  const [unlimitedImages, setUnlimitedImages] = useState(false)
 
   // コンテスト情報を取得（キャッシュを使わず常に最新データを取得）
   const { data: contest, isLoading: contestLoading } = useQuery({
@@ -78,7 +107,7 @@ export default function EditContestPage() {
         return `${year}-${month}-${day}T${hours}:${minutes}`
       }
 
-      setFormData({
+      form.reset({
         title: contest.title || '',
         description: contest.description || '',
         start_at: formatDateTimeLocal(contest.start_at),
@@ -87,6 +116,8 @@ export default function EditContestPage() {
         is_public: contest.is_public,
         max_entries_per_user: String(contest.max_entries_per_user || 10),
         max_images_per_entry: String(contest.max_images_per_entry || 100),
+        unlimitedEntries: contest.max_entries_per_user === 0,
+        unlimitedImages: contest.max_images_per_entry === 0,
         judging_type: (contest.judging_type || 'vote') as JudgingType,
         max_votes_per_judge: contest.max_votes_per_judge || 3,
         auto_approve_entries: contest.auto_approve_entries || false,
@@ -94,16 +125,12 @@ export default function EditContestPage() {
         twitter_auto_fetch: contest.twitter_auto_fetch || false,
         twitter_auto_approve: contest.twitter_auto_approve || false,
         require_twitter_account: contest.require_twitter_account || false,
+        bannerImage: null,
       })
-
-      // 無制限フラグを設定（0の場合は無制限）
-      setUnlimitedEntries(contest.max_entries_per_user === 0)
-      setUnlimitedImages(contest.max_images_per_entry === 0)
     }
-  }, [contest, user, slug, router])
+  }, [contest, user, slug, router, form])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (values: EditContestFormValues) => {
     setLoading(true)
     setError(null)
 
@@ -111,42 +138,42 @@ export default function EditContestPage() {
       const data = new FormData()
 
       // 必須フィールド
-      data.append('title', formData.title)
-      data.append('description', formData.description)
+      data.append('title', values.title)
+      if (values.description) data.append('description', values.description)
 
       // datetime-localの値をISO形式に変換
-      if (formData.start_at) {
-        const startDate = new Date(formData.start_at)
+      if (values.start_at) {
+        const startDate = new Date(values.start_at)
         data.append('start_at', startDate.toISOString())
       }
-      if (formData.end_at) {
-        const endDate = new Date(formData.end_at)
+      if (values.end_at) {
+        const endDate = new Date(values.end_at)
         data.append('end_at', endDate.toISOString())
       }
 
-      data.append('is_public', formData.is_public.toString())
+      data.append('is_public', values.is_public.toString())
       // 無制限の場合は0を送信
-      data.append('max_entries_per_user', unlimitedEntries ? '0' : formData.max_entries_per_user)
-      data.append('max_images_per_entry', unlimitedImages ? '0' : formData.max_images_per_entry)
-      data.append('auto_approve_entries', formData.auto_approve_entries.toString())
-      data.append('judging_type', formData.judging_type)
-      data.append('max_votes_per_judge', formData.max_votes_per_judge.toString())
+      data.append('max_entries_per_user', values.unlimitedEntries ? '0' : values.max_entries_per_user)
+      data.append('max_images_per_entry', values.unlimitedImages ? '0' : values.max_images_per_entry)
+      data.append('auto_approve_entries', values.auto_approve_entries.toString())
+      data.append('judging_type', values.judging_type)
+      data.append('max_votes_per_judge', values.max_votes_per_judge.toString())
 
       // オプションフィールド
-      if (formData.voting_end_at) {
-        const votingEndDate = new Date(formData.voting_end_at)
+      if (values.voting_end_at) {
+        const votingEndDate = new Date(values.voting_end_at)
         data.append('voting_end_at', votingEndDate.toISOString())
       }
-      if (formData.twitter_hashtag) {
-        data.append('twitter_hashtag', formData.twitter_hashtag)
+      if (values.twitter_hashtag) {
+        data.append('twitter_hashtag', values.twitter_hashtag)
       }
-      data.append('twitter_auto_fetch', formData.twitter_auto_fetch.toString())
-      data.append('twitter_auto_approve', formData.twitter_auto_approve.toString())
-      data.append('require_twitter_account', formData.require_twitter_account.toString())
+      data.append('twitter_auto_fetch', values.twitter_auto_fetch.toString())
+      data.append('twitter_auto_approve', values.twitter_auto_approve.toString())
+      data.append('require_twitter_account', values.require_twitter_account.toString())
 
       // バナー画像（新しい画像がアップロードされた場合のみ）
-      if (bannerImage) {
-        data.append('banner_image', bannerImage)
+      if (values.bannerImage) {
+        data.append('banner_image', values.bannerImage as File)
       }
 
       await contestApi.updateContest(slug, data)
@@ -226,92 +253,134 @@ export default function EditContestPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 基本情報 */}
-        <ContestBasicInfoForm
-          title={formData.title}
-          description={formData.description}
-          slug={slug}
-          bannerImage={bannerImage}
-          currentBannerImage={contest.banner_image}
-          onTitleChange={value => setFormData({ ...formData, title: value })}
-          onDescriptionChange={value => setFormData({ ...formData, description: value })}
-          onBannerImageChange={setBannerImage}
-        />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* 基本情報 */}
+          <FormField control={form.control} name="title" render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <ContestBasicInfoForm
+                  title={field.value}
+                  description={form.watch('description') ?? ''}
+                  slug={slug}
+                  bannerImage={null}
+                  currentBannerImage={contest.banner_image}
+                  onTitleChange={field.onChange}
+                  onDescriptionChange={value => form.setValue('description', value)}
+                  onBannerImageChange={file => form.setValue('bannerImage', file)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-        {/* 日時設定 */}
-        <ContestDatesForm
-          startAt={formData.start_at}
-          endAt={formData.end_at}
-          votingEndAt={formData.voting_end_at}
-          onStartAtChange={value => setFormData({ ...formData, start_at: value })}
-          onEndAtChange={value => setFormData({ ...formData, end_at: value })}
-          onVotingEndAtChange={value => setFormData({ ...formData, voting_end_at: value })}
-        />
+          {/* 日時設定 */}
+          <FormField control={form.control} name="start_at" render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <ContestDatesForm
+                  startAt={field.value}
+                  endAt={form.watch('end_at')}
+                  votingEndAt={form.watch('voting_end_at') ?? ''}
+                  onStartAtChange={field.onChange}
+                  onEndAtChange={value => form.setValue('end_at', value)}
+                  onVotingEndAtChange={value => form.setValue('voting_end_at', value)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-        {/* 審査方式選択 */}
-        <div className="border-t pt-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">審査方式</h2>
-          <JudgingTypeSelector
-            judgingType={formData.judging_type}
-            onJudgingTypeChange={type => setFormData({ ...formData, judging_type: type })}
-            maxVotesPerJudge={formData.max_votes_per_judge}
-            onMaxVotesChange={value => setFormData({ ...formData, max_votes_per_judge: value })}
-          />
-        </div>
+          {/* 審査方式選択 */}
+          <div className="border-t pt-6">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">審査方式</h2>
+            <FormField control={form.control} name="judging_type" render={() => (
+              <FormItem>
+                <FormControl>
+                  <JudgingTypeSelector
+                    judgingType={form.watch('judging_type') as JudgingType}
+                    onJudgingTypeChange={type => form.setValue('judging_type', type)}
+                    maxVotesPerJudge={form.watch('max_votes_per_judge')}
+                    onMaxVotesChange={value => form.setValue('max_votes_per_judge', value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )} />
+          </div>
 
-        {/* 制限設定 */}
-        <ContestLimitsForm
-          maxEntriesPerUser={formData.max_entries_per_user}
-          maxImagesPerEntry={formData.max_images_per_entry}
-          unlimitedEntries={unlimitedEntries}
-          unlimitedImages={unlimitedImages}
-          onMaxEntriesChange={value => setFormData({ ...formData, max_entries_per_user: value })}
-          onMaxImagesChange={value => setFormData({ ...formData, max_images_per_entry: value })}
-          onUnlimitedEntriesChange={setUnlimitedEntries}
-          onUnlimitedImagesChange={setUnlimitedImages}
-        />
+          {/* 制限設定 */}
+          <FormField control={form.control} name="max_entries_per_user" render={() => (
+            <FormItem>
+              <FormControl>
+                <ContestLimitsForm
+                  maxEntriesPerUser={form.watch('max_entries_per_user')}
+                  maxImagesPerEntry={form.watch('max_images_per_entry')}
+                  unlimitedEntries={form.watch('unlimitedEntries')}
+                  unlimitedImages={form.watch('unlimitedImages')}
+                  onMaxEntriesChange={value => form.setValue('max_entries_per_user', value)}
+                  onMaxImagesChange={value => form.setValue('max_images_per_entry', value)}
+                  onUnlimitedEntriesChange={value => form.setValue('unlimitedEntries', value)}
+                  onUnlimitedImagesChange={value => form.setValue('unlimitedImages', value)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-        {/* その他設定 */}
-        <ContestSettingsForm
-          isPublic={formData.is_public}
-          autoApproveEntries={formData.auto_approve_entries}
-          onIsPublicChange={value => setFormData({ ...formData, is_public: value })}
-          onAutoApproveChange={value => setFormData({ ...formData, auto_approve_entries: value })}
-        />
+          {/* その他設定 */}
+          <FormField control={form.control} name="is_public" render={() => (
+            <FormItem>
+              <FormControl>
+                <ContestSettingsForm
+                  isPublic={form.watch('is_public')}
+                  autoApproveEntries={form.watch('auto_approve_entries')}
+                  onIsPublicChange={value => form.setValue('is_public', value)}
+                  onAutoApproveChange={value => form.setValue('auto_approve_entries', value)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-        {/* Twitter設定 */}
-        <TwitterSettings
-          hashtag={formData.twitter_hashtag}
-          autoFetch={formData.twitter_auto_fetch}
-          autoApprove={formData.twitter_auto_approve}
-          requireTwitterAccount={formData.require_twitter_account}
-          onHashtagChange={value => setFormData({ ...formData, twitter_hashtag: value })}
-          onAutoFetchChange={value => setFormData({ ...formData, twitter_auto_fetch: value })}
-          onAutoApproveChange={value => setFormData({ ...formData, twitter_auto_approve: value })}
-          onRequireTwitterAccountChange={value =>
-            setFormData({ ...formData, require_twitter_account: value })
-          }
-        />
+          {/* Twitter設定 */}
+          <FormField control={form.control} name="twitter_hashtag" render={() => (
+            <FormItem>
+              <FormControl>
+                <TwitterSettings
+                  hashtag={form.watch('twitter_hashtag') ?? ''}
+                  autoFetch={form.watch('twitter_auto_fetch')}
+                  autoApprove={form.watch('twitter_auto_approve')}
+                  requireTwitterAccount={form.watch('require_twitter_account')}
+                  onHashtagChange={value => form.setValue('twitter_hashtag', value)}
+                  onAutoFetchChange={value => form.setValue('twitter_auto_fetch', value)}
+                  onAutoApproveChange={value => form.setValue('twitter_auto_approve', value)}
+                  onRequireTwitterAccountChange={value => form.setValue('require_twitter_account', value)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
 
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {loading ? '更新中...' : 'コンテストを更新'}
-          </button>
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={loading || form.formState.isSubmitting}
+              className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {loading || form.formState.isSubmitting ? '更新中...' : 'コンテストを更新'}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => router.push(`/contests/${slug}`)}
-            className="px-6 py-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            キャンセル
-          </button>
-        </div>
-      </form>
+            <button
+              type="button"
+              onClick={() => router.push(`/contests/${slug}`)}
+              className="px-6 py-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              キャンセル
+            </button>
+          </div>
+        </form>
+      </Form>
     </div>
   )
 }

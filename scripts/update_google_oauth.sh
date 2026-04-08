@@ -44,5 +44,5 @@ echo ""
 echo "✅ 完了しました！"
 echo ""
 echo "Googleログインを試してください:"
-echo "http://localhost:18000/accounts/google/login/"
+echo "http://localhost:18001/accounts/google/login/"
 

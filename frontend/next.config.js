@@ -1,5 +1,9 @@
+const path = require('path')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 上位ディレクトリの package-lock.json 等で workspace root が誤推測される警告を抑止
+  outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
   logging: {
     fetches: {
@@ -17,7 +21,7 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
-        port: '18000',
+        port: '18001',
         pathname: '/media/**',
       },
       {
@@ -38,7 +42,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:18000/api'
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:18001/api'
     // 先頭の https://api. の /api まで消さないよう、末尾の /api のみ除去する
     const baseUrl = apiUrl.replace(/\/api\/?$/, '')
     
@@ -56,7 +60,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': require('path').resolve(__dirname),
+      '@': path.resolve(__dirname),
     }
     return config
   },

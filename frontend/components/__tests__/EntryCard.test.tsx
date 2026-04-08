@@ -10,18 +10,6 @@ jest.mock('next/link', () => {
   return MockLink
 })
 
-jest.mock('next/image', () => {
-  const MockImage = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...props} />
-  }
-  MockImage.displayName = 'MockImage'
-  return {
-    __esModule: true,
-    default: MockImage,
-  }
-})
-
 describe('EntryCard', () => {
   const mockEntry = {
     id: '123',
