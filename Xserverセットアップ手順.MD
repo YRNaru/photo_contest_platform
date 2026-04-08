@@ -333,32 +333,87 @@ http://<グローバルIP>:8080/admin/
 
 ### 「CSRF 検証に失敗（403）」になる理由
 
-本番（`DEBUG=False`）では、従来設定では **セッション／CSRF 用クッキーに `Secure` 属性**が付く。  
+本番（`DEBUG=False`）では、環境変数 **未指定**のとき **セッション／CSRF 用クッキーに `Secure` 属性**が付く（`backend/config/settings.py` のデフォルト）。  
 **HTTPS ではない HTTP** では、ブラウザはそのクッキーを**保存・送信しない**ため、ログインフォーム送信時に CSRF 検証が通らず 403 になる。
+
+ログには次のように出ることが多い:
+
+```text
+Forbidden (CSRF cookie not set.): /admin/login/
+```
+
+### 重要: `git pull` だけでは直らない
+
+`settings.py` に `SESSION_CSRF_COOKIE_SECURE` の**読み取り処理**を入れても、`/etc/photo_contest.env` に **`SESSION_CSRF_COOKIE_SECURE=False` という行が無い**限り、本番では引き続き `CSRF_COOKIE_SECURE=True` のままになる。  
+**必ず env に 1 行書き、サービスを再起動する。**
 
 ### 対処（HTTP の暫定運用のみ）
 
-1. サーバーの `/etc/photo_contest.env` に **1 行追加**（または追記）:
+1. **既に入っていないか確認**
 
    ```bash
-   SESSION_CSRF_COOKIE_SECURE=False
+   sudo grep SESSION_CSRF_COOKIE_SECURE /etc/photo_contest.env || true
    ```
 
-2. バックエンドを再起動:
+   何も出なければ未設定。
+
+2. **`/etc/photo_contest.env` に 1 行追加**
 
    ```bash
-   sudo systemctl restart photo-contest-backend
+   echo 'SESSION_CSRF_COOKIE_SECURE=False' | sudo tee -a /etc/photo_contest.env
    ```
 
-3. ブラウザで **当該サイトのクッキーを削除**するかシークレットウィンドウで `http://<IP>:8080/admin/` を開き直し、再度ログインする。
+   （`nano` で追記してもよい。重複行は避ける。）
+
+3. **バックエンドと Celery を再起動**（環境変数は起動時に読まれる）
+
+   ```bash
+   sudo systemctl restart photo-contest-backend photo-contest-celery-worker photo-contest-celery-beat
+   ```
+
+4. ブラウザで **当該サイトのクッキーを削除**するか **シークレットウィンドウ**で `http://<IP>:8080/admin/` を開き直し、再度ログインする。
+
+### 状態確認コマンド（サーバー上）
+
+**env に書かれているか**
+
+```bash
+sudo grep -E '^(DEBUG|SESSION_CSRF_COOKIE_SECURE|CSRF_TRUSTED_ORIGINS|ALLOWED_HOSTS)=' /etc/photo_contest.env
+```
+
+**Django が実際に解釈している値**（ここで `False` になっていないとまだ 403 の原因）
+
+```bash
+sudo bash -c 'cd /srv/photo_contest/backend && source venv/bin/activate && \
+  set -a && source /etc/photo_contest.env && set +a && \
+  python -c "
+import os
+os.environ.setdefault(\"DJANGO_SETTINGS_MODULE\", \"config.settings\")
+import django
+django.setup()
+from django.conf import settings
+print(\"CSRF_COOKIE_SECURE:\", settings.CSRF_COOKIE_SECURE)
+print(\"SESSION_COOKIE_SECURE:\", settings.SESSION_COOKIE_SECURE)
+print(\"CSRF_TRUSTED_ORIGINS:\", settings.CSRF_TRUSTED_ORIGINS)
+"'
+```
+
+期待（HTTP 暫定）: `CSRF_COOKIE_SECURE: False` / `SESSION_COOKIE_SECURE: False`。
+
+**レスポンスの `Set-Cookie` に `Secure` が付いていないか**（付いていると HTTP ではブラウザが保持しない）
+
+```bash
+curl -sI -H 'Host: <グローバルIP>' http://127.0.0.1:8080/admin/login/ | grep -i set-cookie
+```
+
+期待: `Secure` が**無く**、`SameSite=Lax` になっていること（暫定設定時）。
 
 **注意**: `SESSION_CSRF_COOKIE_SECURE=False` は **平文 HTTP 向けの妥協**である。**Let's Encrypt 等で HTTPS にしたら**、この行を**削除するか `True` に戻す**こと（未設定の本番デフォルトは従来どおり Secure 相当）。
 
-リポジトリの `backend/config/settings.py` は、上記環境変数で本番時の Secure／SameSite を切り替えられるようになっている。
-
 ### `CSRF_TRUSTED_ORIGINS`
 
-`http://<グローバルIP>,http://<グローバルIP>:8080` のように、**8080 のオリジンを含める**（既に [RENTAL_SERVER_DEPLOYMENT.md](docs/RENTAL_SERVER_DEPLOYMENT.md) の IP 暫定例どおりなら足りている）。
+`http://<グローバルIP>,http://<グローバルIP>:8080` のように、**8080 のオリジンを含める**（既に [RENTAL_SERVER_DEPLOYMENT.md](docs/RENTAL_SERVER_DEPLOYMENT.md) の IP 暫定例どおりなら足りている）。  
+403 で **`CSRF_TRUSTED_ORIGINS` は正しいのに `CSRF cookie not set`** なら、まず **`SESSION_CSRF_COOKIE_SECURE` と `Set-Cookie` の Secure** を疑う。
 
 ---
 
