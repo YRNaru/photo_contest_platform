@@ -61,12 +61,10 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
         ログイン
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        {process.env.NODE_ENV !== 'production' && (
-          <DropdownMenuItem onClick={handleGoogleLogin}>
-            <FaGoogle className="text-red-500" />
-            Googleでログイン
-          </DropdownMenuItem>
-        )}
+        <DropdownMenuItem onClick={handleGoogleLogin}>
+          <FaGoogle className="text-red-500" />
+          Googleでログイン
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleTwitterLogin}>
           <FaTwitter className="text-sky-500" />
           Twitterでログイン
