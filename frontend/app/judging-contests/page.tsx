@@ -7,6 +7,8 @@ import { ContestCard } from '@/components/ContestCard'
 import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { GradientHeading } from '@/components/ui/gradient-heading'
+import { cn } from '@/lib/utils'
 
 export default function JudgingContestsPage() {
   const { user, isLoading: loading } = useAuth()
@@ -51,9 +53,9 @@ export default function JudgingContestsPage() {
     <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       {/* ヘッダー */}
       <div className="mb-6 sm:mb-8 animate-fadeInUp">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+        <GradientHeading as="h1" className="mb-3 sm:mb-4">
           👨‍⚖️ 審査中のコンテスト
-        </h1>
+        </GradientHeading>
         <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300">
           あなたが審査員として割り当てられているコンテスト一覧です
         </p>
@@ -68,7 +70,10 @@ export default function JudgingContestsPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-800">
+          <div className={cn(
+            "rounded-xl shadow-lg p-8 sm:p-12 text-center border",
+            "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+          )}>
             <div className="text-6xl mb-4">📋</div>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
               審査中のコンテストはありません

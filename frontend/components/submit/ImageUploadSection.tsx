@@ -1,6 +1,7 @@
 import { useDropzone } from 'react-dropzone'
 import { FaUpload, FaTimes } from 'react-icons/fa'
 import Image from 'next/image'
+import { cn } from '@/lib/utils'
 
 interface ImageUploadSectionProps {
   images: File[]
@@ -31,11 +32,12 @@ export function ImageUploadSection({
 
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
+        className={cn(
+          "border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all",
           isDragActive
-            ? 'border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30 scale-105'
-            : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:border-purple-400 dark:hover:border-purple-600'
-        }`}
+            ? "border-purple-500 dark:border-purple-400 bg-purple-50 dark:bg-purple-900/30 scale-105"
+            : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 hover:border-purple-400 dark:hover:border-purple-600"
+        )}
       >
         <input {...getInputProps()} />
         <FaUpload className="mx-auto text-6xl text-purple-500 dark:text-purple-400 mb-6 animate-float" />
@@ -53,7 +55,10 @@ export function ImageUploadSection({
           {images.map((file, index) => (
             <div
               key={index}
-              className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu h-48"
+              className={cn(
+                "group relative h-48 overflow-hidden rounded-2xl transform-gpu",
+                "shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              )}
             >
               <Image
                 src={URL.createObjectURL(file)}
@@ -61,11 +66,17 @@ export function ImageUploadSection({
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className={cn(
+                "absolute inset-0 flex items-center justify-center transition-opacity",
+                "bg-black/50 opacity-0 group-hover:opacity-100"
+              )}>
                 <button
                   type="button"
                   onClick={() => onImageRemove(index)}
-                  className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all hover:scale-110 transform-gpu shadow-lg"
+                  className={cn(
+                    "p-3 rounded-full text-white transform-gpu shadow-lg",
+                    "bg-red-500 hover:bg-red-600 transition-all hover:scale-110"
+                  )}
                 >
                   <FaTimes size={20} />
                 </button>

@@ -9,6 +9,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FaHeart, FaRegHeart, FaEye, FaCalendar, FaUser } from 'react-icons/fa'
 import { useState, useEffect, useRef } from 'react'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { cn } from '@/lib/utils'
 
 export default function EntryDetailPage() {
   const params = useParams()
@@ -95,10 +97,10 @@ export default function EntryDetailPage() {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="grid md:grid-cols-2 gap-8">
         {/* 左側: 画像 */}
-        <div>
+        <div className="relative">
           {/* メイン画像 */}
           {currentImage ? (
-            <div className="mb-4 relative w-full" style={{ minHeight: '400px' }}>
+            <div className="mb-4 relative w-full rounded-2xl overflow-hidden border border-white/20 dark:border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.2)]" style={{ minHeight: '400px' }}>
               <Image
                 src={currentImage.image}
                 alt={entry.title}
@@ -107,13 +109,20 @@ export default function EntryDetailPage() {
                 priority
                 loading="eager"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
-                className="w-full h-auto rounded-lg shadow-lg"
+                className="w-full h-auto object-contain bg-black/50 backdrop-blur-3xl"
                 unoptimized
               />
             </div>
           ) : (
-            <div className="mb-4 relative w-full bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center" style={{ minHeight: '400px' }}>
-              <div className="animate-pulse text-gray-400">読み込み中...</div>
+            <div
+              className={cn(
+                "mb-4 relative w-full flex flex-col items-center justify-center border border-white/20 dark:border-white/10",
+                "bg-white/5 dark:bg-black/40 backdrop-blur-xl rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]",
+              )}
+              style={{ minHeight: '400px' }}
+            >
+              <LoadingSpinner size="lg" className="mb-4" />
+              <div className="animate-pulse text-foreground/50 font-bold tracking-widest uppercase text-sm">Loading Signal...</div>
             </div>
           )}
 
@@ -124,11 +133,12 @@ export default function EntryDetailPage() {
                 <button
                   key={image.id}
                   onClick={() => setSelectedImageIndex(index)}
-                  className={`relative aspect-square rounded overflow-hidden ${
+                  className={cn(
+                    "relative aspect-square rounded overflow-hidden transition-all duration-300",
                     selectedImageIndex === index
-                      ? 'ring-2 ring-blue-500'
-                      : 'opacity-60 hover:opacity-100'
-                  }`}
+                      ? "ring-2 ring-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] scale-105"
+                      : "opacity-60 hover:opacity-100 hover:ring-2 hover:ring-white/20"
+                  )}
                 >
                   <Image
                     src={image.thumbnail || image.image}
@@ -144,21 +154,24 @@ export default function EntryDetailPage() {
         </div>
 
         {/* 右側: 詳細情報 */}
-        <div>
-          <h1 className="text-3xl font-bold mb-4">{entry.title}</h1>
+        <div className="flex flex-col bg-white/5 dark:bg-black/40 border border-white/20 dark:border-white/10 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] shadow-[0_4px_30px_rgba(0,0,0,0.1)] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+          <h1 className="relative text-3xl font-black mb-6 bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70 bg-clip-text text-transparent">{entry.title}</h1>
 
           {/* メタ情報 */}
-          <div className="flex flex-wrap gap-4 mb-6 text-sm text-muted-foreground">
+          <div className="relative flex flex-wrap gap-4 mb-8 text-sm text-foreground/70 font-medium">
             <div className="flex items-center gap-2">
-              <FaUser />
+              <FaUser className="text-pink-500 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" />
               <span>{entry.author?.username || entry.twitter_user_id || 'Anonymous'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaCalendar />
+              <FaCalendar className="text-purple-400 drop-shadow-[0_0_5px_rgba(192,132,252,0.5)]" />
               <span>{formatDate(entry.created_at)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaEye />
+              <FaEye className="text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" />
               <span>{entry.view_count ?? 0} 閲覧</span>
             </div>
             {entry.twitter_url && (
@@ -166,7 +179,10 @@ export default function EntryDetailPage() {
                 href={entry.twitter_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline font-semibold"
+                className={cn(
+                  "flex items-center gap-2 font-bold transition-all hover:scale-105",
+                  "text-sky-400 drop-shadow-[0_0_3px_rgba(56,189,248,0.8)] hover:text-sky-300 hover:drop-shadow-[0_0_8px_rgba(56,189,248,1)]"
+                )}
                 title="Xで元の投稿を見る"
               >
                 <span className="text-lg">𝕏</span>
@@ -180,41 +196,42 @@ export default function EntryDetailPage() {
             <button
               onClick={() => voteMutation.mutate()}
               disabled={voteMutation.isPending}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold mb-6 transition ${
+              className={cn(
+                "relative z-10 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold mb-8 transition-all duration-300 border",
                 entry.user_voted
-                  ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+                  ? "bg-pink-500/20 border-pink-500/50 text-pink-400 hover:bg-pink-500/30 hover:shadow-[0_0_20px_rgba(236,72,153,0.4)]"
+                  : "bg-white/5 border-white/10 text-foreground/80 hover:bg-white/10 hover:border-white/20"
+              )}
             >
-              {entry.user_voted ? <FaHeart /> : <FaRegHeart />}
-              <span>{entry.vote_count} いいね</span>
+              {entry.user_voted ? <FaHeart className="drop-shadow-[0_0_5px_rgba(236,72,153,0.8)]" /> : <FaRegHeart />}
+              <span className="tracking-widest uppercase">{entry.vote_count} いいね</span>
             </button>
           )}
 
           {!isAuthenticated && (
-            <div className="flex items-center gap-2 px-6 py-3 bg-gray-100 rounded-lg mb-6">
-              <FaHeart className="text-gray-400" />
-              <span className="text-gray-600">{entry.vote_count} いいね</span>
+            <div className="relative z-10 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 border border-white/10 rounded-xl mb-8 font-bold">
+              <FaHeart className="text-foreground/40" />
+              <span className="text-foreground/60 tracking-widest uppercase">{entry.vote_count} いいね</span>
             </div>
           )}
 
           {/* 説明 */}
           {entry.description && (
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">説明</h2>
-              <p className="text-muted-foreground whitespace-pre-wrap">{entry.description}</p>
+            <div className="relative z-10 mb-8 border-t border-border/30 pt-6">
+              <h2 className="text-sm font-bold mb-3 text-cyan-400 drop-shadow-[0_0_2px_rgba(34,211,238,0.5)] tracking-widest uppercase">DESCRIPTION //</h2>
+              <p className="text-foreground/80 whitespace-pre-wrap leading-relaxed">{entry.description}</p>
             </div>
           )}
 
           {/* タグ */}
           {entry.tags && (
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">タグ</h2>
+            <div className="relative z-10 mb-8 border-t border-border/30 pt-6">
+              <h2 className="text-sm font-bold mb-3 text-cyan-400 drop-shadow-[0_0_2px_rgba(34,211,238,0.5)] tracking-widest uppercase">TAGS //</h2>
               <div className="flex flex-wrap gap-2">
                 {(entry.tags || '').split(',').filter(Boolean).map((tag: string, index: number) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                    className="px-3 py-1 bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 rounded-md text-sm font-semibold shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all cursor-default"
                   >
                     {tag.trim()}
                   </span>
@@ -225,18 +242,21 @@ export default function EntryDetailPage() {
 
           {/* 承認ステータス */}
           {!entry.approved && (
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800 text-sm">このエントリーは承認待ちです。</p>
+            <div className="relative z-10 p-4 mb-6 bg-yellow-950/40 border border-yellow-500/50 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+              <p className="text-yellow-400 font-bold flex items-center gap-2 drop-shadow-[0_0_2px_rgba(234,179,8,0.8)]">
+                <span className="animate-pulse">⚠️</span> このエントリーは承認待ちです。
+              </p>
             </div>
           )}
 
           {/* コンテストリンク */}
-          <div className="mt-6 pt-6 border-t">
+          <div className="relative z-10 mt-auto pt-6 border-t border-border/30">
             <Link
               href={`/contests/${entry.contest_slug}`}
-              className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2"
+              className="group inline-flex items-center gap-2 font-bold text-foreground/80 hover:text-cyan-400 transition-colors"
             >
-              ← {entry.contest_title || 'コンテスト'}に戻る
+              <span className="text-cyan-500 group-hover:-translate-x-1 group-hover:drop-shadow-[0_0_5px_rgba(6,182,212,0.8)] transition-all">←</span>
+              <span className="group-hover:drop-shadow-[0_0_2px_rgba(34,211,238,0.8)]">Return to {entry.contest_title || 'コンテスト'}</span>
             </Link>
           </div>
         </div>

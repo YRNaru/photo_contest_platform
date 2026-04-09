@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { GradientHeading } from '@/components/ui/gradient-heading'
+import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: '機能一覧 - VRChat フォトコンテスト',
@@ -15,7 +17,10 @@ interface FeatureCardProps {
 function FeatureCard({ emoji, title, description, gradient }: FeatureCardProps) {
   return (
     <div
-      className={`group p-6 ${gradient} rounded-xl border-2 hover:scale-105 transition-all duration-300 hover:shadow-xl transform-gpu`}
+      className={cn(
+        "group p-6 rounded-xl border-2 hover:scale-105 transition-all duration-300 hover:shadow-xl transform-gpu",
+        gradient
+      )}
     >
       <div className="text-4xl mb-4 group-hover:scale-125 transition-transform duration-300">
         {emoji}
@@ -37,9 +42,9 @@ function FeatureSection({ emoji, title, children }: FeatureSectionProps) {
     <section className="mb-12 animate-fadeInUp">
       <h2 className="text-3xl font-black mb-6 flex items-center gap-3">
         <span className="text-4xl">{emoji}</span>
-        <span className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+        <GradientHeading as="span" className="text-3xl sm:text-3xl lg:text-3xl">
           {title}
-        </span>
+        </GradientHeading>
       </h2>
       <div className="space-y-4 text-gray-700 dark:text-gray-300">{children}</div>
     </section>
@@ -53,7 +58,10 @@ interface SubFeatureProps {
 
 function SubFeature({ title, items }: SubFeatureProps) {
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-5 border border-purple-200 dark:border-purple-800">
+    <div className={cn(
+      "bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20",
+      "rounded-lg p-5 border border-purple-200 dark:border-purple-800"
+    )}>
       <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-gray-100">{title}</h3>
       <ul className="space-y-2">
         {items.map((item, index) => (
@@ -72,9 +80,9 @@ export default function FeaturesPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-6xl">
       {/* ヘッダーセクション */}
       <div className="text-center mb-12 animate-fadeInUp">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 dark:from-purple-400 dark:via-pink-400 dark:to-purple-400 bg-clip-text text-transparent animate-gradient">
+        <GradientHeading as="h1" variant="pink" size="lg" className="mb-6">
           機能一覧
-        </h1>
+        </GradientHeading>
         <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-8 font-semibold">
           VRChat フォトコンテストプラットフォーム
         </p>
@@ -269,45 +277,63 @@ export default function FeaturesPage() {
 
       {/* 特徴カード */}
       <section className="mb-12 animate-fadeInUp">
-        <h2 className="text-3xl font-black mb-6 text-center bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+        <GradientHeading as="h2" className="text-center mb-6">
           🌟 主な特徴
-        </h2>
+        </GradientHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <FeatureCard
             emoji="📸"
             title="簡単投稿"
             description="最大5枚まで写真をアップロード。ドラッグ&ドロップで簡単に追加できます"
-            gradient="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600"
+            gradient={cn(
+              "bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30",
+              "border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600"
+            )}
           />
           <FeatureCard
             emoji="⭐"
             title="投票機能"
             description="気に入った作品に投票して、お気に入りをシェアしましょう"
-            gradient="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600"
+            gradient={cn(
+              "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30",
+              "border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600"
+            )}
           />
           <FeatureCard
             emoji="🏆"
             title="審査員スコア"
             description="プロの審査員による評価で公平な審査を実現します"
-            gradient="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600"
+            gradient={cn(
+              "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30",
+              "border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600"
+            )}
           />
           <FeatureCard
             emoji="🐦"
             title="Twitter連携"
             description="ハッシュタグ付きツイートを自動で取り込み、簡単参加"
-            gradient="bg-gradient-to-br from-cyan-50 to-sky-50 dark:from-cyan-900/30 dark:to-sky-900/30 border-cyan-200 dark:border-cyan-800 hover:border-cyan-400 dark:hover:border-cyan-600"
+            gradient={cn(
+              "bg-gradient-to-br from-cyan-50 to-sky-50 dark:from-cyan-900/30 dark:to-sky-900/30",
+              "border-cyan-200 dark:border-cyan-800 hover:border-cyan-400 dark:hover:border-cyan-600"
+            )}
           />
           <FeatureCard
             emoji="🛡️"
             title="モデレーション"
             description="自動・手動の二段階チェックで安心安全な運営"
-            gradient="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600"
+            gradient={cn(
+              "bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30",
+              "border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600"
+            )}
           />
           <FeatureCard
             emoji="📱"
             title="レスポンシブ"
             description="スマホ、タブレット、PCどの端末でも快適に利用可能"
-            gradient="bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-900/30 dark:to-red-900/30 border-rose-200 dark:border-rose-800 hover:border-rose-400 dark:hover:border-rose-600"
+            gradient={cn(
+              "bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-900/30 dark:to-red-900/30",
+              "border-rose-200 dark:border-rose-800 hover:border-rose-400 dark:hover:border-rose-600"
+            )}
           />
         </div>
       </section>

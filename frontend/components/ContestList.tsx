@@ -109,29 +109,32 @@ export function ContestList() {
 
       {/* コンテスト一覧 */}
       {filteredData.length === 0 ? (
-        <div className="w-full min-w-0 max-w-full rounded-2xl border-2 border-dashed border-primary/30 bg-gradient-to-br from-purple-50/80 to-pink-50/80 px-4 py-16 text-center dark:from-purple-950/30 dark:to-pink-950/30 sm:px-8 sm:py-20">
-          <span className="mb-4 block text-6xl opacity-50 sm:text-7xl">🏆</span>
-          <p className="text-balance text-lg font-semibold text-muted-foreground sm:text-xl">
-            {phase !== 'all' || search
-              ? '条件に一致するコンテストが見つかりません'
-              : '現在開催中のコンテストはありません'}
-          </p>
-          {(phase !== 'all' || search) && (
-            <button
-              onClick={() => {
-                setPhase(null)
-                setSearch(null)
-              }}
-              className="mt-4 text-sm text-purple-600 underline hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
-            >
-              フィルタをクリア
-            </button>
-          )}
-          {!search && phase === 'all' && (
-            <p className="mt-2 text-balance text-sm text-muted-foreground">
-              新しいコンテストをお楽しみに！
+        <div className="w-full min-w-0 max-w-full rounded-3xl border border-white/20 bg-white/5 p-8 text-center backdrop-blur-xl dark:border-white/10 dark:bg-black/20 sm:p-20 shadow-[0_0_30px_rgba(168,85,247,0.1)] relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 pointer-events-none opacity-50 transition-opacity duration-500 group-hover:opacity-100" />
+          <div className="relative z-10">
+            <span className="mb-6 block text-6xl opacity-70 sm:text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">🏆</span>
+            <p className="text-balance text-lg font-bold text-foreground sm:text-xl tracking-wider">
+              {phase !== 'all' || search
+                ? 'SYS.ERROR: CONDITIONS NOT MET (条件に一致するコンテストが見つかりません)'
+                : 'SYS.STANDBY: NO ACTIVE CONTESTS (現在開催中のコンテストはありません)'}
             </p>
-          )}
+            {(phase !== 'all' || search) && (
+              <button
+                onClick={() => {
+                  setPhase(null)
+                  setSearch(null)
+                }}
+                className="mt-6 text-sm text-cyan-400 underline hover:text-cyan-300 transition-colors drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]"
+              >
+                [ RESET_FILTERS ]
+              </button>
+            )}
+            {!search && phase === 'all' && (
+              <p className="mt-4 text-balance text-sm text-foreground/60 font-medium">
+                新しいコンテストをお楽しみに！
+              </p>
+            )}
+          </div>
         </div>
       ) : (
         <motion.div

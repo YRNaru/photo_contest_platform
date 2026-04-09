@@ -3,6 +3,13 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { cn } from '@/lib/utils'
+
+const callbackContainerClass = cn(
+  "min-h-screen p-4 flex items-center justify-center",
+  "bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800"
+)
 
 function AuthCallbackContent() {
   const router = useRouter()
@@ -54,7 +61,7 @@ function AuthCallbackContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 flex items-center justify-center p-4">
+      <div className={callbackContainerClass}>
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
           <div className="text-center">
             <div className="text-6xl mb-4">❌</div>
@@ -68,10 +75,10 @@ function AuthCallbackContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 flex items-center justify-center p-4">
+    <div className={callbackContainerClass}>
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600 mb-4"></div>
+        <div className="text-center flex flex-col items-center">
+          <LoadingSpinner size="lg" className="mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">ログイン中...</h1>
           <p className="text-gray-600">認証情報を取得しています</p>
         </div>
@@ -83,10 +90,10 @@ function AuthCallbackContent() {
 export default function AuthCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 flex items-center justify-center p-4">
+      <div className={callbackContainerClass}>
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600 mb-4"></div>
+          <div className="text-center flex flex-col items-center">
+            <LoadingSpinner size="lg" className="mb-4" />
             <h1 className="text-2xl font-bold text-gray-800 mb-2">読み込み中...</h1>
           </div>
         </div>

@@ -16,6 +16,8 @@ import { ImageUploadSection } from '@/components/submit/ImageUploadSection'
 import { ErrorDisplay } from '@/components/submit/ErrorDisplay'
 import { SubmitButton } from '@/components/submit/SubmitButton'
 import { TagSelector } from '@/components/submit/TagSelector'
+import { GradientHeading } from '@/components/ui/gradient-heading'
+import { cn } from '@/lib/utils'
 
 const submitSchema = z.object({
   contest: z.string().min(1, 'コンテストを選択してください'),
@@ -173,14 +175,20 @@ function SubmitPageContent() {
   if (!isAuthenticated) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center p-16 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-dashed border-purple-300 dark:border-purple-700">
-          <span className="text-7xl mb-6 block">🔒</span>
-          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-            ログインが必要です
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            作品を投稿するにはGoogleアカウントでログインしてください
-          </p>
+        <div className={cn(
+          "text-center p-16 rounded-[2rem] border border-white/20 backdrop-blur-xl relative overflow-hidden group",
+          "bg-white/5 dark:bg-black/20 shadow-[0_0_30px_rgba(168,85,247,0.1)]"
+        )}>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 pointer-events-none opacity-50" />
+          <div className="relative z-10">
+            <span className="text-7xl mb-6 block drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">🔒</span>
+            <GradientHeading as="h1" className="mb-4 text-center">
+              ACCESS DENIED
+            </GradientHeading>
+            <p className="text-lg text-foreground/80 font-medium">
+              作品を投稿するにはGoogle/Twitterアカウントでログインしてください
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -188,9 +196,9 @@ function SubmitPageContent() {
 
   return (
     <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-3xl">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-6 sm:mb-8 lg:mb-10 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent animate-fadeInUp">
-        📸 作品を投稿
-      </h1>
+      <GradientHeading as="h1" className="mb-6 sm:mb-8 lg:mb-10 animate-fadeInUp text-center">
+        📸 UPLOAD ENTRY
+      </GradientHeading>
 
       {contestDetail && userEntries && (
         <EntryLimitInfo
@@ -265,10 +273,14 @@ function SubmitPageContent() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-purple-500/10 p-6 border border-gray-200 dark:border-gray-800">
+                  <div className={cn(
+                    "bg-white/10 dark:bg-black/40 backdrop-blur-xl rounded-[1.5rem] p-6",
+                    "border border-white/20 dark:border-white/10",
+                    "shadow-[0_4px_30px_rgba(0,0,0,0.1)] transition-colors hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+                  )}>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-2xl">🏷️</span>
-                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">タグ</h2>
+                      <span className="text-2xl drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">🏷️</span>
+                      <h2 className="text-lg font-bold text-cyan-400 drop-shadow-[0_0_2px_rgba(34,211,238,0.5)]">TAGS //</h2>
                     </div>
                     <TagSelector selectedTags={field.value} onTagsChange={field.onChange} />
                   </div>

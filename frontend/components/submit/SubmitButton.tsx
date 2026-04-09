@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils'
+
 interface SubmitButtonProps {
   isSubmitting: boolean
   disabled?: boolean
@@ -8,7 +10,19 @@ export function SubmitButton({ isSubmitting, disabled = false }: SubmitButtonPro
     <button
       type="submit"
       disabled={isSubmitting || disabled}
-      className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 transform-gpu disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
+      className={cn(
+        // ベース・レイアウト
+        "w-full px-8 py-4 flex items-center justify-center gap-3",
+        "rounded-2xl font-bold text-lg text-white",
+        // グラデーション・アニメーション
+        "bg-gradient-to-r from-purple-600 to-pink-600",
+        "hover:from-purple-700 hover:to-pink-700",
+        "shadow-xl hover:shadow-2xl transition-all duration-300 transform-gpu",
+        // ホバーエフェクト
+        "hover:scale-105",
+        // 非アクティブエフェクト
+        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+      )}
     >
       {isSubmitting ? (
         <>

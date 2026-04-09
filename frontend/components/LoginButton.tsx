@@ -30,27 +30,31 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
     return (
       <div className="space-y-3">
         {process.env.NODE_ENV !== 'production' && (
+            <Button
+              type="button"
+              onClick={handleGoogleLogin}
+              className={cn(
+                'h-auto w-full justify-start gap-3 rounded-xl border py-3 font-bold shadow-sm dark:shadow-md hover:-translate-y-0.5 transition-all duration-300 transform-gpu backdrop-blur-md',
+                'border-red-300 dark:border-white/20 bg-red-50/80 dark:bg-black/40 text-red-800 dark:text-white',
+                'hover:border-red-400 dark:hover:border-red-500/50 hover:bg-red-100 dark:hover:bg-red-950/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] dark:hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:text-red-900 dark:hover:text-white'
+              )}
+            >
+              <FaGoogle className="text-2xl text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.3)] dark:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" aria-hidden />
+              Googleでログイン
+            </Button>
+          )}
           <Button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={handleTwitterLogin}
             className={cn(
-              'h-auto w-full justify-start gap-3 rounded-xl border-0 bg-gradient-to-r from-red-500 to-red-600 py-3 font-bold text-white shadow-md hover:opacity-95 dark:from-red-600 dark:to-red-700'
+              'h-auto w-full justify-start gap-3 rounded-xl border py-3 font-bold shadow-sm dark:shadow-md hover:-translate-y-0.5 transition-all duration-300 transform-gpu backdrop-blur-md',
+              'border-sky-300 dark:border-white/20 bg-sky-50/80 dark:bg-black/40 text-sky-800 dark:text-white',
+              'hover:border-sky-400 dark:hover:border-sky-500/50 hover:bg-sky-100 dark:hover:bg-sky-950/40 hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] dark:hover:shadow-[0_0_15px_rgba(14,165,233,0.3)] hover:text-sky-900 dark:hover:text-white'
             )}
           >
-            <FaGoogle className="text-2xl" aria-hidden />
-            Googleでログイン
+            <FaTwitter className="text-2xl text-sky-500 drop-shadow-[0_0_5px_rgba(14,165,233,0.3)] dark:drop-shadow-[0_0_5px_rgba(14,165,233,0.8)]" aria-hidden />
+            Twitterでログイン
           </Button>
-        )}
-        <Button
-          type="button"
-          onClick={handleTwitterLogin}
-          className={cn(
-            'h-auto w-full justify-start gap-3 rounded-xl border-0 bg-gradient-to-r from-sky-500 to-blue-600 py-3 font-bold text-white shadow-md hover:opacity-95 dark:from-sky-600 dark:to-blue-700'
-          )}
-        >
-          <FaTwitter className="text-2xl" aria-hidden />
-          Twitterでログイン
-        </Button>
       </div>
     )
   }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { contestApi } from '@/lib/api'
+import { cn } from '@/lib/utils'
 
 interface TwitterImporterProps {
   contestSlug: string
@@ -47,7 +48,10 @@ export default function TwitterImporter({ contestSlug }: TwitterImporterProps) {
 
   return (
     <div className="mb-8 animate-fadeInUp" style={{ animationDelay: '25ms' }}>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+      <div className={cn(
+        "bg-white dark:bg-gray-800 rounded-xl p-6 border",
+        "shadow-lg border-gray-200 dark:border-gray-700"
+      )}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <span className="text-2xl">🐦</span>
@@ -78,7 +82,10 @@ export default function TwitterImporter({ contestSlug }: TwitterImporterProps) {
                   value={tweetUrl}
                   onChange={(e) => setTweetUrl(e.target.value)}
                   placeholder="https://twitter.com/username/status/1234567890"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className={cn(
+                    "w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent",
+                    "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+                  )}
                   disabled={importMutation.isPending}
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -90,7 +97,11 @@ export default function TwitterImporter({ contestSlug }: TwitterImporterProps) {
                 <button
                   type="submit"
                   disabled={importMutation.isPending || !tweetUrl.trim()}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={cn(
+                    "flex-1 py-2 px-4 rounded-lg font-bold text-white transition-all",
+                    "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
                 >
                   {importMutation.isPending ? (
                     <span className="flex items-center justify-center gap-2">
@@ -108,14 +119,21 @@ export default function TwitterImporter({ contestSlug }: TwitterImporterProps) {
                   type="button"
                   onClick={() => setTweetUrl('')}
                   disabled={importMutation.isPending}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={cn(
+                    "px-4 py-2 font-medium rounded-lg transition-colors border",
+                    "text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
                 >
                   クリア
                 </button>
               </div>
             </form>
 
-            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className={cn(
+              "mt-4 p-4 rounded-lg border",
+              "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+            )}>
               <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">💡 使い方</h4>
               <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
                 <li>Twitter/Xのツイートページを開き、URLをコピー</li>

@@ -32,7 +32,7 @@ export function LeftSidebar() {
 
   return (
     <aside
-      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-r border-border bg-muted/30 shadow-sm transition-all duration-700 ease-in-out dark:bg-muted/10 ${
+      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-r border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-2xl shadow-[5px_0_30px_rgba(0,0,0,0.1)] transition-all duration-700 ease-in-out ${
         isLeftOpen ? 'w-80 opacity-100' : 'w-0 opacity-0'
       }`}
     >
@@ -42,15 +42,15 @@ export function LeftSidebar() {
         }`}
       >
         <div
-          className="mb-6 border-b border-border pb-4 transition-all duration-500"
+          className="mb-6 border-b border-border/30 pb-4 transition-all duration-500"
           style={{
             transitionDelay: isLeftOpen ? '150ms' : '0ms',
             opacity: isLeftOpen ? 1 : 0,
             transform: isLeftOpen ? 'translateX(0)' : 'translateX(-20px)',
           }}
         >
-          <h2 className="text-xs font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-300 dark:to-pink-300 bg-clip-text text-transparent uppercase tracking-wider px-3 animate-pulse-slow">
-            ✨ メニュー
+          <h2 className="text-xs font-bold text-cyan-600 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider px-3 animate-pulse-slow">
+            SYS.MENU //
           </h2>
         </div>
 
@@ -63,20 +63,20 @@ export function LeftSidebar() {
               style={{
                 transitionDelay: isLeftOpen ? `${150 + index * 80}ms` : '0ms',
               }}
-              className={`group flex items-center gap-3 px-4 py-3 rounded-xl hover:scale-105 hover:shadow-lg transform-gpu transition-all duration-500 ${
+              className={`group flex items-center gap-3 px-4 py-3 rounded-xl border hover:scale-105 transform-gpu transition-all duration-500 ${
                 isLeftOpen ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
               } ${
                 isActive
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600 text-white font-bold shadow-xl glow-purple'
-                  : 'hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 text-gray-700 dark:text-gray-100 hover:text-purple-700 dark:hover:text-white'
+                  ? 'bg-cyan-100 dark:bg-cyan-500/20 border-cyan-400 dark:border-cyan-500/50 text-cyan-700 dark:text-cyan-400 font-bold shadow-[0_0_15px_rgba(6,182,212,0.1)] dark:shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                  : 'bg-transparent border-transparent text-foreground/80 hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/10 dark:hover:border-white/10 hover:text-foreground dark:text-gray-300 dark:hover:text-white'
               }`}
             >
               <span
-                className={`text-2xl transition-transform duration-300 ${isActive ? 'animate-float' : 'group-hover:scale-125'}`}
+                className={`text-2xl transition-transform duration-300 ${isActive ? 'animate-float drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] dark:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'group-hover:scale-125'}`}
               >
                 {item.icon}
               </span>
-              <span className="font-semibold">{item.label}</span>
+              <span className="font-semibold tracking-wide">{item.label}</span>
             </Link>
           )
         })}
@@ -119,14 +119,15 @@ export function LeftSidebar() {
                 style={{
                   transitionDelay: isLeftOpen ? `${150 + (menuItems.length + 1) * 80}ms` : '0ms',
                 }}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 via-purple-500 to-pink-600 dark:from-purple-500 dark:via-purple-400 dark:to-pink-500 animate-gradient text-white hover:shadow-2xl hover:scale-110 font-bold transform-gpu glow-purple transition-all duration-500 ${
+                className={`group relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl border border-cyan-400 dark:border-cyan-500/50 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-100 hover:border-cyan-500 dark:hover:border-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] dark:hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] font-bold transform-gpu transition-all duration-500 ${
                   isLeftOpen ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
                 }`}
               >
-                <span className="text-2xl group-hover:rotate-90 transition-transform duration-300">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/0 via-cyan-400/10 to-cyan-400/0 -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <span className="text-2xl group-hover:rotate-90 transition-transform duration-300 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.8)] relative z-10">
                   ➕
                 </span>
-                <span>新規コンテスト作成</span>
+                <span className="relative z-10">新規コンテスト作成</span>
               </Link>
 
               <Link
@@ -134,16 +135,18 @@ export function LeftSidebar() {
                 style={{
                   transitionDelay: isLeftOpen ? `${150 + (menuItems.length + 2) * 80}ms` : '0ms',
                 }}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-pink-600 via-pink-500 to-purple-600 dark:from-pink-500 dark:via-pink-400 dark:to-purple-500 animate-gradient text-white hover:shadow-2xl hover:scale-110 font-bold transform-gpu glow-pink transition-all duration-500 ${
+                className={`group relative overflow-hidden flex items-center gap-3 px-4 py-3 rounded-xl border border-pink-500/50 bg-gradient-to-r from-purple-600/80 to-pink-600/80 shadow-[0_0_15px_rgba(236,72,153,0.3)] text-white hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] font-bold transform-gpu hover:scale-105 transition-all duration-500 ${
                   isLeftOpen ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
                 }`}
               >
-                <span className="text-2xl group-hover:scale-125 transition-transform duration-300">
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors duration-300" />
+                <span className="text-2xl group-hover:scale-125 transition-transform duration-300 relative z-10">
                   📸
                 </span>
-                <span>コンテストに投稿する</span>
+                <span className="relative z-10">コンテストに投稿する</span>
               </Link>
             </div>
+
           </>
         )}
       </nav>

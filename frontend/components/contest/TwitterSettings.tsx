@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { cn } from '@/lib/utils'
 
 // Twitterウィジェットの型定義
 declare global {
@@ -132,6 +134,7 @@ export function TwitterSettings({
     setShowPreview(false)
     setLoadError(false)
   }
+
   return (
     <div className="border-t pt-6">
       <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Twitter連携設定</h2>
@@ -152,14 +155,21 @@ export function TwitterSettings({
               setTweetUrl(e.target.value)
               setLoadError(false)
             }}
-            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={cn(
+              "flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500",
+              "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+            )}
             placeholder="例: https://twitter.com/user/status/1234567890 または https://x.com/user/status/1234567890"
           />
           <button
             type="button"
             onClick={handleShowPreview}
             disabled={!tweetUrl}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+            className={cn(
+              "px-4 py-2 font-medium text-white rounded-lg transition-colors",
+              "bg-blue-500 hover:bg-blue-600",
+              "disabled:bg-gray-400 disabled:cursor-not-allowed"
+            )}
           >
             プレビュー
           </button>
@@ -167,33 +177,44 @@ export function TwitterSettings({
 
         {/* エラーメッセージ */}
         {loadError && (
-          <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded text-sm">
+          <div className={cn(
+            "mt-2 p-2 rounded text-sm border",
+            "bg-red-100 dark:bg-red-900/30 border-red-400 dark:border-red-700",
+            "text-red-700 dark:text-red-300"
+          )}>
             ツイートの読み込みに失敗しました。URLが正しいか確認してください。
           </div>
         )}
 
         {/* ツイートプレビュー */}
         {showPreview && (
-          <div className="mt-4 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+          <div className={cn(
+            "mt-4 p-4 rounded-lg border",
+            "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+          )}>
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-bold text-gray-900 dark:text-gray-100">プレビュー</h3>
               <button
                 type="button"
                 onClick={handleClosePreview}
-                className="px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                className={cn(
+                  "px-2 py-1 rounded transition-colors",
+                  "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200",
+                  "hover:bg-gray-100 dark:hover:bg-gray-700"
+                )}
               >
                 ✕ 閉じる
               </button>
             </div>
 
             {isLoading && (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <span className="ml-2 text-gray-600 dark:text-gray-400">読み込み中...</span>
+              <div className="flex flex-col justify-center items-center py-8">
+                <LoadingSpinner />
+                <span className="mt-2 text-gray-600 dark:text-gray-400">読み込み中...</span>
               </div>
             )}
 
-            <div ref={tweetContainerRef} className="flex justify-center min-h-[200px]"></div>
+            <div ref={tweetContainerRef} className={cn("flex justify-center min-h-[200px]", isLoading && "hidden")}></div>
           </div>
         )}
       </div>
@@ -209,7 +230,10 @@ export function TwitterSettings({
           value={hashtag}
           onChange={e => onHashtagChange(e.target.value)}
           required={autoFetch}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={cn(
+            "w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500",
+            "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+          )}
           placeholder="例: フォトコンテスト（#は不要）"
         />
         {autoFetch && !hashtag && (

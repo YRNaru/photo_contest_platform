@@ -11,6 +11,7 @@ import { SidebarToggleButton } from './header/SidebarToggleButton'
 import { ThemeToggleButton } from './header/ThemeToggleButton'
 import { ContestDropdownMenu } from './header/ContestDropdownMenu'
 import { SubmitDropdownMenu } from './header/SubmitDropdownMenu'
+import { cn } from '@/lib/utils'
 
 export function Header() {
   const { isAuthenticated, loadUser } = useAuth()
@@ -22,8 +23,18 @@ export function Header() {
   }, [loadUser])
 
   return (
-    <header className="sticky top-0 z-50 overflow-x-clip border-b border-border bg-background/85 backdrop-blur-md shadow-sm supports-[backdrop-filter]:bg-background/70">
-      <div className="content-container flex min-w-0 items-center justify-between gap-2 py-3 animate-fadeInUp sm:py-4">
+    <header className={cn(
+      "sticky top-0 z-50 overflow-x-clip border-b shadow-sm",
+      "bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40",
+      "border-white/20 dark:border-white/10 dark:bg-black/60"
+    )}>
+      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-cyan-500/30 via-purple-500/30 to-pink-500/30 pointer-events-none" />
+
+      <div className={cn(
+        "content-container relative z-10 flex min-w-0 items-center justify-between",
+        "gap-2 py-3 sm:py-4 animate-fadeInUp"
+      )}>
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
           <SidebarToggleButton isOpen={isLeftOpen} onClick={toggleLeft} variant="left" />
           <Logo />
