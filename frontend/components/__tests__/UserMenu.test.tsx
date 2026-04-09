@@ -2,15 +2,16 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { UserMenu } from '../UserMenu'
 import React from 'react'
+import { vi } from 'vitest'
 
-const mockPush = jest.fn()
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush, replace: jest.fn(), prefetch: jest.fn() }),
+const mockPush = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush, replace: vi.fn(), prefetch: vi.fn() }),
 }))
 
 // Mock auth
-const mockLogout = jest.fn()
-jest.mock('../../lib/auth', () => ({
+const mockLogout = vi.fn()
+vi.mock('../../lib/auth', () => ({
   useAuth: () => ({
     user: {
       id: 1,

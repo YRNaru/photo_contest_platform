@@ -7,6 +7,21 @@ import { PlusIcon } from '@heroicons/react/24/outline'
 import { JudgingCriteriaForm, CriteriaFormValues } from './JudgingCriteriaForm'
 import { JudgingCriteriaItem } from './JudgingCriteriaItem'
 import { CategoryFilter } from './CategoryFilter'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
 
 interface JudgingCriteriaManagerProps {
   contestId: number
@@ -29,6 +44,15 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
     order: 0,
     category_id: '',
   })
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const loadData = useCallback(async () => {
     try {
@@ -54,6 +78,34 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  /** ドラッグ&ドロップ完了時に並び順を更新 */
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = criteria.findIndex(c => c.id === active.id)
+    const newIndex = criteria.findIndex(c => c.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    // 楽観的更新: UIを先に更新してからAPIを呼ぶ
+    const reordered = arrayMove(criteria, oldIndex, newIndex)
+    setCriteria(reordered)
+
+    // 各審査基準の order を更新
+    try {
+      await Promise.all(
+        reordered.map((criterion, index) =>
+          judgingCriteriaApi.updateCriterion(criterion.id, { order: index } as Record<string, unknown>)
+        )
+      )
+    } catch (err: unknown) {
+      console.error('並び替え保存エラー:', err)
+      setError('並び順の保存に失敗しました。ページを再読み込みしてください。')
+      // 失敗した場合は元の状態に戻す
+      await loadData()
+    }
+  }
 
   const handleSubmit = async (values: CriteriaFormValues) => {
     try {
@@ -195,17 +247,28 @@ export function JudgingCriteriaManager({ contestId, isOwner }: JudgingCriteriaMa
           )}
         </div>
       ) : (
-        <div className="grid gap-4">
-          {criteria.map(criterion => (
-            <JudgingCriteriaItem
-              key={criterion.id}
-              criterion={criterion}
-              isOwner={isOwner}
-              onEdit={() => handleEdit(criterion)}
-              onDelete={() => handleDelete(criterion.id)}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={criteria.map(c => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid gap-4">
+              {criteria.map(criterion => (
+                <JudgingCriteriaItem
+                  key={criterion.id}
+                  criterion={criterion}
+                  isOwner={isOwner}
+                  onEdit={() => handleEdit(criterion)}
+                  onDelete={() => handleDelete(criterion.id)}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   )

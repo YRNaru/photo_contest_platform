@@ -28,11 +28,18 @@ echo "  ✅ Backend: OK"
 # Frontend checks
 echo "  📦 Frontend: type-check + lint..."
 cd "$(git rev-parse --show-toplevel)/frontend"
-npx tsc --noEmit 2>/dev/null || {
+
+# GUIクライアント（VS Codeなど）から実行された場合、Windows側のnpx.exeが呼ばれるのを防ぐため、
+# 明示的にNVMなどのLinux上のNodeパスを最優先にロードする
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+export PATH="$HOME/.volta/bin:$HOME/.local/share/fnm:$PATH"
+
+npx tsc --noEmit || {
     echo "  ❌ Frontend type-check failed"
     exit 1
 }
-npx next lint 2>/dev/null || {
+npx next lint || {
     echo "  ❌ Frontend lint failed"
     exit 1
 }

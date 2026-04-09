@@ -1,6 +1,7 @@
 'use client'
 
 import { ContestList } from '@/components/ContestList'
+import { Suspense } from 'react'
 import { useAuth } from '@/lib/auth'
 import Link from 'next/link'
 
@@ -26,7 +27,9 @@ export default function ContestsPage() {
         )}
       </div>
       <div className="animate-fadeInUp" style={{ animationDelay: '100ms' }}>
-        <ContestList />
+        <Suspense fallback={<div className="h-96 w-full animate-pulse rounded-xl bg-muted" />}>
+          <ContestList />
+        </Suspense>
       </div>
     </div>
   )

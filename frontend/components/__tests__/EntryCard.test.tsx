@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import { EntryCard } from '../EntryCard'
+import { vi } from 'vitest'
 
 // Mock Next.js Link
-jest.mock('next/link', () => {
-  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
+vi.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => {
     return <a href={href}>{children}</a>
-  }
-  MockLink.displayName = 'MockLink'
-  return MockLink
-})
+  },
+}))
 
 describe('EntryCard', () => {
   const mockEntry = {

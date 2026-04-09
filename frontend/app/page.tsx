@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ContestList } from '@/components/ContestList'
+import { Suspense } from 'react'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -71,7 +72,9 @@ export default function HomePage() {
         <h2 className="mb-6 max-w-full bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-[clamp(1.375rem,3vw+0.5rem,2.25rem)] font-black text-transparent text-balance dark:from-purple-400 dark:to-pink-400 sm:mb-8">
           🔥 開催中のコンテスト
         </h2>
-        <ContestList />
+        <Suspense fallback={<div className="h-96 w-full animate-pulse rounded-xl bg-muted" />}>
+          <ContestList />
+        </Suspense>
       </section>
 
       <section

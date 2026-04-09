@@ -2,10 +2,30 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import { api, contestApi, entryApi, authApi, userApi } from '../api'
 
+/**
+ * vitest.setup.ts でグローバルに localStorage を vi.fn() でモックしているため、
+ * このテストでは実際に値を保持する簡易 localStorage を使用する。
+ */
+const storage = new Map<string, string>()
+const realLocalStorage = {
+  getItem: (key: string) => storage.get(key) ?? null,
+  setItem: (key: string, value: string) => storage.set(key, value),
+  removeItem: (key: string) => storage.delete(key),
+  clear: () => storage.clear(),
+  get length() {
+    return storage.size
+  },
+  key: (index: number) => [...storage.keys()][index] ?? null,
+} as Storage
+
 describe('API Configuration', () => {
   let mock: MockAdapter
 
   beforeEach(() => {
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: realLocalStorage,
+      writable: true,
+    })
     mock = new MockAdapter(api)
     localStorage.clear()
   })

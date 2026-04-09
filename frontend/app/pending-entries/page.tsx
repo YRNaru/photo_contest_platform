@@ -1,13 +1,16 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { type ColumnDef } from '@tanstack/react-table'
 import { entryApi } from '@/lib/api'
 import { Entry } from '@/lib/types'
 import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { DataTable } from '@/components/ui/data-table'
+import { Button } from '@/components/ui/button'
 
 export default function PendingEntriesPage() {
   const { user, isLoading: loading } = useAuth()
@@ -15,6 +18,7 @@ export default function PendingEntriesPage() {
   const queryClient = useQueryClient()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [searchKeyword, setSearchKeyword] = useState('')
 
   // 未認証またはモデレーター権限がない場合はリダイレクト
   useEffect(() => {
@@ -72,14 +76,130 @@ export default function PendingEntriesPage() {
     },
   })
 
+  /** TanStack Table のカラム定義 */
+  const columns = useMemo<ColumnDef<Entry, unknown>[]>(
+    () => [
+      {
+        id: 'thumbnail',
+        header: '',
+        cell: ({ row }) => {
+          const entry = row.original
+          return entry.thumbnail ? (
+            <div className="relative h-12 w-12 overflow-hidden rounded-md">
+              <Image
+                src={entry.thumbnail}
+                alt={entry.title}
+                fill
+                sizes="48px"
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted text-lg">
+              📷
+            </div>
+          )
+        },
+        enableSorting: false,
+      },
+      {
+        accessorKey: 'title',
+        header: 'タイトル',
+        cell: ({ row }) => (
+          <div>
+            <Link
+              href={`/entries/${row.original.id}`}
+              className="font-medium text-foreground hover:text-purple-600 hover:underline dark:hover:text-purple-400"
+            >
+              {row.original.title}
+            </Link>
+            {row.original.description && (
+              <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                {row.original.description}
+              </p>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'author',
+        header: '投稿者',
+        accessorFn: (row: Entry) =>
+          row.author?.username ?? (row.twitter_username ? `@${row.twitter_username}` : '不明'),
+        cell: ({ getValue }) => (
+          <span className="text-sm text-muted-foreground">👤 {getValue<string>()}</span>
+        ),
+      },
+      {
+        accessorKey: 'contest_title',
+        header: 'コンテスト',
+        cell: ({ getValue }) => (
+          <span className="text-sm text-muted-foreground">🏆 {getValue<string>()}</span>
+        ),
+      },
+      {
+        id: 'tags',
+        header: 'タグ',
+        cell: ({ row }) =>
+          row.original.tags ? (
+            <div className="flex flex-wrap gap-1">
+              {row.original.tags
+                .split(',')
+                .slice(0, 3)
+                .map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
+                  >
+                    #{tag.trim()}
+                  </span>
+                ))}
+            </div>
+          ) : null,
+        enableSorting: false,
+      },
+      {
+        id: 'actions',
+        header: '操作',
+        cell: ({ row }) => {
+          const entry = row.original
+          return (
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => approveMutation.mutate(entry.id)}
+                disabled={approveMutation.isPending}
+                className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-950/30"
+              >
+                {approveMutation.isPending ? '...' : '✓ 承認'}
+              </Button>
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => rejectMutation.mutate(entry.id)}
+                disabled={rejectMutation.isPending}
+                className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/30"
+              >
+                {rejectMutation.isPending ? '...' : '✕ 拒否'}
+              </Button>
+            </div>
+          )
+        },
+        enableSorting: false,
+      },
+    ],
+    [approveMutation, rejectMutation]
+  )
+
   if (loading || isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse">
           <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded w-1/3 mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-96 bg-gray-200 dark:bg-gray-800 rounded-lg" />
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-16 bg-gray-200 dark:bg-gray-800 rounded-lg" />
             ))}
           </div>
         </div>
@@ -116,83 +236,31 @@ export default function PendingEntriesPage() {
         </div>
       )}
 
-      {/* エントリー一覧 */}
+      {/* テーブル */}
       <div className="animate-fadeInUp" style={{ animationDelay: '100ms' }}>
         {entries && entries.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {entries.map(entry => (
-              <div
-                key={entry.id}
-                className="bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-purple-500/10 overflow-hidden border border-gray-200 dark:border-gray-800 transition-all duration-300 hover:shadow-xl hover:scale-105"
-              >
-                {/* サムネイル */}
-                {entry.thumbnail && (
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src={entry.thumbnail}
-                      alt={entry.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover"
-                    />
-                  </div>
-                )}
+          <div className="space-y-4">
+            {/* 検索 */}
+            <div className="flex items-center gap-3">
+              <input
+                type="search"
+                value={searchKeyword}
+                onChange={e => setSearchKeyword(e.target.value)}
+                placeholder="🔍 タイトルで検索..."
+                className="max-w-xs rounded-lg border border-border bg-background px-3 py-1.5 text-sm transition-colors focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+              <span className="text-sm text-muted-foreground">
+                {entries.length} 件の承認待ち
+              </span>
+            </div>
 
-                {/* 内容 */}
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    {entry.title}
-                  </h3>
-
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                    {entry.description}
-                  </p>
-
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    <span>👤 {entry.author ? entry.author.username : entry.twitter_username ? `@${entry.twitter_username}` : '不明'}</span>
-                    <span>•</span>
-                    <span>🏆 {entry.contest_title}</span>
-                  </div>
-
-                  {entry.tags && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {entry.tags.split(',').map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-xs text-gray-700 dark:text-gray-300 rounded"
-                        >
-                          #{tag.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* アクションボタン */}
-                  <div className="flex gap-2 mt-4">
-                    <Link
-                      href={`/entries/${entry.id}`}
-                      className="flex-1 px-3 py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-bold rounded-lg text-center transition-colors"
-                    >
-                      詳細
-                    </Link>
-                    <button
-                      onClick={() => approveMutation.mutate(entry.id)}
-                      disabled={approveMutation.isPending}
-                      className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors"
-                    >
-                      {approveMutation.isPending ? '承認中...' : '✓ 承認'}
-                    </button>
-                    <button
-                      onClick={() => rejectMutation.mutate(entry.id)}
-                      disabled={rejectMutation.isPending}
-                      className="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-bold rounded-lg transition-colors"
-                    >
-                      {rejectMutation.isPending ? '拒否中...' : '✕ 拒否'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <DataTable
+              columns={columns}
+              data={entries}
+              searchValue={searchKeyword}
+              searchColumnId="title"
+              pageSize={15}
+            />
           </div>
         ) : (
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-800">

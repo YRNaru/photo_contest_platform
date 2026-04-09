@@ -4,8 +4,11 @@ import { LoginButton } from '../LoginButton'
 import React from 'react'
 
 // Mock window.location
-delete (window as any).location
-window.location = { href: '' } as any
+const locationMock = { href: '' } as Location
+Object.defineProperty(window, 'location', {
+  writable: true,
+  value: locationMock,
+})
 
 describe('LoginButton', () => {
   beforeEach(() => {

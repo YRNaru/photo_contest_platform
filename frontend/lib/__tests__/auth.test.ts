@@ -4,9 +4,31 @@
  * このファイルは認証関連のヘルパー関数のテストです。
  */
 
+import { beforeEach, describe, expect, it } from 'vitest'
+
+/**
+ * vitest.setup.ts でグローバルに localStorage を vi.fn() でモックしているため、
+ * このテストでは実際に値を保持する簡易 localStorage を使用する。
+ */
+const storage = new Map<string, string>()
+const realLocalStorage = {
+  getItem: (key: string) => storage.get(key) ?? null,
+  setItem: (key: string, value: string) => storage.set(key, value),
+  removeItem: (key: string) => storage.delete(key),
+  clear: () => storage.clear(),
+  get length() {
+    return storage.size
+  },
+  key: (index: number) => [...storage.keys()][index] ?? null,
+} as Storage
+
 describe('Auth Utilities', () => {
   describe('Token Management', () => {
     beforeEach(() => {
+      Object.defineProperty(globalThis, 'localStorage', {
+        value: realLocalStorage,
+        writable: true,
+      })
       localStorage.clear()
     })
 
@@ -39,6 +61,14 @@ describe('Auth Utilities', () => {
   })
 
   describe('Auth State', () => {
+    beforeEach(() => {
+      Object.defineProperty(globalThis, 'localStorage', {
+        value: realLocalStorage,
+        writable: true,
+      })
+      localStorage.clear()
+    })
+
     it('checks if user is authenticated with token', () => {
       localStorage.setItem('access_token', 'valid-token')
       const hasToken = !!localStorage.getItem('access_token')

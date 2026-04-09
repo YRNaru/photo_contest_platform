@@ -1,45 +1,45 @@
 import { render, screen } from '@testing-library/react'
 import { Header } from '../Header'
 import React from 'react'
+import { vi } from 'vitest'
 
-const mockPush = jest.fn()
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush, replace: jest.fn(), prefetch: jest.fn() }),
+const mockPush = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush, replace: vi.fn(), prefetch: vi.fn() }),
 }))
 
-jest.mock('../../lib/auth', () => ({
+vi.mock('../../lib/auth', () => ({
   useAuth: () => ({
     isAuthenticated: false,
     user: null,
-    loadUser: jest.fn(),
-    logout: jest.fn(),
+    loadUser: vi.fn(),
+    logout: vi.fn(),
   }),
 }))
 
 // Mock Next.js Link
-jest.mock('next/link', () => {
-  const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => {
+vi.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => {
     return <a href={href}>{children}</a>
-  }
-  MockLink.displayName = 'MockLink'
-  return MockLink
-})
+  },
+}))
 
 // Mock SidebarProvider and ThemeProvider
-jest.mock('../../lib/sidebar-context', () => ({
+vi.mock('../../lib/sidebar-context', () => ({
   useSidebar: () => ({
     isLeftOpen: false,
     isRightOpen: false,
-    toggleLeft: jest.fn(),
-    toggleRight: jest.fn(),
+    toggleLeft: vi.fn(),
+    toggleRight: vi.fn(),
   }),
   SidebarProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
-jest.mock('../../lib/theme-context', () => ({
+vi.mock('../../lib/theme-context', () => ({
   useTheme: () => ({
     theme: 'light',
-    toggleTheme: jest.fn(),
+    toggleTheme: vi.fn(),
   }),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))

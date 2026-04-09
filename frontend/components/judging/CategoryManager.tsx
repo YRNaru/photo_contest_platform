@@ -6,6 +6,21 @@ import { categoryApi } from '@/lib/api'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { CategoryForm, CategoryFormValues } from './CategoryForm'
 import { CategoryItem } from './CategoryItem'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
 
 interface CategoryManagerProps {
   contestId: number
@@ -27,6 +42,15 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
     max_votes_per_judge: '',
   })
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
   const loadCategories = useCallback(async () => {
     try {
       setLoading(true)
@@ -46,6 +70,34 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
   useEffect(() => {
     loadCategories()
   }, [loadCategories])
+
+  /** ドラッグ&ドロップ完了時に並び順を更新 */
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = categories.findIndex(c => c.id === active.id)
+    const newIndex = categories.findIndex(c => c.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    // 楽観的更新: UIを先に更新してからAPIを呼ぶ
+    const reordered = arrayMove(categories, oldIndex, newIndex)
+    setCategories(reordered)
+
+    // 各カテゴリの order を更新
+    try {
+      await Promise.all(
+        reordered.map((category, index) =>
+          categoryApi.updateCategory(category.id, { order: index } as Record<string, unknown>)
+        )
+      )
+    } catch (err: unknown) {
+      console.error('並び替え保存エラー:', err)
+      setError('並び順の保存に失敗しました。ページを再読み込みしてください。')
+      // 失敗した場合は元の状態に戻す
+      await loadCategories()
+    }
+  }
 
   const handleSubmit = async (values: CategoryFormValues) => {
     try {
@@ -175,18 +227,29 @@ export function CategoryManager({ contestId, contestSlug: _contestSlug, isOwner 
           )}
         </div>
       ) : (
-        <div className="grid gap-4">
-          {categories.map(category => (
-            <CategoryItem
-              key={category.id}
-              category={category}
-              isOwner={isOwner}
-              onEdit={() => handleEdit(category)}
-              onDelete={() => handleDelete(category.id)}
-              onStageAdvanced={loadCategories}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={categories.map(c => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid gap-4">
+              {categories.map(category => (
+                <CategoryItem
+                  key={category.id}
+                  category={category}
+                  isOwner={isOwner}
+                  onEdit={() => handleEdit(category)}
+                  onDelete={() => handleDelete(category.id)}
+                  onStageAdvanced={loadCategories}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   )
