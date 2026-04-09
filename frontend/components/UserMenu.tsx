@@ -3,7 +3,6 @@
 import { useAuth } from '@/lib/auth'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
 import { FaUser, FaSignOutAlt, FaCog, FaImage } from 'react-icons/fa'
 import {
   DropdownMenu,
@@ -17,25 +16,20 @@ export function UserMenu() {
   const { user, logout } = useAuth()
   const router = useRouter()
 
-  const avatarUrlWithCacheBuster = useMemo(() => {
-    if (!user?.avatar_url) return null
-    return `${user.avatar_url}${user.avatar_url.includes('?') ? '&' : '?'}t=${Date.now()}`
-  }, [user?.avatar_url])
-
   if (!user) return null
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background">
-        {avatarUrlWithCacheBuster ? (
+        {user.avatar_url ? (
           <div className="relative size-8 shrink-0 overflow-hidden rounded-full">
             <Image
-              key={avatarUrlWithCacheBuster}
-              src={avatarUrlWithCacheBuster}
+              src={user.avatar_url}
               alt={user.username}
               fill
               className="object-cover"
               unoptimized
+              priority
             />
           </div>
         ) : (
