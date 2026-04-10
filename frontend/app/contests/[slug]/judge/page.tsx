@@ -190,7 +190,7 @@ export default function JudgingPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   並び順
                 </label>
-                <Select value={ordering} onValueChange={setOrdering}>
+                <Select value={ordering} onValueChange={(v) => v && setOrdering(v)}>
                   <SelectTrigger className="w-full bg-white dark:bg-gray-800">
                     <SelectValue placeholder="並び順を選択" />
                   </SelectTrigger>
@@ -228,7 +228,7 @@ export default function JudgingPage() {
                 </label>
                 <Select 
                   value={viewedFilter} 
-                  onValueChange={(v) => setViewedFilter(v as 'all' | 'viewed' | 'unviewed')}
+                  onValueChange={(v) => v && setViewedFilter(v as 'all' | 'viewed' | 'unviewed')}
                 >
                   <SelectTrigger className="w-full bg-white dark:bg-gray-800">
                     <SelectValue placeholder="閲覧状態を選択" />
