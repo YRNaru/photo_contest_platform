@@ -11,6 +11,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { DataTable } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export default function PendingEntriesPage() {
   const { user, isLoading: loading } = useAuth()
@@ -134,7 +135,10 @@ export default function PendingEntriesPage() {
         accessorKey: 'contest_title',
         header: 'コンテスト',
         cell: ({ getValue }) => (
-          <span className="text-sm text-muted-foreground">🏆 {getValue<string>()}</span>
+          <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <CustomIcon name="contest" size={16} />
+            {getValue<string>()}
+          </span>
         ),
       },
       {

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 interface ContestBannerProps {
   bannerImage?: string
@@ -35,9 +36,9 @@ export function ContestBanner({ bannerImage, title, priority = false }: ContestB
       {/* Glowing orbs */}
       <div className="absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/20 blur-2xl transition-all duration-700 group-hover:scale-[2] group-hover:bg-purple-500/30" />
       
-      <span className="relative z-10 text-5xl transition-transform duration-500 group-hover:scale-125 sm:text-6xl lg:text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(6,182,212,0.6)]">
-        📸
-      </span>
+      <div className="relative z-10 transition-transform duration-500 group-hover:scale-125 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] group-hover:drop-shadow-[0_0_20px_rgba(6,182,212,0.6)]">
+        <CustomIcon name="camera" size={80} />
+      </div>
     </div>
   )
 }

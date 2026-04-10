@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { staggerContainer, staggerItem } from '@/lib/motion'
 import { getPhaseLabel } from '@/lib/utils'
 import { useMemo } from 'react'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 /** フィルタ対象のフェーズ一覧（'all' はフィルタなしを意味する） */
 const PHASE_OPTIONS = ['all', 'upcoming', 'submission', 'voting', 'closed'] as const
@@ -112,7 +113,9 @@ export function ContestList() {
         <div className="w-full min-w-0 max-w-full rounded-3xl border border-white/20 bg-white/5 p-8 text-center backdrop-blur-xl dark:border-white/10 dark:bg-black/20 sm:p-20 shadow-[0_0_30px_rgba(168,85,247,0.1)] relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 pointer-events-none opacity-50 transition-opacity duration-500 group-hover:opacity-100" />
           <div className="relative z-10">
-            <span className="mb-6 block text-6xl opacity-70 sm:text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">🏆</span>
+            <div className="flex justify-center mb-6">
+              <CustomIcon name="contest" size={96} className="opacity-70 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+            </div>
             <p className="text-balance text-lg font-bold text-foreground sm:text-xl tracking-wider">
               {phase !== 'all' || search
                 ? 'SYS.ERROR: CONDITIONS NOT MET (条件に一致するコンテストが見つかりません)'

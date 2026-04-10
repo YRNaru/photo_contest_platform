@@ -1,3 +1,4 @@
+import { CustomIcon } from '@/components/ui/custom-icon'
 import { User } from '@/lib/types'
 
 interface StatsSectionProps {
@@ -11,8 +12,9 @@ export function StatsSection({ user }: StatsSectionProps) {
 
   return (
     <div className="mb-8 animate-fadeInUp" style={{ animationDelay: '150ms' }}>
-      <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-6 pb-3 border-b-2 border-gray-200 dark:border-gray-700">
-        📊 統計情報
+      <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-6 pb-3 border-b-2 border-gray-200 dark:border-gray-700 flex items-center gap-2">
+        <CustomIcon name="support" size={32} />
+        統計情報
       </h2>
       <div className="grid grid-cols-2 gap-4 sm:gap-6">
         {user.entry_count !== undefined && (
@@ -20,8 +22,9 @@ export function StatsSection({ user }: StatsSectionProps) {
             <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-purple-700 dark:text-purple-400 group-hover:scale-110 transition-transform">
               {user.entry_count}
             </div>
-            <div className="text-gray-700 dark:text-gray-300 mt-2 font-semibold text-sm sm:text-base">
-              📸 エントリー数
+            <div className="text-gray-700 dark:text-gray-300 mt-2 font-semibold text-sm sm:text-base flex items-center justify-center gap-2">
+              <CustomIcon name="camera" size={24} />
+              エントリー数
             </div>
           </div>
         )}
@@ -30,8 +33,9 @@ export function StatsSection({ user }: StatsSectionProps) {
             <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-indigo-700 dark:text-indigo-400 group-hover:scale-110 transition-transform">
               {user.vote_count}
             </div>
-            <div className="text-gray-700 dark:text-gray-300 mt-2 font-semibold text-sm sm:text-base">
-              ⭐ 投票数
+            <div className="text-gray-700 dark:text-gray-300 mt-2 font-semibold text-sm sm:text-base flex items-center justify-center gap-2">
+              <CustomIcon name="star" size={24} />
+              投票数
             </div>
           </div>
         )}

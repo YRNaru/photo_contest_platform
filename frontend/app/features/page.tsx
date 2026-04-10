@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { GradientHeading } from '@/components/ui/gradient-heading'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export const metadata: Metadata = {
   title: '機能一覧 - VRChat フォトコンテスト',
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 interface FeatureCardProps {
-  emoji: string
+  emoji: React.ReactNode
   title: string
   description: string
   gradient: string
@@ -32,7 +33,7 @@ function FeatureCard({ emoji, title, description, gradient }: FeatureCardProps) 
 }
 
 interface FeatureSectionProps {
-  emoji: string
+  emoji: React.ReactNode
   title: string
   children: React.ReactNode
 }
@@ -152,7 +153,7 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* 投票のしくみ */}
-      <FeatureSection emoji="⭐" title="投票のしくみ">
+      <FeatureSection emoji={<CustomIcon name="star" size={32} />} title="投票のしくみ">
         <SubFeature
           title="一般投票"
           items={[
@@ -173,7 +174,10 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* 審査員による評価 */}
-      <FeatureSection emoji="🏆" title="審査員による評価">
+      <FeatureSection 
+        emoji={<CustomIcon name="contest" size={32} />} 
+        title="審査員による評価"
+      >
         <SubFeature
           title="審査員の役割"
           items={['コンテストごとに審査員が選ばれます', '審査員専用の評価ページがあります']}
@@ -291,7 +295,7 @@ export default function FeaturesPage() {
             )}
           />
           <FeatureCard
-            emoji="⭐"
+            emoji={<CustomIcon name="star" size={40} />}
             title="投票機能"
             description="気に入った作品に投票して、お気に入りをシェアしましょう"
             gradient={cn(
@@ -300,7 +304,7 @@ export default function FeaturesPage() {
             )}
           />
           <FeatureCard
-            emoji="🏆"
+            emoji={<CustomIcon name="contest" size={40} />}
             title="審査員スコア"
             description="プロの審査員による評価で公平な審査を実現します"
             gradient={cn(

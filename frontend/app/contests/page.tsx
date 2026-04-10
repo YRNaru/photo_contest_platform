@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth'
 import Link from 'next/link'
 import { GradientHeading } from '@/components/ui/gradient-heading'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export default function ContestsPage() {
   const { isAuthenticated } = useAuth()
@@ -16,8 +17,9 @@ export default function ContestsPage() {
         "flex flex-col sm:flex-row justify-between items-start sm:items-center",
         "mb-6 sm:mb-8 lg:mb-10 gap-3 sm:gap-4 animate-fadeInUp"
       )}>
-        <GradientHeading as="h1">
-          🏆 コンテスト一覧
+        <GradientHeading as="h1" className="flex items-center gap-3">
+          <CustomIcon name="contest" size={32} />
+          コンテスト一覧
         </GradientHeading>
         {isAuthenticated && (
           <Link

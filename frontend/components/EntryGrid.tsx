@@ -8,6 +8,14 @@ import { Entry } from '@/lib/types'
 import { EntryCard } from './EntryCard'
 import { Skeleton } from '@/components/ui/skeleton'
 import { staggerContainer, staggerItem } from '@/lib/motion'
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 interface EntryGridProps {
   contestSlug: string
@@ -48,7 +56,9 @@ export function EntryGrid({ contestSlug }: EntryGridProps) {
   if (!data || data.length === 0) {
     return (
       <div className="rounded-xl border-2 border-dashed border-primary/30 bg-gradient-to-br from-purple-50/80 to-pink-50/80 px-4 py-12 text-center sm:rounded-2xl sm:py-16 lg:py-20 dark:from-purple-950/30 dark:to-pink-950/30">
-        <span className="mb-4 block text-5xl opacity-50 sm:text-6xl lg:text-7xl">📸</span>
+        <div className="mb-4 transition-transform group-hover:scale-110 duration-500 flex justify-center">
+          <CustomIcon name="camera" size={80} />
+        </div>
         <p className="text-lg font-semibold text-muted-foreground sm:text-xl">まだ投稿がありません</p>
         <p className="mt-2 text-xs text-muted-foreground sm:text-sm">最初の作品を投稿してみましょう！</p>
       </div>
@@ -58,15 +68,31 @@ export function EntryGrid({ contestSlug }: EntryGridProps) {
   return (
     <div>
       <div className="mb-4 flex justify-start sm:mb-6 sm:justify-end">
-        <select
-          value={ordering}
-          onChange={e => setOrdering(e.target.value)}
-          className="w-full cursor-pointer rounded-lg border border-input bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-auto sm:py-3 sm:text-base"
-        >
-          <option value="-created_at">🆕 新着順</option>
-          <option value="created_at">⏰ 古い順</option>
-          <option value="-vote_count">🔥 人気順</option>
-        </select>
+        <Select value={ordering} onValueChange={(v) => v && setOrdering(v)}>
+          <SelectTrigger className="w-full sm:w-[200px] bg-background">
+            <SelectValue placeholder="並び順を選択" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="-created_at">
+              <div className="flex items-center gap-2">
+                <CustomIcon name="sort-new" size={20} />
+                <span>新着順</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="created_at">
+              <div className="flex items-center gap-2">
+                <CustomIcon name="sort-old" size={20} />
+                <span>古い順</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="-vote_count">
+              <div className="flex items-center gap-2">
+                <CustomIcon name="sort-hot" size={20} />
+                <span>人気順</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <motion.div

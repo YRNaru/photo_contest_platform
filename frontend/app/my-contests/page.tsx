@@ -8,6 +8,7 @@ import { Contest } from '@/lib/types'
 import Link from 'next/link'
 import { GradientHeading } from '@/components/ui/gradient-heading'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export default function MyContestsPage() {
   const { isAuthenticated } = useAuth()
@@ -105,7 +106,9 @@ export default function MyContestsPage() {
           )}
           style={{ animationDelay: '100ms' }}
         >
-          <span className="text-8xl mb-6 block opacity-70">🏆</span>
+          <div className="flex justify-center mb-6">
+            <CustomIcon name="contest" size={96} className="opacity-70" />
+          </div>
           <p className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-8">
             まだコンテストを作成していません
           </p>

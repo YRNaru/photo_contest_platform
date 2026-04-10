@@ -5,6 +5,7 @@ import { contestApi } from '@/lib/api'
 import { ContestCalendar } from '@/components/calendar/ContestCalendar'
 import { Contest } from '@/lib/types'
 import Link from 'next/link'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export default function CalendarPage() {
   const {
@@ -49,9 +50,12 @@ export default function CalendarPage() {
       {/* ヘッダー */}
       <div className="mb-6 animate-fadeInUp">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-            📅 コンテストカレンダー
-          </h1>
+          <div className="flex items-center gap-4">
+            <CustomIcon name="calendar" size={64} />
+            <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+              コンテストカレンダー
+            </h1>
+          </div>
           <Link
             href="/"
             className="px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg font-medium text-gray-700 dark:text-gray-300 transition-colors"

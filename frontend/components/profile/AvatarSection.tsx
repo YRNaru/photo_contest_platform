@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { FaUpload, FaCheck } from 'react-icons/fa'
 import Image from 'next/image'
+import { CustomIcon } from '@/components/ui/custom-icon'
 import { User, SocialAccount } from '@/lib/types'
 
 interface AvatarSectionProps {
@@ -28,8 +29,9 @@ export function AvatarSection({
 
   return (
     <div className="mb-8 animate-fadeInUp">
-      <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-6 pb-3 border-b-2 border-gray-200 dark:border-gray-700">
-        📸 プロフィール画像
+      <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-6 pb-3 border-b-2 border-gray-200 dark:border-gray-700 flex items-center gap-2">
+        <CustomIcon name="camera" size={32} />
+        プロフィール画像
       </h2>
 
       <div className="flex flex-col md:flex-row items-center gap-8">

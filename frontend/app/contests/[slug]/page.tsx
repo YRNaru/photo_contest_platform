@@ -11,6 +11,7 @@ import TwitterImporter from '@/components/contest/TwitterImporter'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/lib/auth'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export default function ContestDetailPage() {
   const params = useParams()
@@ -149,9 +150,12 @@ export default function ContestDetailPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 text-sm">
             <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border border-purple-200 dark:border-purple-800">
-              <span className="font-bold text-purple-900 dark:text-purple-300 block mb-1">
-                📅 応募期間
-              </span>
+              <div className="flex items-center gap-2 mb-1">
+                <CustomIcon name="calendar" size={28} />
+                <span className="font-bold text-purple-900 dark:text-purple-300">
+                  応募期間
+                </span>
+              </div>
               <span className="text-gray-700 dark:text-gray-300">
                 {formatDate(contest.start_at)} 〜 {formatDate(contest.end_at)}
               </span>

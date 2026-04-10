@@ -4,7 +4,7 @@ import { Suspense, ReactNode } from 'react'
 
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { Trophy, Calendar, Camera, Sparkles, type LucideIcon } from 'lucide-react'
+import { CustomIcon, type IconType } from '@/components/ui/custom-icon'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 // ======
@@ -95,12 +95,12 @@ const featureCardVariants = cva(
 
 interface HeroLinkProps extends VariantProps<typeof heroLinkVariants> {
   href: string
-  icon: LucideIcon
+  icon: IconType
   iconColorClass: string
   children: ReactNode
 }
 
-function HeroLink({ href, variant, icon: Icon, iconColorClass, children }: HeroLinkProps) {
+function HeroLink({ href, variant, icon, iconColorClass, children }: HeroLinkProps) {
   const isPrimary = variant === 'primary'
 
   return (
@@ -112,17 +112,18 @@ function HeroLink({ href, variant, icon: Icon, iconColorClass, children }: HeroL
         variant === 'pink' && "bg-gradient-to-r from-pink-400/0 via-pink-400/10 to-pink-400/0",
         variant === 'primary' && "bg-gradient-to-r from-indigo-400/0 via-indigo-400/10 to-indigo-400/0"
       )} />
-      <Icon className={cn(
-        "size-5 sm:size-6 relative z-10 transition-colors",
-        iconColorClass
-      )} aria-hidden />
+      <CustomIcon 
+        name={icon} 
+        size={40} 
+        className={cn("relative z-10", iconColorClass)} 
+      />
       <span className="relative z-10">{children}</span>
     </Link>
   )
 }
 
 interface FeatureCardProps extends VariantProps<typeof featureCardVariants> {
-  emoji: string
+  emoji: React.ReactNode
   title: string
   description: string
   hoverTransform?: string
@@ -246,7 +247,7 @@ export default function HomePage() {
             <HeroLink
               href="/contests"
               variant="cyan"
-              icon={Trophy}
+              icon="contest"
               iconColorClass="text-purple-600 dark:text-purple-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400"
             >
               コンテスト一覧
@@ -255,7 +256,7 @@ export default function HomePage() {
             <HeroLink
               href="/submit"
               variant="primary"
-              icon={Camera}
+              icon="camera"
               iconColorClass="text-pink-600 dark:text-pink-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
             >
               作品を投稿する
@@ -264,7 +265,7 @@ export default function HomePage() {
             <HeroLink
               href="/calendar"
               variant="purple"
-              icon={Calendar}
+              icon="calendar"
               iconColorClass="text-pink-600 dark:text-pink-400 group-hover:text-purple-600 dark:group-hover:text-purple-400"
             >
               スケジュール
@@ -273,7 +274,7 @@ export default function HomePage() {
             <HeroLink
               href="/features"
               variant="pink"
-              icon={Sparkles}
+              icon="features"
               iconColorClass="text-cyan-600 dark:text-cyan-400 group-hover:text-pink-600 dark:group-hover:text-pink-400"
             >
               機能一覧
@@ -312,7 +313,7 @@ export default function HomePage() {
       >
         <FeatureCard
           color="cyan"
-          emoji="📸"
+          emoji={<CustomIcon name="camera" size={48} />}
           title="簡単投稿"
           description="直感的なUIで、あなたの最高の一枚をすぐに世界へ発信できます。"
           hoverTransform="group-hover:-rotate-12"
@@ -320,7 +321,7 @@ export default function HomePage() {
 
         <FeatureCard
           color="purple"
-          emoji="⭐"
+          emoji={<CustomIcon name="star" size={48} />}
           title="リアルタイム投票"
           description="気に入った作品に熱い想いを投票し、コミュニティを盛り上げよう。"
           hoverTransform="group-hover:rotate-12"
@@ -328,7 +329,7 @@ export default function HomePage() {
 
         <FeatureCard
           color="pink"
-          emoji="🏆"
+          emoji={<CustomIcon name="contest" size={48} />}
           title="厳正な審査"
           description="プロの審査員による多角的な評価システムで、真のアートを見出します。"
           className="cq-features-wide"

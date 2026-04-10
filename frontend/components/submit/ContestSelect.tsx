@@ -1,3 +1,5 @@
+import { CustomIcon } from '@/components/ui/custom-icon'
+
 interface Contest {
   slug: string
   title: string
@@ -12,8 +14,9 @@ interface ContestSelectProps {
 export function ContestSelect({ value, onChange, contests }: ContestSelectProps) {
   return (
     <div>
-      <label className="block text-sm font-bold mb-3 text-gray-900 dark:text-gray-100">
-        🏆 コンテスト <span className="text-red-500 dark:text-red-400">*</span>
+      <label className="text-sm font-bold mb-3 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <CustomIcon name="contest" size={20} />
+        コンテスト <span className="text-red-500 dark:text-red-400">*</span>
       </label>
       <select
         value={value}

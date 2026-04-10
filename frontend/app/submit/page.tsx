@@ -17,6 +17,7 @@ import { ErrorDisplay } from '@/components/submit/ErrorDisplay'
 import { SubmitButton } from '@/components/submit/SubmitButton'
 import { TagSelector } from '@/components/submit/TagSelector'
 import { GradientHeading } from '@/components/ui/gradient-heading'
+import { CustomIcon } from '@/components/ui/custom-icon'
 import { cn } from '@/lib/utils'
 
 const submitSchema = z.object({
@@ -196,8 +197,9 @@ function SubmitPageContent() {
 
   return (
     <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-3xl">
-      <GradientHeading as="h1" className="mb-6 sm:mb-8 lg:mb-10 animate-fadeInUp text-center">
-        📸 UPLOAD ENTRY
+      <GradientHeading as="h1" className="mb-6 sm:mb-8 lg:mb-10 animate-fadeInUp text-center flex items-center justify-center gap-3">
+        <CustomIcon name="camera" size={40} />
+        UPLOAD ENTRY
       </GradientHeading>
 
       {contestDetail && userEntries && (

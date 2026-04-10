@@ -6,6 +6,7 @@ import moment from 'moment'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { Contest } from '@/lib/types'
 import { useRouter } from 'next/navigation'
+import { CustomIcon } from '../ui/custom-icon'
 
 // Moment.jsのロケールを日本語に設定
 moment.locale('ja', {
@@ -142,9 +143,12 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-800">
       <div className="mb-4">
-        <h2 className="text-2xl font-black mb-3 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-          📅 コンテストカレンダー
-        </h2>
+        <div className="flex items-center gap-3 mb-3">
+          <CustomIcon name="calendar" size={40} />
+          <h2 className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+            コンテストカレンダー
+          </h2>
+        </div>
         <div className="flex flex-wrap gap-3 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-green-500"></div>

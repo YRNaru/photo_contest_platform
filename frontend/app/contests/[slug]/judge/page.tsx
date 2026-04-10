@@ -12,6 +12,14 @@ import { ScoringPanel } from '@/components/judging/ScoringPanel'
 import { CategoryManager } from '@/components/judging/CategoryManager'
 import { JudgingCriteriaManager } from '@/components/judging/JudgingCriteriaManager'
 import { Category } from '@/types/judging'
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export default function JudgingPage() {
   const params = useParams()
@@ -124,7 +132,17 @@ export default function JudgingPage() {
         {/* 審査方式バッジ */}
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
-            {judgingType === 'vote' ? '📊 投票方式' : '⭐ 点数方式'}
+            {judgingType === 'vote' ? (
+              <span className="flex items-center gap-1.5">
+                <CustomIcon name="support" size={20} />
+                投票方式
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <CustomIcon name="star" size={20} />
+                点数方式
+              </span>
+            )}
           </span>
           {contest.phase === 'submission' && (
             <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
@@ -172,30 +190,55 @@ export default function JudgingPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   並び順
                 </label>
-                <select
-                  value={ordering}
-                  onChange={e => setOrdering(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                >
-                  <option value="-created_at">🆕 新着順</option>
-                  <option value="created_at">⏰ 古い順</option>
-                  <option value="-vote_count">🔥 人気順</option>
-                  <option value="vote_count">📊 投票数少ない順</option>
-                </select>
+                <Select value={ordering} onValueChange={setOrdering}>
+                  <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                    <SelectValue placeholder="並び順を選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="-created_at">
+                      <div className="flex items-center gap-2">
+                        <CustomIcon name="sort-new" size={20} />
+                        <span>新着順</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="created_at">
+                      <div className="flex items-center gap-2">
+                        <CustomIcon name="sort-old" size={20} />
+                        <span>古い順</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="-vote_count">
+                      <div className="flex items-center gap-2">
+                        <CustomIcon name="sort-hot" size={20} />
+                        <span>人気順</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="vote_count">
+                      <div className="flex items-center gap-2">
+                        <CustomIcon name="sort-trend" size={20} />
+                        <span>投票数少ない順</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   閲覧状態
                 </label>
-                <select
-                  value={viewedFilter}
-                  onChange={e => setViewedFilter(e.target.value as 'all' | 'viewed' | 'unviewed')}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                <Select 
+                  value={viewedFilter} 
+                  onValueChange={(v) => setViewedFilter(v as 'all' | 'viewed' | 'unviewed')}
                 >
-                  <option value="all">すべて ({allEntries.length}件)</option>
-                  <option value="unviewed">未閲覧のみ ({allEntries.filter((e: { id: string }) => !viewedEntryIds.includes(e.id)).length}件)</option>
-                  <option value="viewed">閲覧済みのみ ({viewedEntryIds.length}件)</option>
-                </select>
+                  <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                    <SelectValue placeholder="閲覧状態を選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">すべて ({allEntries.length}件)</SelectItem>
+                    <SelectItem value="unviewed">未閲覧のみ ({allEntries.filter((e: { id: string }) => !viewedEntryIds.includes(e.id)).length}件)</SelectItem>
+                    <SelectItem value="viewed">閲覧済みのみ ({viewedEntryIds.length}件)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { ContestBanner } from './card/ContestBanner'
 import { PhaseBadge } from './card/PhaseBadge'
 import { ContestDates } from './card/ContestDates'
 import { Card, CardContent } from '@/components/ui/card'
+import { CustomIcon } from '@/components/ui/custom-icon'
 import { cn } from '@/lib/utils'
 
 interface Contest {
@@ -48,7 +49,7 @@ export function ContestCard({ contest, priority = false }: ContestCardProps) {
             <PhaseBadge phase={contest.phase} />
             <span className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/20 px-2.5 py-0.5 text-xs font-semibold text-foreground backdrop-blur-md dark:border-white/10 dark:bg-black/20 sm:text-sm">
               <span className="text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" aria-hidden>
-                📸
+                <CustomIcon name="camera" size={16} />
               </span>
               <span>{contest.entry_count} 件</span>
             </span>

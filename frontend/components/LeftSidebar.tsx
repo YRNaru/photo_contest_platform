@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 import { useSidebar } from '@/lib/sidebar-context'
 import { LoginButton } from './LoginButton'
+import { CustomIcon } from './ui/custom-icon'
 
 export function LeftSidebar() {
   const pathname = usePathname()
@@ -12,16 +13,16 @@ export function LeftSidebar() {
   const { isLeftOpen } = useSidebar()
 
   const menuItems = [
-    { href: '/', label: 'ホーム', icon: '🏠' },
-    { href: '/contests', label: 'コンテスト', icon: '🏆' },
-    { href: '/calendar', label: 'カレンダー', icon: '📅' },
-    { href: '/features', label: '機能一覧', icon: '✨' },
+    { href: '/', label: 'ホーム', icon: <CustomIcon name="home" size={32} /> },
+    { href: '/contests', label: 'コンテスト', icon: <CustomIcon name="contest" size={32} /> },
+    { href: '/calendar', label: 'カレンダー', icon: <CustomIcon name="calendar" size={32} /> },
+    { href: '/features', label: '機能一覧', icon: <CustomIcon name="features" size={32} /> },
     ...(isAuthenticated
       ? [
-          { href: '/my-contests', label: 'マイコンテスト', icon: '📋' },
+          { href: '/my-contests', label: 'マイコンテスト', icon: <CustomIcon name="my-contests" size={32} /> },
           { href: '/judging-contests', label: '審査中のコンテスト', icon: '👨‍⚖️' },
-          { href: '/submit', label: '写真を投稿', icon: '📸' },
-          { href: '/my-entries', label: 'マイ投稿', icon: '📷' },
+          { href: '/submit', label: '写真を投稿', icon: <CustomIcon name="camera" size={32} /> },
+          { href: '/my-entries', label: 'マイ投稿', icon: <CustomIcon name="camera" size={32} /> },
           ...(user?.is_moderator || user?.is_staff
             ? [{ href: '/pending-entries', label: '承認待ちエントリー', icon: '📋' }]
             : []),
@@ -141,7 +142,7 @@ export function LeftSidebar() {
               >
                 <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors duration-300" />
                 <span className="text-2xl group-hover:scale-125 transition-transform duration-300 relative z-10">
-                  📸
+                  <CustomIcon name="camera" size={32} />
                 </span>
                 <span className="relative z-10">コンテストに投稿する</span>
               </Link>

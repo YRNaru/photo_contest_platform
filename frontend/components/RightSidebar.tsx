@@ -6,6 +6,7 @@ import { useSidebar } from '@/lib/sidebar-context'
 import { contestApi } from '@/lib/api'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { CustomIcon } from './ui/custom-icon'
 
 interface TrendingContest {
   slug: string
@@ -67,7 +68,7 @@ export function RightSidebar() {
           }}
         >
           <h2 className="text-xs font-bold text-pink-600 dark:text-pink-400 drop-shadow-[0_0_5px_rgba(236,72,153,0.3)] dark:drop-shadow-[0_0_5px_rgba(236,72,153,0.5)] uppercase tracking-wider mb-4 flex items-center gap-2">
-            <span className="text-2xl animate-pulse-slow">🔥</span>
+            <CustomIcon name="sort-hot" size={32} />
             TRENDING //
           </h2>
           <div className="space-y-3">
@@ -144,7 +145,7 @@ export function RightSidebar() {
           }}
         >
           <h2 className="text-xs font-bold text-cyan-500 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider mb-4 flex items-center gap-2">
-            <span className="text-2xl">📢</span>
+            <CustomIcon name="notice" size={32} />
             NOTICES //
           </h2>
           <div className="space-y-3">
@@ -187,7 +188,7 @@ export function RightSidebar() {
           }}
         >
           <h2 className="text-xs font-bold text-purple-600 dark:text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.3)] dark:drop-shadow-[0_0_5px_rgba(168,85,247,0.5)] uppercase tracking-wider mb-4 flex items-center gap-2">
-            <span className="text-2xl">ℹ️</span>
+            <CustomIcon name="support" size={32} />
             SUPPORT //
           </h2>
           <div className="space-y-2 text-sm">
