@@ -160,7 +160,7 @@ function FeatureCard({ color, emoji, title, description, hoverTransform, classNa
       )} />
       <CardHeader className="text-center relative z-10">
         <div className={cn(
-          "mb-4 text-4xl sm:mb-6 sm:text-5xl lg:text-6xl drop-shadow-md",
+          "mb-4 flex justify-center text-4xl sm:mb-6 sm:text-5xl lg:text-6xl drop-shadow-md",
           "transition-transform duration-500 group-hover:scale-110",
           hoverTransform
         )}>
