@@ -39,7 +39,7 @@ export function UserMenu() {
         )}
         <span className="max-w-[8rem] truncate">{user.username}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
+      <DropdownMenuContent align="start" positionMethod="fixed" className="w-52">
         <DropdownMenuItem onClick={() => router.push('/profile')}>
           <FaUser className="size-3.5" />
           プロフィール

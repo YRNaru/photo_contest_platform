@@ -1,6 +1,8 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { FaGoogle, FaTwitter } from 'react-icons/fa'
+import { ChevronDown } from 'lucide-react'
 import { getBackendBaseUrl } from '@/lib/backend-url'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
@@ -13,6 +15,42 @@ import { cn } from '@/lib/utils'
 
 interface LoginButtonProps {
   variant?: 'default' | 'sidebar'
+}
+
+const contentPanelClass = cn(
+  'min-w-[17rem] max-w-[min(100vw-1rem,20rem)] overflow-hidden p-1.5',
+  'rounded-xl border border-border/70 bg-popover/95 text-popover-foreground shadow-lg',
+  'shadow-purple-500/10 backdrop-blur-xl dark:border-white/10 dark:shadow-purple-500/20',
+  'ring-1 ring-black/[0.04] dark:ring-white/[0.06]'
+)
+
+const itemBaseClass = cn(
+  'cursor-pointer gap-3 rounded-lg px-2.5 py-2.5 text-sm outline-none',
+  'transition-[background-color,box-shadow,transform] duration-200',
+  'hover:bg-gradient-to-r hover:shadow-sm',
+  'focus-visible:bg-gradient-to-r focus-visible:shadow-sm',
+  'data-[highlighted]:bg-gradient-to-r data-[highlighted]:shadow-sm',
+  'active:scale-[0.99]'
+)
+
+function IconBadge({
+  className,
+  children,
+}: {
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <span
+      className={cn(
+        'flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/10',
+        'bg-gradient-to-br shadow-inner dark:border-white/5',
+        className
+      )}
+    >
+      {children}
+    </span>
+  )
 }
 
 export function LoginButton({ variant = 'default' }: LoginButtonProps) {
@@ -61,17 +99,57 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={cn(buttonVariants(), 'font-semibold')}>
+      <DropdownMenuTrigger
+        className={cn(
+          buttonVariants(),
+          'group font-semibold',
+          'inline-flex shrink-0 items-center gap-1 whitespace-nowrap',
+          'data-popup-open:opacity-95'
+        )}
+      >
         ログイン
+        <ChevronDown
+          className="size-4 opacity-80 transition-transform duration-200 group-data-[popup-open]:rotate-180"
+          aria-hidden
+        />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onClick={handleGoogleLogin}>
-          <FaGoogle className="text-red-500" />
-          Googleでログイン
+      <DropdownMenuContent
+        align="start"
+        sideOffset={6}
+        positionMethod="fixed"
+        className={contentPanelClass}
+      >
+        <DropdownMenuItem
+          onClick={handleGoogleLogin}
+          className={cn(
+            itemBaseClass,
+            'hover:from-red-500/12 hover:to-orange-500/8 dark:hover:from-red-500/18 dark:hover:to-orange-500/10',
+            'focus-visible:from-red-500/12 focus-visible:to-orange-500/8',
+            'dark:focus-visible:from-red-500/18 dark:focus-visible:to-orange-500/10',
+            'data-[highlighted]:from-red-500/12 data-[highlighted]:to-orange-500/8',
+            'dark:data-[highlighted]:from-red-500/18 dark:data-[highlighted]:to-orange-500/10'
+          )}
+        >
+          <IconBadge className="from-red-500/30 to-red-600/10 dark:from-red-400/25 dark:to-red-500/5">
+            <FaGoogle className="size-[18px] text-red-600 dark:text-red-400" aria-hidden />
+          </IconBadge>
+          <span className="min-w-0 flex-1 font-medium leading-snug">Googleでログイン</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleTwitterLogin}>
-          <FaTwitter className="text-sky-500" />
-          Twitterでログイン
+        <DropdownMenuItem
+          onClick={handleTwitterLogin}
+          className={cn(
+            itemBaseClass,
+            'hover:from-sky-500/12 hover:to-cyan-500/8 dark:hover:from-sky-500/18 dark:hover:to-cyan-500/12',
+            'focus-visible:from-sky-500/12 focus-visible:to-cyan-500/8',
+            'dark:focus-visible:from-sky-500/18 dark:focus-visible:to-cyan-500/12',
+            'data-[highlighted]:from-sky-500/12 data-[highlighted]:to-cyan-500/8',
+            'dark:data-[highlighted]:from-sky-500/18 dark:data-[highlighted]:to-cyan-500/12'
+          )}
+        >
+          <IconBadge className="from-sky-500/30 to-sky-600/10 dark:from-sky-400/25 dark:to-cyan-500/5">
+            <FaTwitter className="size-[18px] text-sky-600 dark:text-sky-400" aria-hidden />
+          </IconBadge>
+          <span className="min-w-0 flex-1 font-medium leading-snug">Twitterでログイン</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
