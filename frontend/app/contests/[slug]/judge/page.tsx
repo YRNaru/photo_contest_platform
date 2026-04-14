@@ -134,7 +134,7 @@ export default function JudgingPage() {
           <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
             {judgingType === 'vote' ? (
               <span className="flex items-center gap-1.5">
-                <CustomIcon name="support" size={20} />
+                <CustomIcon name="vote" size={20} />
                 投票方式
               </span>
             ) : (
@@ -145,8 +145,9 @@ export default function JudgingPage() {
             )}
           </span>
           {contest.phase === 'submission' && (
-            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
-              📝 応募期間中
+            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium flex items-center gap-1.5">
+              <CustomIcon name="rule" size={16} />
+              応募期間中
             </span>
           )}
         </div>

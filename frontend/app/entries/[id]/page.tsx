@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FaHeart, FaRegHeart, FaEye, FaCalendar, FaUser } from 'react-icons/fa'
+import { CustomIcon } from '@/components/ui/custom-icon'
 import { useState, useEffect, useRef } from 'react'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { cn } from '@/lib/utils'
@@ -163,15 +163,15 @@ export default function EntryDetailPage() {
           {/* メタ情報 */}
           <div className="relative flex flex-wrap gap-4 mb-8 text-sm text-foreground/70 font-medium">
             <div className="flex items-center gap-2">
-              <FaUser className="text-pink-500 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" />
+              <CustomIcon name="user" size={16} className="text-pink-500 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" />
               <span>{entry.author?.username || entry.twitter_user_id || 'Anonymous'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaCalendar className="text-purple-400 drop-shadow-[0_0_5px_rgba(192,132,252,0.5)]" />
+              <CustomIcon name="calendar" size={16} className="text-purple-400 drop-shadow-[0_0_5px_rgba(192,132,252,0.5)]" />
               <span>{formatDate(entry.created_at)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaEye className="text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" />
+              <CustomIcon name="stats" size={16} className="text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" />
               <span>{entry.view_count ?? 0} 閲覧</span>
             </div>
             {entry.twitter_url && (
@@ -185,7 +185,7 @@ export default function EntryDetailPage() {
                 )}
                 title="Xで元の投稿を見る"
               >
-                <span className="text-lg">𝕏</span>
+                <CustomIcon name="twitter" size={20} className="text-sky-400 drop-shadow-[0_0_3px_rgba(56,189,248,0.8)]" />
                 <span>投稿元</span>
               </a>
             )}
@@ -203,14 +203,14 @@ export default function EntryDetailPage() {
                   : "bg-white/5 border-white/10 text-foreground/80 hover:bg-white/10 hover:border-white/20"
               )}
             >
-              {entry.user_voted ? <FaHeart className="drop-shadow-[0_0_5px_rgba(236,72,153,0.8)]" /> : <FaRegHeart />}
+              <CustomIcon name="star" size={20} className={cn(entry.user_voted ? "drop-shadow-[0_0_5px_rgba(236,72,153,0.8)]" : "opacity-50")} />
               <span className="tracking-widest uppercase">{entry.vote_count} いいね</span>
             </button>
           )}
 
           {!isAuthenticated && (
             <div className="relative z-10 flex items-center justify-center gap-2 px-6 py-4 bg-white/5 border border-white/10 rounded-xl mb-8 font-bold">
-              <FaHeart className="text-foreground/40" />
+              <CustomIcon name="star" size={20} className="text-foreground/40" />
               <span className="text-foreground/60 tracking-widest uppercase">{entry.vote_count} いいね</span>
             </div>
           )}
@@ -244,7 +244,7 @@ export default function EntryDetailPage() {
           {!entry.approved && (
             <div className="relative z-10 p-4 mb-6 bg-yellow-950/40 border border-yellow-500/50 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.1)]">
               <p className="text-yellow-400 font-bold flex items-center gap-2 drop-shadow-[0_0_2px_rgba(234,179,8,0.8)]">
-                <span className="animate-pulse">⚠️</span> このエントリーは承認待ちです。
+                <CustomIcon name="warning" size={16} className="animate-pulse" /> このエントリーは承認待ちです。
               </p>
             </div>
           )}

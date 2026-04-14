@@ -128,7 +128,10 @@ export default function PendingEntriesPage() {
         accessorFn: (row: Entry) =>
           row.author?.username ?? (row.twitter_username ? `@${row.twitter_username}` : '不明'),
         cell: ({ getValue }) => (
-          <span className="text-sm text-muted-foreground">👤 {getValue<string>()}</span>
+          <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <CustomIcon name="user" size={16} />
+            {getValue<string>()}
+          </span>
         ),
       },
       {
@@ -219,8 +222,9 @@ export default function PendingEntriesPage() {
     <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       {/* ヘッダー */}
       <div className="mb-6 sm:mb-8 animate-fadeInUp">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-          📋 承認待ちエントリー
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent flex items-center gap-3">
+          <CustomIcon name="rule" size={40} />
+          承認待ちエントリー
         </h1>
         <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300">
           ユーザーから投稿されたエントリーの承認・非承認を行います
@@ -246,13 +250,16 @@ export default function PendingEntriesPage() {
           <div className="space-y-4">
             {/* 検索 */}
             <div className="flex items-center gap-3">
-              <input
-                type="search"
-                value={searchKeyword}
-                onChange={e => setSearchKeyword(e.target.value)}
-                placeholder="🔍 タイトルで検索..."
-                className="max-w-xs rounded-lg border border-border bg-background px-3 py-1.5 text-sm transition-colors focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
-              />
+              <div className="relative max-w-xs flex-1">
+                <CustomIcon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <input
+                  type="search"
+                  value={searchKeyword}
+                  onChange={e => setSearchKeyword(e.target.value)}
+                  placeholder="タイトルで検索..."
+                  className="w-full rounded-lg border border-border bg-background pl-10 pr-3 py-1.5 text-sm transition-colors focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                />
+              </div>
               <span className="text-sm text-muted-foreground">
                 {entries.length} 件の承認待ち
               </span>
@@ -268,7 +275,9 @@ export default function PendingEntriesPage() {
           </div>
         ) : (
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-800">
-            <div className="text-6xl mb-4">✅</div>
+            <div className="flex justify-center mb-6">
+              <CustomIcon name="check" size={96} className="text-green-500" />
+            </div>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
               承認待ちのエントリーはありません
             </h3>

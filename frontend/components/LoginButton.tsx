@@ -1,10 +1,10 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { FaGoogle, FaTwitter } from 'react-icons/fa'
 import { ChevronDown } from 'lucide-react'
 import { getBackendBaseUrl } from '@/lib/backend-url'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { CustomIcon } from '@/components/ui/custom-icon'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,7 +77,7 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
                 'hover:border-red-400 dark:hover:border-red-500/50 hover:bg-red-100 dark:hover:bg-red-950/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] dark:hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:text-red-900 dark:hover:text-white'
               )}
             >
-              <FaGoogle className="text-2xl text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.3)] dark:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" aria-hidden />
+              <CustomIcon name="google" size={24} className="text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.3)] dark:drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" aria-hidden />
               Googleでログイン
             </Button>
           )}
@@ -90,7 +90,7 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
               'hover:border-sky-400 dark:hover:border-sky-500/50 hover:bg-sky-100 dark:hover:bg-sky-950/40 hover:shadow-[0_0_15px_rgba(14,165,233,0.15)] dark:hover:shadow-[0_0_15px_rgba(14,165,233,0.3)] hover:text-sky-900 dark:hover:text-white'
             )}
           >
-            <FaTwitter className="text-2xl text-sky-500 drop-shadow-[0_0_5px_rgba(14,165,233,0.3)] dark:drop-shadow-[0_0_5px_rgba(14,165,233,0.8)]" aria-hidden />
+            <CustomIcon name="twitter" size={24} className="text-2xl text-sky-500 drop-shadow-[0_0_5px_rgba(14,165,233,0.3)] dark:drop-shadow-[0_0_5px_rgba(14,165,233,0.8)]" aria-hidden />
             Twitterでログイン
           </Button>
       </div>
@@ -131,7 +131,7 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
           )}
         >
           <IconBadge className="from-red-500/30 to-red-600/10 dark:from-red-400/25 dark:to-red-500/5">
-            <FaGoogle className="size-[18px] text-red-600 dark:text-red-400" aria-hidden />
+            <CustomIcon name="google" size={18} className="text-red-600 dark:text-red-400" aria-hidden />
           </IconBadge>
           <span className="min-w-0 flex-1 font-medium leading-snug">Googleでログイン</span>
         </DropdownMenuItem>
@@ -147,7 +147,7 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
           )}
         >
           <IconBadge className="from-sky-500/30 to-sky-600/10 dark:from-sky-400/25 dark:to-cyan-500/5">
-            <FaTwitter className="size-[18px] text-sky-600 dark:text-sky-400" aria-hidden />
+            <CustomIcon name="twitter" size={18} className="text-sky-600 dark:text-sky-400" aria-hidden />
           </IconBadge>
           <span className="min-w-0 flex-1 font-medium leading-snug">Twitterでログイン</span>
         </DropdownMenuItem>

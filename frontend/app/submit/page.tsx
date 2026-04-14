@@ -182,7 +182,9 @@ function SubmitPageContent() {
         )}>
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 pointer-events-none opacity-50" />
           <div className="relative z-10">
-            <span className="text-7xl mb-6 block drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">🔒</span>
+            <div className="flex justify-center mb-6">
+              <CustomIcon name="warning" size={72} className="drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
+            </div>
             <GradientHeading as="h1" className="mb-4 text-center">
               ACCESS DENIED
             </GradientHeading>
@@ -236,7 +238,7 @@ function SubmitPageContent() {
                 <FormControl>
                   <FormInput
                     label="タイトル"
-                    icon="✏️"
+                    icon={<CustomIcon name="edit" size={18} />}
                     required
                     value={field.value}
                     onChange={field.onChange}
@@ -254,9 +256,9 @@ function SubmitPageContent() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <FormInput
-                    label="説明"
-                    icon="📝"
+                    <FormInput
+                      label="説明"
+                      icon={<CustomIcon name="description" size={18} />}
                     value={field.value || ''}
                     onChange={field.onChange}
                     placeholder="作品の説明を入力"
@@ -281,7 +283,7 @@ function SubmitPageContent() {
                     "shadow-[0_4px_30px_rgba(0,0,0,0.1)] transition-colors hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
                   )}>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-2xl drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">🏷️</span>
+                      <CustomIcon name="tag" size={24} className="drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]" />
                       <h2 className="text-lg font-bold text-cyan-400 drop-shadow-[0_0_2px_rgba(34,211,238,0.5)]">TAGS //</h2>
                     </div>
                     <TagSelector selectedTags={field.value} onTagsChange={field.onChange} />

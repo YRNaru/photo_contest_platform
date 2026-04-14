@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { GradientHeading } from '@/components/ui/gradient-heading'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 export default function JudgingContestsPage() {
   const { user, isLoading: loading } = useAuth()
@@ -53,8 +54,9 @@ export default function JudgingContestsPage() {
     <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       {/* ヘッダー */}
       <div className="mb-6 sm:mb-8 animate-fadeInUp">
-        <GradientHeading as="h1" className="mb-3 sm:mb-4">
-          👨‍⚖️ 審査中のコンテスト
+        <GradientHeading as="h1" className="mb-3 sm:mb-4 flex items-center gap-3">
+          <CustomIcon name="judge" size={40} />
+          審査中のコンテスト
         </GradientHeading>
         <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300">
           あなたが審査員として割り当てられているコンテスト一覧です
@@ -74,7 +76,9 @@ export default function JudgingContestsPage() {
             "rounded-xl shadow-lg p-8 sm:p-12 text-center border",
             "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
           )}>
-            <div className="text-6xl mb-4">📋</div>
+            <div className="flex justify-center mb-6">
+              <CustomIcon name="rule" size={96} className="opacity-70" />
+            </div>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
               審査中のコンテストはありません
             </h3>

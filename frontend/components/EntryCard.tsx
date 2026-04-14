@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { FaHeart, FaEye } from 'react-icons/fa'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '@/components/ui/custom-icon'
+
 
 interface Entry {
   id: string
@@ -44,8 +45,8 @@ export function EntryCard({ entry }: { entry: Entry }) {
             <div className="flex h-full w-full items-center justify-center relative">
               <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 via-transparent to-purple-600/20" />
-              <span className="relative z-10 text-8xl transition-transform duration-700 group-hover:scale-125 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]" aria-hidden>
-                📷
+              <span className="relative z-10 transition-transform duration-700 group-hover:scale-125 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+                <CustomIcon name="entries" size={80} />
               </span>
             </div>
           )}
@@ -68,9 +69,12 @@ export function EntryCard({ entry }: { entry: Entry }) {
             {entry.title}
           </h3>
           <p className="relative flex items-center gap-1.5 text-xs text-muted-foreground sm:text-sm">
-            <span className="text-cyan-500 drop-shadow-[0_0_3px_rgba(6,182,212,0.4)]" aria-hidden>
-              👤
-            </span>
+            <CustomIcon 
+              name="user" 
+              size={18} 
+              className="text-cyan-500 drop-shadow-[0_0_3px_rgba(6,182,212,0.4)]" 
+              aria-hidden 
+            />
             <span className="truncate font-semibold text-foreground/80 dark:text-foreground/70">
               {entry.author?.username || (entry.twitter_username ? `@${entry.twitter_username}` : '匿名ユーザー')}
             </span>
@@ -78,11 +82,11 @@ export function EntryCard({ entry }: { entry: Entry }) {
 
           <div className="relative mt-auto flex flex-wrap items-center gap-4 text-xs sm:gap-5 sm:text-sm border-t border-border/40 pt-3">
             <div className="flex items-center gap-1.5 text-muted-foreground sm:gap-2">
-              <FaHeart className="text-pink-500 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" aria-hidden />
+              <CustomIcon name="star" size={16} className="text-pink-500 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" aria-hidden />
               <span className="font-semibold text-foreground/90">{entry.vote_count}</span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground sm:gap-2">
-              <FaEye className="text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" aria-hidden />
+              <CustomIcon name="stats" size={16} className="text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" aria-hidden />
               <span className="font-semibold text-foreground/90">{entry.view_count}</span>
             </div>
             {entry.twitter_url && (
@@ -94,7 +98,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
                 className="ml-auto flex items-center gap-1 rounded-full bg-black/5 px-2 py-1 text-sky-600 transition-colors hover:bg-sky-500/10 hover:text-sky-500 dark:bg-white/5 dark:text-sky-400 dark:hover:bg-sky-400/20 dark:hover:text-sky-300"
                 title="Xで見る"
               >
-                <span className="text-base font-black">𝕏</span>
+                  <CustomIcon name="twitter" size={18} />
               </a>
             )}
           </div>

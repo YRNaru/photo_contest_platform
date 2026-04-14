@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { contestApi } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '../ui/custom-icon'
 
 interface TwitterImporterProps {
   contestSlug: string
@@ -54,7 +55,7 @@ export default function TwitterImporter({ contestSlug }: TwitterImporterProps) {
       )}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <span className="text-2xl">🐦</span>
+            <CustomIcon name="twitter" size={24} />
             ツイートから応募を登録
           </h3>
           <button
@@ -134,7 +135,10 @@ export default function TwitterImporter({ contestSlug }: TwitterImporterProps) {
               "mt-4 p-4 rounded-lg border",
               "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
             )}>
-              <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">💡 使い方</h4>
+              <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-1.5">
+                <CustomIcon name="hint" size={16} />
+                使い方
+              </h4>
               <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
                 <li>Twitter/Xのツイートページを開き、URLをコピー</li>
                 <li>上のフォームにURLを貼り付けて「登録」をクリック</li>

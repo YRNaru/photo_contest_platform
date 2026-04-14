@@ -68,8 +68,9 @@ export function ContestList() {
   if (error) {
     return (
       <div className="w-full min-w-0 max-w-full rounded-2xl border border-border bg-card px-4 py-16 text-center sm:px-6">
-        <p className="text-balance text-xl font-semibold text-destructive">
-          ⚠️ コンテストの読み込みに失敗しました
+        <p className="text-balance text-xl font-semibold text-destructive flex items-center justify-center gap-2">
+          <CustomIcon name="warning" size={24} className="text-destructive mb-1" />
+          コンテストの読み込みに失敗しました
         </p>
       </div>
     )
@@ -98,12 +99,15 @@ export function ContestList() {
 
         {/* 検索ボックス */}
         <div className="relative flex-1 sm:max-w-xs">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+            <CustomIcon name="search" size={16} />
+          </div>
           <input
             type="search"
             value={search}
             onChange={e => setSearch(e.target.value || null)}
-            placeholder="🔍 コンテストを検索..."
-            className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm transition-colors focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+            placeholder="コンテストを検索..."
+            className="w-full rounded-lg border border-border bg-background pl-10 pr-3 py-1.5 text-sm transition-colors focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
           />
         </div>
       </div>

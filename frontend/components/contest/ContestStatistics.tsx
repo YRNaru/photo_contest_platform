@@ -13,6 +13,7 @@ import {
   YAxis,
 } from 'recharts'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '../ui/custom-icon'
 
 interface ContestStatisticsProps {
   contestSlug: string
@@ -89,7 +90,7 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
       
       <div className="relative z-10 p-6 sm:p-8">
         <div className="flex items-center gap-3 mb-8">
-          <div className="h-8 w-2 rounded-full bg-gradient-to-b from-cyan-400 to-purple-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+          <CustomIcon name="stats" size={40} />
           <h2 className={cn(
             "text-[clamp(1.5rem,3.5vw+0.5rem,2.25rem)] font-black text-transparent bg-clip-text",
             "bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-white/70"
@@ -196,7 +197,9 @@ export function ContestStatistics({ contestSlug }: ContestStatisticsProps) {
           </div>
         ) : (
           <div className="text-center py-12 rounded-2xl border border-white/5 bg-white/5 dark:bg-black/20">
-            <span className="text-4xl mb-4 block opacity-50">📡</span>
+            <div className="flex justify-center mb-4 opacity-50">
+              <CustomIcon name="stats" size={64} />
+            </div>
             <p className="text-foreground/60 font-medium">シグナルが検出されません（応募なし）</p>
           </div>
         )}
