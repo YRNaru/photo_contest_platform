@@ -12,8 +12,8 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [isLeftOpen, setIsLeftOpen] = useState(false)
-  const [isRightOpen, setIsRightOpen] = useState(false)
+  const [isLeftOpen, setIsLeftOpen] = useState(true)
+  const [isRightOpen, setIsRightOpen] = useState(true)
 
   // ローカルストレージから状態を復元
   useEffect(() => {

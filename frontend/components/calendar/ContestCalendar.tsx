@@ -1,23 +1,25 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Calendar, momentLocalizer } from 'react-big-calendar'
-import moment from 'moment'
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay } from 'date-fns'
+import { ja } from 'date-fns/locale/ja'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { Contest } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 import { CustomIcon } from '../ui/custom-icon'
 
-// Moment.jsのロケールを日本語に設定
-moment.locale('ja', {
-  months: '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),
-  monthsShort: '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),
-  weekdays: '日曜日_月曜日_火曜日_水曜日_木曜日_金曜日_土曜日'.split('_'),
-  weekdaysShort: '日_月_火_水_木_金_土'.split('_'),
-  weekdaysMin: '日_月_火_水_木_金_土'.split('_'),
-})
+const locales = {
+  'ja': ja,
+}
 
-const localizer = momentLocalizer(moment)
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+})
 
 interface ContestEvent {
   title: string
@@ -286,6 +288,7 @@ export function ContestCalendar({ contests }: ContestCalendarProps) {
       <div className="calendar-container" style={{ height: '600px' }}>
         <Calendar
           localizer={localizer}
+          culture="ja"
           events={events}
           startAccessor="start"
           endAccessor="end"

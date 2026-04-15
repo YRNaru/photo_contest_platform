@@ -33,7 +33,7 @@ export function LeftSidebar() {
 
   return (
     <aside
-      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-r border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-2xl shadow-[5px_0_30px_rgba(0,0,0,0.1)] transition-all duration-700 ease-in-out ${
+      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-r border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-2xl shadow-[5px_0_30px_rgba(0,0,0,0.1)] transition-all duration-700 ease-in-out max-xl:hidden ${
         isLeftOpen ? 'w-80 opacity-100' : 'w-0 opacity-0'
       }`}
     >
@@ -50,7 +50,7 @@ export function LeftSidebar() {
             transform: isLeftOpen ? 'translateX(0)' : 'translateX(-20px)',
           }}
         >
-          <h2 className="text-xs font-bold text-cyan-600 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider px-3 animate-pulse-slow">
+          <h2 className="text-xs font-bold text-cyan-700 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider px-3 animate-pulse-slow">
             SYS.MENU //
           </h2>
         </div>

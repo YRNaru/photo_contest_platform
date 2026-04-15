@@ -89,7 +89,7 @@ export function ContestList() {
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
                 phase === option
                   ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  : 'bg-muted text-foreground/80 hover:bg-muted/80 hover:text-foreground'
               }`}
             >
               {option === 'all' ? 'すべて' : getPhaseLabel(option)}
