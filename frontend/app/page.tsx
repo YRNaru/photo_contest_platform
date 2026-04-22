@@ -101,8 +101,6 @@ interface HeroLinkProps extends VariantProps<typeof heroLinkVariants> {
 }
 
 function HeroLink({ href, variant, icon, iconColorClass, children }: HeroLinkProps) {
-  const isPrimary = variant === 'primary'
-
   return (
     <Link href={href} className={heroLinkVariants({ variant })}>
       <div className={cn(

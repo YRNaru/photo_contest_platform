@@ -2,7 +2,6 @@
 
 import type { ReactNode } from 'react'
 import { FaGoogle, FaTwitter } from 'react-icons/fa'
-import { ChevronDown } from 'lucide-react'
 import { getBackendBaseUrl } from '@/lib/backend-url'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
@@ -101,22 +100,23 @@ export function LoginButton({ variant = 'default' }: LoginButtonProps) {
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          buttonVariants(),
-          'group font-semibold',
-          'inline-flex shrink-0 items-center gap-1 whitespace-nowrap',
+          buttonVariants({ size: 'lg' }),
+          'font-semibold text-base',
+          'inline-flex shrink-0 items-center whitespace-nowrap',
           'data-popup-open:opacity-95'
         )}
       >
         ログイン
-        <ChevronDown
-          className="size-4 opacity-80 transition-transform duration-200 group-data-[popup-open]:rotate-180"
-          aria-hidden
-        />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
         sideOffset={6}
         positionMethod="fixed"
+        collisionAvoidance={{
+          side: "flip",
+          align: "none",
+          fallbackAxisSide: "none",
+        }}
         className={contentPanelClass}
       >
         <DropdownMenuItem

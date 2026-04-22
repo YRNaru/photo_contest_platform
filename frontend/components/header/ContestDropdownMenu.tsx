@@ -89,17 +89,27 @@ export function ContestDropdownMenu({ isAuthenticated }: ContestDropdownMenuProp
       <DropdownMenu>
         <DropdownMenuTrigger
           className={cn(
-            'group inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-1.5',
-            'text-sm font-semibold text-foreground transition-all',
+            'group inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2',
+            'text-base font-semibold text-foreground transition-all',
             'hover:bg-accent/80 hover:text-accent-foreground',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'ring-offset-background data-popup-open:bg-accent/80'
           )}
         >
           コンテスト
-          <ChevronDown className="size-4 opacity-70 transition-transform duration-200 group-data-[popup-open]:rotate-180" />
+          <ChevronDown className="size-[1.125rem] opacity-70 transition-transform duration-200 group-data-[popup-open]:rotate-180 sm:size-5" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" sideOffset={6} className={contentPanelClass}>
+        <DropdownMenuContent
+          align="start"
+          sideOffset={6}
+          positionMethod="fixed"
+          collisionAvoidance={{
+            side: "flip",
+            align: "none",
+            fallbackAxisSide: "none",
+          }}
+          className={contentPanelClass}
+        >
           <ContestNavItem
             icon={LayoutGrid}
             label="すべてのコンテスト"

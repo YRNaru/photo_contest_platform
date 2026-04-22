@@ -33,7 +33,7 @@ export function Header() {
 
       <div
         className={cn(
-          "relative z-10 flex w-full min-w-0 max-w-full items-center gap-2 py-3 sm:gap-3 sm:py-4 animate-fadeInUp",
+          "relative z-10 flex w-full min-w-0 max-w-full items-center gap-4 py-3 sm:gap-6 sm:py-4 md:gap-8 lg:gap-10 animate-fadeInUp",
           "pl-[max(0.75rem,env(safe-area-inset-left))] pr-[max(0.75rem,env(safe-area-inset-right))]"
         )}
       >
@@ -49,10 +49,14 @@ export function Header() {
         >
           <ContestDropdownMenu isAuthenticated={isAuthenticated} />
           {isAuthenticated && <SubmitDropdownMenu />}
-          <ThemeToggleButton theme={theme} onClick={toggleTheme} />
-          <div className="hidden shrink-0 md:block">{isAuthenticated ? <UserMenu /> : <LoginButton />}</div>
-          <SidebarToggleButton isOpen={isRightOpen} onClick={toggleRight} variant="right" />
         </nav>
+        <div className="flex shrink-0 items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+          <div className="hidden items-center gap-2 md:flex md:gap-3">
+            {isAuthenticated ? <UserMenu /> : <LoginButton />}
+          </div>
+          <ThemeToggleButton theme={theme} onClick={toggleTheme} />
+        </div>
+        <SidebarToggleButton isOpen={isRightOpen} onClick={toggleRight} variant="right" />
       </div>
     </header>
   )

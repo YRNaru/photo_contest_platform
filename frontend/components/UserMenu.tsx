@@ -20,9 +20,9 @@ export function UserMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background">
+      <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background">
         {user.avatar_url ? (
-          <div className="relative size-8 shrink-0 overflow-hidden rounded-full">
+          <div className="relative size-9 shrink-0 overflow-hidden rounded-full">
             <Image
               src={user.avatar_url}
               alt={user.username}
@@ -33,13 +33,22 @@ export function UserMenu() {
             />
           </div>
         ) : (
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
             {user.username[0].toUpperCase()}
           </div>
         )}
         <span className="max-w-[8rem] truncate">{user.username}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" positionMethod="fixed" className="w-52">
+      <DropdownMenuContent
+        align="end"
+        positionMethod="fixed"
+        collisionAvoidance={{
+          side: "flip",
+          align: "none",
+          fallbackAxisSide: "none",
+        }}
+        className="w-52"
+      >
         <DropdownMenuItem onClick={() => router.push('/profile')}>
           <FaUser className="size-3.5" />
           プロフィール
