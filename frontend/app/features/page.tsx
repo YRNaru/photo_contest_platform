@@ -90,14 +90,14 @@ export default function FeaturesPage() {
       </div>
 
       {/* このシステムについて */}
-      <FeatureSection emoji="🎯" title="このシステムについて">
+      <FeatureSection emoji={<CustomIcon name="overview" size={40} />} title="このシステムについて">
         <p className="text-base leading-relaxed">
           VRChatでの写真コンテストを開催・運営するためのWebサイトです。写真の投稿、投票、審査、管理などができます。
         </p>
       </FeatureSection>
 
       {/* アカウント登録とログイン */}
-      <FeatureSection emoji="👤" title="アカウント登録とログイン">
+      <FeatureSection emoji={<CustomIcon name="user" size={40} />} title="アカウント登録とログイン">
         <SubFeature
           title="簡単ログイン"
           items={[
@@ -117,7 +117,7 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* 写真の投稿 */}
-      <FeatureSection emoji="📸" title="写真の投稿">
+      <FeatureSection emoji={<CustomIcon name="camera" size={40} />} title="写真の投稿">
         <SubFeature
           title="コンテストへの参加方法"
           items={[
@@ -137,7 +137,7 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* Twitterとの連携 */}
-      <FeatureSection emoji="🐦" title="Twitterとの連携">
+      <FeatureSection emoji={<CustomIcon name="twitter" size={40} />} title="Twitterとの連携">
         <SubFeature
           title="ツイートからの自動取り込み"
           items={[
@@ -196,7 +196,7 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* コンテストの運営 */}
-      <FeatureSection emoji="📊" title="コンテストの運営">
+      <FeatureSection emoji={<CustomIcon name="stats" size={40} />} title="コンテストの運営">
         <SubFeature
           title="コンテストの設定"
           items={[
@@ -213,7 +213,7 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* 投稿内容のチェック */}
-      <FeatureSection emoji="🛡️" title="投稿内容のチェック">
+      <FeatureSection emoji={<CustomIcon name="shield" size={40} />} title="投稿内容のチェック">
         <SubFeature
           title="自動チェック"
           items={[
@@ -233,7 +233,7 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* 写真の処理 */}
-      <FeatureSection emoji="🖼️" title="写真の処理">
+      <FeatureSection emoji={<CustomIcon name="camera" size={40} />} title="写真の処理">
         <SubFeature
           title="自動的な画像調整"
           items={[
@@ -248,7 +248,7 @@ export default function FeaturesPage() {
       </FeatureSection>
 
       {/* サイトの機能 */}
-      <FeatureSection emoji="📱" title="サイトの機能">
+      <FeatureSection emoji={<CustomIcon name="mobile" size={40} />} title="サイトの機能">
         <SubFeature
           title="ページの種類"
           items={[
@@ -281,12 +281,13 @@ export default function FeaturesPage() {
 
       {/* 特徴カード */}
       <section className="mb-12 animate-fadeInUp">
-        <GradientHeading as="h2" className="text-center mb-6">
-          🌟 主な特徴
+        <GradientHeading as="h2" className="text-center mb-6 flex items-center justify-center gap-3">
+          <CustomIcon name="star" size={32} />
+          主な特徴
         </GradientHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <FeatureCard
-            emoji="📸"
+            emoji={<CustomIcon name="camera" size={40} />}
             title="簡単投稿"
             description="最大5枚まで写真をアップロード。ドラッグ&ドロップで簡単に追加できます"
             gradient={cn(
@@ -313,7 +314,7 @@ export default function FeaturesPage() {
             )}
           />
           <FeatureCard
-            emoji="🐦"
+            emoji={<CustomIcon name="twitter" size={40} />}
             title="Twitter連携"
             description="ハッシュタグ付きツイートを自動で取り込み、簡単参加"
             gradient={cn(
@@ -322,7 +323,7 @@ export default function FeaturesPage() {
             )}
           />
           <FeatureCard
-            emoji="🛡️"
+            emoji={<CustomIcon name="shield" size={40} />}
             title="モデレーション"
             description="自動・手動の二段階チェックで安心安全な運営"
             gradient={cn(
@@ -331,7 +332,7 @@ export default function FeaturesPage() {
             )}
           />
           <FeatureCard
-            emoji="📱"
+            emoji={<CustomIcon name="mobile" size={40} />}
             title="レスポンシブ"
             description="スマホ、タブレット、PCどの端末でも快適に利用可能"
             gradient={cn(

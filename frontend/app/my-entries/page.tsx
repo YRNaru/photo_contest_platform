@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { entryApi } from '@/lib/api'
 import { Entry } from '@/lib/types'
-import { FaImage, FaHeart, FaEye } from 'react-icons/fa'
 import Link from 'next/link'
 import Image from 'next/image'
+import { CustomIcon } from '@/components/ui/custom-icon'
+
 
 export default function MyEntriesPage() {
   const router = useRouter()
@@ -68,7 +69,7 @@ export default function MyEntriesPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="text-7xl mb-6 animate-bounce">⏳</div>
+          <CustomIcon name="wait" size={72} className="mx-auto mb-6 text-purple-600 animate-bounce" />
           <div className="text-gray-900 dark:text-gray-100 text-xl font-bold">読み込み中...</div>
         </div>
       </div>
@@ -79,7 +80,7 @@ export default function MyEntriesPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center p-4">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md border-2 border-gray-200 dark:border-gray-800 animate-fadeInUp">
-          <div className="text-7xl mb-6 text-center">⚠️</div>
+          <CustomIcon name="warning" size={72} className="mx-auto mb-6 text-red-600 dark:text-red-400" />
           <div className="text-red-600 dark:text-red-400 text-center font-semibold text-lg mb-6">
             {error}
           </div>
@@ -87,7 +88,10 @@ export default function MyEntriesPage() {
             onClick={() => router.push('/')}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-lg"
           >
-            🏠 ホームに戻る
+            <span className="flex items-center justify-center gap-2">
+              <CustomIcon name="home" size={20} className="brightness-0 invert" />
+              ホームに戻る
+            </span>
           </button>
         </div>
       </div>
@@ -99,7 +103,10 @@ export default function MyEntriesPage() {
       <div className="max-w-7xl mx-auto">
         {/* ヘッダー */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-700 dark:to-pink-700 text-white rounded-t-2xl sm:rounded-t-3xl p-6 sm:p-8 lg:p-10 text-center shadow-xl animate-fadeInUp">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-2">📸 マイ投稿</h1>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-2 flex items-center justify-center gap-3">
+            <CustomIcon name="camera" size={48} className="brightness-0 invert" />
+            マイ投稿
+          </h1>
           <p className="text-purple-100 text-base sm:text-lg">あなたが投稿した作品一覧</p>
         </div>
 
@@ -107,7 +114,7 @@ export default function MyEntriesPage() {
         <div className="bg-white dark:bg-gray-900 rounded-b-2xl sm:rounded-b-3xl shadow-2xl p-4 sm:p-6 lg:p-8 border-2 border-gray-200 dark:border-gray-800">
           {entries.length === 0 ? (
             <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/30 dark:to-gray-700/30 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 animate-fadeInUp">
-              <span className="text-7xl mb-4 block opacity-50">📸</span>
+              <CustomIcon name="entries" size={72} className="mx-auto mb-4 opacity-50" />
               <p className="text-gray-500 dark:text-gray-400 italic text-lg mb-4">
                 まだ投稿がありません
               </p>
@@ -115,7 +122,10 @@ export default function MyEntriesPage() {
                 href="/submit"
                 className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-lg"
               >
-                📷 新しい投稿を作成
+                <span className="flex items-center justify-center gap-2">
+                  <CustomIcon name="camera" size={20} className="brightness-0 invert" />
+                  新しい投稿を作成
+                </span>
               </Link>
             </div>
           ) : (
@@ -129,9 +139,10 @@ export default function MyEntriesPage() {
                 </div>
                 <Link
                   href="/submit"
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-lg text-sm sm:text-base"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-lg text-sm sm:text-base flex items-center gap-2"
                 >
-                  ➕ 新しい投稿
+                  <CustomIcon name="plus" size={18} className="brightness-0 invert" />
+                  新しい投稿
                 </Link>
               </div>
 
@@ -157,18 +168,20 @@ export default function MyEntriesPage() {
                         </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <FaImage className="text-6xl text-gray-400 dark:text-gray-600" />
+                          <CustomIcon name="entries" size={60} className="text-gray-400 dark:text-gray-600" />
                         </div>
                       )}
                       {/* 承認ステータス */}
                       {!entry.approved && (
-                        <div className="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                          ⏳ 承認待ち
+                        <div className="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                          <CustomIcon name="wait" size={14} className="brightness-0 invert" />
+                          承認待ち
                         </div>
                       )}
                       {entry.approved && (
-                        <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                          ✓ 承認済み
+                        <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                          <CustomIcon name="check" size={14} className="brightness-0 invert" />
+                          承認済み
                         </div>
                       )}
                     </div>
@@ -189,11 +202,11 @@ export default function MyEntriesPage() {
                       <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1">
-                            <FaHeart className="text-red-500" />
+                            <CustomIcon name="star" size={14} className="text-red-500" />
                             {entry.vote_count}
                           </span>
                           <span className="flex items-center gap-1">
-                            <FaEye className="text-blue-500" />
+                            <CustomIcon name="stats" size={14} className="text-blue-500" />
                             {entry.view_count}
                           </span>
                         </div>

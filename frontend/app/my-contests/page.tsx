@@ -64,9 +64,7 @@ export default function MyContestsPage() {
             "shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 sm:hover:scale-110 transform-gpu"
           )}
         >
-          <span className="text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-300">
-            ➕
-          </span>
+          <CustomIcon name="plus" size={20} className="brightness-0 invert group-hover:rotate-90 transition-transform duration-300" />
           新しいコンテストを作成
         </Link>
       </div>
@@ -90,7 +88,7 @@ export default function MyContestsPage() {
           "text-center py-16 rounded-2xl border",
           "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
         )}>
-          <span className="text-7xl mb-4 block">⚠️</span>
+          <CustomIcon name="warning" size={72} className="mx-auto mb-4 text-red-500 dark:text-red-400" />
           <p className="text-xl font-semibold text-red-500 dark:text-red-400">
             コンテストの読み込みに失敗しました
           </p>
@@ -121,9 +119,7 @@ export default function MyContestsPage() {
               "shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 transform-gpu"
             )}
           >
-            <span className="text-2xl group-hover:rotate-90 transition-transform duration-300">
-              ➕
-            </span>
+            <CustomIcon name="plus" size={24} className="brightness-0 invert group-hover:rotate-90 transition-transform duration-300" />
             最初のコンテストを作成
           </Link>
         </div>
@@ -148,7 +144,10 @@ export default function MyContestsPage() {
                     "transition-all duration-300 hover:scale-110 transform-gpu"
                   )}
                 >
-                  ✏️ 編集
+                  <span className="flex items-center gap-1.5">
+                    <CustomIcon name="edit" size={16} />
+                    編集
+                  </span>
                 </Link>
               </div>
             </div>

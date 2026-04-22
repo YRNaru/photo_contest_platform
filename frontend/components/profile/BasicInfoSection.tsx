@@ -61,8 +61,9 @@ export function BasicInfoSection({ user, onUserUpdate }: BasicInfoSectionProps) 
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border border-purple-200 dark:border-purple-800">
-          <span className="text-xs sm:text-sm text-purple-700 dark:text-purple-300 font-bold mb-2 block">
-            👤 ユーザー名
+          <span className="text-xs sm:text-sm text-purple-700 dark:text-purple-300 font-bold mb-2 flex items-center gap-1.5">
+            <CustomIcon name="user" size={18} />
+            ユーザー名
           </span>
           {isEditingUsername ? (
             <div className="space-y-2">
@@ -141,18 +142,21 @@ export function BasicInfoSection({ user, onUserUpdate }: BasicInfoSectionProps) 
           </span>
           <div className="flex flex-wrap gap-2 mt-1">
             {user.is_superuser && (
-              <span className="px-3 sm:px-4 py-1 bg-yellow-400 text-gray-900 rounded-full text-xs sm:text-sm font-semibold">
-                🔑 スーパーユーザー
+              <span className="px-3 sm:px-4 py-1 bg-yellow-400 text-gray-900 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <CustomIcon name="key" size={16} className="brightness-0" />
+                スーパーユーザー
               </span>
             )}
             {!user.is_superuser && user.is_staff && (
-              <span className="px-3 sm:px-4 py-1 bg-green-500 text-white rounded-full text-xs sm:text-sm font-semibold">
-                ⚙️ スタッフ
+              <span className="px-3 sm:px-4 py-1 bg-green-500 text-white rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <CustomIcon name="settings" size={16} className="brightness-0 invert" />
+                スタッフ
               </span>
             )}
             {!user.is_superuser && !user.is_staff && (
-              <span className="px-3 sm:px-4 py-1 bg-blue-500 text-white rounded-full text-xs sm:text-sm font-semibold">
-                👤 一般ユーザー
+              <span className="px-3 sm:px-4 py-1 bg-blue-500 text-white rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <CustomIcon name="user" size={16} className="brightness-0 invert" />
+                一般ユーザー
               </span>
             )}
           </div>

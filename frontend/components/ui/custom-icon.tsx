@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 /** アイコンの種類 */
-export type IconType = 'calendar' | 'home' | 'contest' | 'features' | 'my-contests' | 'camera' | 'sort-new' | 'sort-old' | 'sort-hot' | 'sort-trend' | 'notice' | 'support' | 'star'
+export type IconType = 'calendar' | 'home' | 'contest' | 'features' | 'my-contests' | 'camera' | 'sort-new' | 'sort-old' | 'sort-hot' | 'sort-trend' | 'notice' | 'support' | 'star' | 'user' | 'shield' | 'chat' | 'rocket' | 'search' | 'plus' | 'edit' | 'warning' | 'key' | 'settings' | 'tag' | 'question' | 'hint' | 'link' | 'rule' | 'logout' | 'judge' | 'vote' | 'trash' | 'overview' | 'mobile' | 'twitter' | 'check' | 'wait' | 'description' | 'entries' | 'stats' | 'discord' | 'github' | 'google'
 
 interface CustomIconProps {
   /** アイコンの種類 */
@@ -18,10 +18,10 @@ interface CustomIconProps {
  */
 export function CustomIcon({ name, className, size = 'md' }: CustomIconProps) {
   const sizeMap = {
-    sm: 24, // 20 -> 24
-    md: 40, // 32 -> 40
-    lg: 56, // 44 -> 56
-    xl: 72, // 60 -> 72
+    sm: 24,
+    md: 40,
+    lg: 56,
+    xl: 72,
   }
 
   const dimension = typeof size === 'number' ? size : sizeMap[size]
@@ -40,6 +40,36 @@ export function CustomIcon({ name, className, size = 'md' }: CustomIconProps) {
     notice: '/icons/notice-custom.png',
     support: '/icons/support-custom.png',
     star: '/icons/star-custom.png',
+    user: '/icons/user-custom.png',
+    shield: '/icons/shield-custom.png',
+    chat: '/icons/chat-custom.png',
+    rocket: '/icons/rocket-custom.png',
+    search: '/icons/search-custom.png',
+    plus: '/icons/plus-custom.png',
+    edit: '/icons/edit-custom.png',
+    warning: '/icons/warning-custom.png',
+    key: '/icons/key-custom.png',
+    settings: '/icons/settings-custom.png',
+    tag: '/icons/tag-custom.png',
+    question: '/icons/question-custom.png',
+    hint: '/icons/hint-custom.png',
+    link: '/icons/link-custom.png',
+    rule: '/icons/rule-custom.png',
+    logout: '/icons/logout-custom.png',
+    judge: '/icons/judge-custom.png',
+    vote: '/icons/vote-custom.png',
+    trash: '/icons/trash-custom.png',
+    overview: '/icons/overview-custom.png',
+    mobile: '/icons/mobile-custom.png',
+    twitter: '/icons/twitter-custom.png',
+    check: '/icons/check-custom.png',
+    wait: '/icons/wait-custom.png',
+    description: '/icons/description-custom.png',
+    entries: '/icons/entries-custom.png',
+    stats: '/icons/stats-custom.png',
+    discord: '/icons/discord-custom.png',
+    github: '/icons/github-custom.png',
+    google: '/icons/google-custom.png',
   }
 
   return (
@@ -55,7 +85,7 @@ export function CustomIcon({ name, className, size = 'md' }: CustomIconProps) {
         alt={name}
         width={dimension}
         height={dimension}
-        className="object-contain drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] dark:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]"
+        className="object-contain"
       />
     </div>
   )

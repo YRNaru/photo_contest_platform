@@ -12,7 +12,7 @@ const nextConfig = {
   },
   // CSS/JSプリロード警告を抑制
   experimental: {
-    optimizeCss: false,
+    optimizeCss: true,
   },
   images: {
     // 自前APIの /media や S3/R2 等は remotePatterns にホストを追加して許可する

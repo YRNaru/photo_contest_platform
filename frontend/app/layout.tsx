@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Geist } from 'next/font/google'
+import { preconnect, prefetchDNS } from 'react-dom'
 import './globals.css'
 import { Providers } from './providers'
 import { SidebarProvider } from '@/lib/sidebar-context'
@@ -11,9 +12,9 @@ import { Footer } from '@/components/Footer'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({subsets:['latin'],variable:'--font-sans',display:'optional',preload:true});
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], display: 'optional', preload: true })
 
 export const metadata: Metadata = {
   title: 'VRChat フォトコンテスト',
@@ -30,6 +31,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  preconnect('https://api.vrchat-photocontest-platform.site', { crossOrigin: 'anonymous' });
+  prefetchDNS('https://api.vrchat-photocontest-platform.site');
+
   return (
     <html lang="ja" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <head>
@@ -60,7 +64,7 @@ export default function RootLayout({
                 <div className="flex flex-1 bg-background transition-colors duration-300">
                   <LeftSidebar />
                   <main className="flex-1 min-w-0 w-full max-w-full overflow-x-clip bg-background">
-                    <div className="page-cq min-h-0 w-full min-w-0 max-w-full">{children}</div>
+                    <div className="page-cq min-h-[100dvh] w-full min-w-0 max-w-full">{children}</div>
                   </main>
                   <RightSidebar />
                 </div>

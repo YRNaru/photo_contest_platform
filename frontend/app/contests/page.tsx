@@ -31,9 +31,7 @@ export default function ContestsPage() {
               "shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 sm:hover:scale-110 transform-gpu"
             )}
           >
-            <span className="text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-300">
-              ➕
-            </span>
+            <CustomIcon name="plus" size={20} className="brightness-0 invert group-hover:rotate-90 transition-transform duration-300" />
             新しいコンテストを作成
           </Link>
         )}

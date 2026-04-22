@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 interface FormInputProps {
   label: string
-  icon: string
+  icon: React.ReactNode
   required?: boolean
   value: string
   onChange: (value: string) => void
@@ -25,9 +25,10 @@ export function FormInput({
 }: FormInputProps) {
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-bold">
-        {icon} {label}{' '}
-        {required && <span className="text-destructive">*</span>}
+      <Label className="text-sm font-bold flex items-center gap-1.5">
+        {icon}
+        <span>{label}</span>
+        {required && <span className="text-destructive ml-0.5">*</span>}
       </Label>
       {multiline ? (
         <Textarea

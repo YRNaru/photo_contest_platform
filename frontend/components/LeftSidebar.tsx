@@ -20,20 +20,20 @@ export function LeftSidebar() {
     ...(isAuthenticated
       ? [
           { href: '/my-contests', label: 'マイコンテスト', icon: <CustomIcon name="my-contests" size={32} /> },
-          { href: '/judging-contests', label: '審査中のコンテスト', icon: '👨‍⚖️' },
+          { href: '/judging-contests', label: '審査中のコンテスト', icon: <CustomIcon name="judge" size={32} /> },
           { href: '/submit', label: '写真を投稿', icon: <CustomIcon name="camera" size={32} /> },
           { href: '/my-entries', label: 'マイ投稿', icon: <CustomIcon name="camera" size={32} /> },
           ...(user?.is_moderator || user?.is_staff
-            ? [{ href: '/pending-entries', label: '承認待ちエントリー', icon: '📋' }]
+            ? [{ href: '/pending-entries', label: '承認待ちエントリー', icon: <CustomIcon name="rule" size={32} /> }]
             : []),
-          { href: '/profile', label: 'プロフィール', icon: '👤' },
+          { href: '/profile', label: 'プロフィール', icon: <CustomIcon name="user" size={32} /> },
         ]
       : []),
   ]
 
   return (
     <aside
-      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-r border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-2xl shadow-[5px_0_30px_rgba(0,0,0,0.1)] transition-all duration-700 ease-in-out ${
+      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-r border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-2xl shadow-[5px_0_30px_rgba(0,0,0,0.1)] transition-all duration-700 ease-in-out max-xl:hidden ${
         isLeftOpen ? 'w-80 opacity-100' : 'w-0 opacity-0'
       }`}
     >
@@ -50,7 +50,7 @@ export function LeftSidebar() {
             transform: isLeftOpen ? 'translateX(0)' : 'translateX(-20px)',
           }}
         >
-          <h2 className="text-xs font-bold text-cyan-600 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider px-3 animate-pulse-slow">
+          <h2 className="text-xs font-bold text-cyan-700 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider px-3 animate-pulse-slow">
             SYS.MENU //
           </h2>
         </div>
@@ -73,7 +73,7 @@ export function LeftSidebar() {
               }`}
             >
               <span
-                className={`text-2xl transition-transform duration-300 ${isActive ? 'animate-float drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] dark:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'group-hover:scale-125'}`}
+                className={`text-2xl transition-transform duration-300 ${isActive ? 'animate-float' : 'group-hover:scale-125'}`}
               >
                 {item.icon}
               </span>
@@ -125,9 +125,7 @@ export function LeftSidebar() {
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/0 via-cyan-400/10 to-cyan-400/0 -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                <span className="text-2xl group-hover:rotate-90 transition-transform duration-300 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.8)] relative z-10">
-                  ➕
-                </span>
+                <CustomIcon name="plus" size={32} className="brightness-0 invert group-hover:rotate-90 transition-transform duration-300 relative z-10" />
                 <span className="relative z-10">新規コンテスト作成</span>
               </Link>
 

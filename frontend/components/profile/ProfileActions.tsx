@@ -1,5 +1,7 @@
 import { User, SocialAccount } from '@/lib/types'
 import { getBackendBaseUrl } from '@/lib/backend-url'
+import { CustomIcon } from '@/components/ui/custom-icon'
+
 
 interface ProfileActionsProps {
   user: User
@@ -28,7 +30,7 @@ export function ProfileActions({
           rel="noopener noreferrer"
           className="group bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 sm:py-4 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl text-center flex items-center justify-center gap-2"
         >
-          <span className="text-xl group-hover:scale-125 transition-transform">⚙️</span>
+          <CustomIcon name="settings" size={20} className="brightness-0 invert" />
           管理画面へ
         </a>
       )}
@@ -58,7 +60,7 @@ export function ProfileActions({
         onClick={onLogout}
         className="group bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 sm:py-4 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 sm:col-span-2"
       >
-        <span className="text-xl group-hover:scale-125 transition-transform">🚪</span>
+        <CustomIcon name="logout" size={24} className="brightness-0 invert group-hover:scale-125 transition-transform" />
         ログアウト
       </button>
     </div>

@@ -7,6 +7,7 @@ import { User } from '@/lib/types'
 import Image from 'next/image'
 import { GradientHeading } from '@/components/ui/gradient-heading'
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '@/components/ui/custom-icon'
 
 interface JudgeManagerProps {
   contestSlug: string
@@ -109,18 +110,17 @@ export default function JudgeManager({ contestSlug, isOwner }: JudgeManagerProps
       "shadow-lg dark:shadow-purple-500/10 border-gray-200 dark:border-gray-800"
     )}>
       <div className="flex items-center justify-between mb-4">
-        <GradientHeading as="h2" size="sm">
-          👨‍⚖️ 審査員管理
+        <GradientHeading as="h2" size="sm" className="flex items-center gap-2">
+          <CustomIcon name="judge" size={32} />
+          審査員管理
         </GradientHeading>
         {!isAddingJudge && (
           <button
             onClick={() => setIsAddingJudge(true)}
-            className={cn(
-              "px-4 py-2 text-white font-bold text-sm rounded-lg transition-colors",
-              "bg-purple-600 hover:bg-purple-700"
-            )}
+            className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-lg transition-colors"
           >
-            ➕ 審査員を追加
+            <CustomIcon name="plus" size={16} className="brightness-0 invert" />
+            審査員を追加
           </button>
         )}
       </div>

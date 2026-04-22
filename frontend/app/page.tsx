@@ -101,6 +101,10 @@ interface HeroLinkProps extends VariantProps<typeof heroLinkVariants> {
 }
 
 function HeroLink({ href, variant, icon, iconColorClass, children }: HeroLinkProps) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> e168c0a32f29ac55dd35855788a5064086b880bb
   return (
     <Link href={href} className={heroLinkVariants({ variant })}>
       <div className={cn(
@@ -158,7 +162,7 @@ function FeatureCard({ color, emoji, title, description, hoverTransform, classNa
       )} />
       <CardHeader className="text-center relative z-10">
         <div className={cn(
-          "mb-4 flex justify-center text-4xl sm:mb-6 sm:text-5xl lg:text-6xl drop-shadow-md",
+          "mb-4 flex justify-center text-4xl sm:mb-6 sm:text-5xl lg:text-6xl",
           "transition-transform duration-500 group-hover:scale-110",
           hoverTransform
         )}>
@@ -214,7 +218,7 @@ export default function HomePage() {
         <div className="absolute left-6 top-6 h-[2px] w-24 bg-gradient-to-r from-cyan-400 to-transparent opacity-50 hidden sm:block" />
         <div className="absolute right-6 bottom-6 h-[2px] w-24 bg-gradient-to-l from-pink-500 to-transparent opacity-50 hidden sm:block" />
         <div className="absolute right-6 top-6 text-cyan-600/40 dark:text-cyan-400/40 font-mono text-xs hidden sm:block">SYS.INIT // METAVERSE</div>
-        <div className="absolute left-6 bottom-6 text-purple-600/40 dark:text-purple-400/40 font-mono text-xs hidden sm:block">VRC_PROTO_V1</div>
+        <div className="absolute left-6 bottom-6 text-purple-600/40 dark:purple-400/40 font-mono text-xs hidden sm:block">VRC_PROTO_V1</div>
 
         <div className="relative z-10 px-4 py-16 text-center flex flex-col items-center sm:py-24 lg:py-32">
           <div className={cn(
@@ -231,8 +235,7 @@ export default function HomePage() {
           <h1 className={cn(
             "mb-4 max-w-full text-balance leading-none sm:mb-6",
             "text-[clamp(2.25rem,6vw,5rem)] font-black",
-            "text-transparent bg-clip-text bg-gradient-to-tr from-cyan-500 via-purple-500 to-pink-500 dark:from-cyan-400 dark:via-purple-400 dark:to-pink-400",
-            "drop-shadow-[0_0_10px_rgba(168,85,247,0.2)] dark:drop-shadow-[0_0_25px_rgba(168,85,247,0.4)]"
+            "text-transparent bg-clip-text bg-gradient-to-tr from-cyan-500 via-purple-500 to-pink-500 dark:from-cyan-400 dark:via-purple-400 dark:to-pink-400"
           )}>
             <span className="block sm:inline">VRChat</span> フォトコンテスト
           </h1>

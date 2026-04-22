@@ -46,8 +46,9 @@ export function EntryGrid({ contestSlug }: EntryGridProps) {
   if (error) {
     return (
       <div className="rounded-xl border border-border bg-card px-4 py-12 text-center sm:rounded-2xl sm:py-16">
-        <p className="text-lg font-semibold text-destructive sm:text-xl">
-          ⚠️ エントリーの読み込みに失敗しました
+        <p className="text-lg font-semibold text-destructive sm:text-xl flex items-center justify-center gap-2">
+          <CustomIcon name="warning" size={24} className="text-red-600 dark:text-red-400" />
+          エントリーの読み込みに失敗しました
         </p>
       </div>
     )

@@ -49,7 +49,7 @@ export function RightSidebar() {
 
   return (
     <aside
-      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-l border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-2xl shadow-[-5px_0_30px_rgba(0,0,0,0.1)] transition-all duration-700 ease-in-out ${
+      className={`sticky top-16 z-40 h-[calc(100vh-4rem)] border-l border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 backdrop-blur-2xl shadow-[-5px_0_30px_rgba(0,0,0,0.1)] transition-all duration-700 ease-in-out max-xl:hidden ${
         isRightOpen ? 'w-96 opacity-100' : 'w-0 opacity-0'
       }`}
     >
@@ -144,7 +144,7 @@ export function RightSidebar() {
             transform: isRightOpen ? 'translateX(0)' : 'translateX(20px)',
           }}
         >
-          <h2 className="text-xs font-bold text-cyan-500 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider mb-4 flex items-center gap-2">
+          <h2 className="text-xs font-bold text-cyan-700 dark:text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.3)] dark:drop-shadow-[0_0_5px_rgba(6,182,212,0.5)] uppercase tracking-wider mb-4 flex items-center gap-2">
             <CustomIcon name="notice" size={32} />
             NOTICES //
           </h2>

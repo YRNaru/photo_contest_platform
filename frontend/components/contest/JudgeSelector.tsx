@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { userApi } from '@/lib/api'
 import { User } from '@/lib/types'
 import Image from 'next/image'
+import { CustomIcon } from '../ui/custom-icon'
 
 interface JudgeSelectorProps {
   selectedJudgeIds: string[]
@@ -98,7 +99,8 @@ export function JudgeSelector({
           className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 flex items-center justify-between transition-colors"
         >
           <div className="flex items-center gap-2">
-            <span className="font-bold text-gray-900 dark:text-gray-100">👨‍⚖️ 審査員を選択</span>
+            <CustomIcon name="judge" size={24} />
+            <span className="font-bold text-gray-900 dark:text-gray-100">審査員を選択</span>
             {selectedJudgeIds.length > 0 && (
               <span className="px-2 py-1 bg-purple-600 text-white text-xs font-bold rounded-full">
                 {selectedJudgeIds.length}人選択中

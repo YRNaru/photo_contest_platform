@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { CustomIcon } from '../ui/custom-icon'
 
 interface SubmitButtonProps {
   isSubmitting: boolean
@@ -26,12 +27,12 @@ export function SubmitButton({ isSubmitting, disabled = false }: SubmitButtonPro
     >
       {isSubmitting ? (
         <>
-          <span className="animate-spin">⏳</span>
+          <CustomIcon name="wait" size={24} className="brightness-0 invert animate-spin" />
           投稿中...
         </>
       ) : (
         <>
-          <span className="text-2xl">🚀</span>
+          <CustomIcon name="rocket" size={24} className="brightness-0 invert" />
           投稿する
         </>
       )}
