@@ -62,7 +62,7 @@ module.exports = {
           50: 'hsl(260, 80%, 95%)',
           900: 'hsl(260, 80%, 20%)',
         },
-      }
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

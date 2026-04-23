@@ -101,10 +101,6 @@ interface HeroLinkProps extends VariantProps<typeof heroLinkVariants> {
 }
 
 function HeroLink({ href, variant, icon, iconColorClass, children }: HeroLinkProps) {
-<<<<<<< HEAD
-=======
-
->>>>>>> e168c0a32f29ac55dd35855788a5064086b880bb
   return (
     <Link href={href} className={heroLinkVariants({ variant })}>
       <div className={cn(

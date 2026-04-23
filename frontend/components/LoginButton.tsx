@@ -1,11 +1,6 @@
 'use client'
 
 import type { ReactNode } from 'react'
-<<<<<<< HEAD
-import { FaGoogle, FaTwitter } from 'react-icons/fa'
-=======
-import { ChevronDown } from 'lucide-react'
->>>>>>> e168c0a32f29ac55dd35855788a5064086b880bb
 import { getBackendBaseUrl } from '@/lib/backend-url'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { CustomIcon } from '@/components/ui/custom-icon'
