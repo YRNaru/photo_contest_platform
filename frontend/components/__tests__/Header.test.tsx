@@ -48,7 +48,7 @@ describe('Header', () => {
   it('renders site title', () => {
     render(<Header />)
 
-    const title = screen.getByText('VRChat Photo Contest')
+    const title = screen.getByText('VRC Contest')
     expect(title).toBeInTheDocument()
   })
 
@@ -61,7 +61,7 @@ describe('Header', () => {
   it('renders logo link to home', () => {
     render(<Header />)
 
-    const logoLink = screen.getByRole('link', { name: /VRChat Photo Contest/i })
+    const logoLink = screen.getByRole('link', { name: /VRC Contest/i })
     expect(logoLink).toHaveAttribute('href', '/')
   })
 

@@ -9,8 +9,8 @@ describe('ContestDates', () => {
     render(<ContestDates startAt={startAt} endAt={endAt} />)
 
     // 開始と終了のラベルが表示されることを確認
-    expect(screen.getByText('開始:')).toBeInTheDocument()
-    expect(screen.getByText('終了:')).toBeInTheDocument()
+    expect(screen.getByText('開始')).toBeInTheDocument()
+    expect(screen.getByText('終了')).toBeInTheDocument()
   })
 
   it('formats dates correctly', () => {
@@ -20,8 +20,8 @@ describe('ContestDates', () => {
     render(<ContestDates startAt={startAt} endAt={endAt} />)
 
     // 日付が表示されることを確認
-    expect(screen.getByText('開始:')).toBeInTheDocument()
-    expect(screen.getByText('終了:')).toBeInTheDocument()
+    expect(screen.getByText('開始')).toBeInTheDocument()
+    expect(screen.getByText('終了')).toBeInTheDocument()
   })
 
   it('handles same day dates', () => {
@@ -31,7 +31,7 @@ describe('ContestDates', () => {
     render(<ContestDates startAt={startAt} endAt={endAt} />)
 
     // コンポーネントがレンダリングされることを確認
-    expect(screen.getByText('開始:')).toBeInTheDocument()
-    expect(screen.getByText('終了:')).toBeInTheDocument()
+    expect(screen.getByText('開始')).toBeInTheDocument()
+    expect(screen.getByText('終了')).toBeInTheDocument()
   })
 })

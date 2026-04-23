@@ -35,7 +35,7 @@ export function ContestCard({ contest, priority = false }: ContestCardProps) {
         )}
       >
         {/* バナー画像エリア */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden" data-cursor="view">
           <ContestBanner
             bannerImage={contest.banner_image}
             title={contest.title}

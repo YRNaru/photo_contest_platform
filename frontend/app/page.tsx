@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { MarqueeStrip } from '@/components/MarqueeStrip'
 import { cn } from '@/lib/utils'
 import { CustomIcon, type IconType } from '@/components/ui/custom-icon'
+import { HeroTitle } from '@/components/HeroTitle'
 
 // ======
 // Hero Action Button
@@ -159,19 +160,7 @@ export default function HomePage() {
           </p>
 
           {/* メインタイトル */}
-          <h1
-            className={cn(
-              'font-display font-black uppercase leading-none tracking-[-0.03em] mb-8 sm:mb-12',
-              'text-[clamp(3.5rem,12vw,11rem)]',
-              'text-[#F0EDE8] animate-fadeInUp'
-            )}
-            style={{ animationDelay: '100ms' }}
-          >
-            <span className="block">VRChat</span>
-            <span className="block" style={{ WebkitTextStroke: '1.5px #F0EDE8', color: 'transparent' }}>
-              Contest
-            </span>
-          </h1>
+          <HeroTitle className="mb-8 sm:mb-12" />
 
           {/* 下部エリア */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 animate-fadeInUp" style={{ animationDelay: '200ms' }}>

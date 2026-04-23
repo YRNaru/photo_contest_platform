@@ -11,6 +11,8 @@ import { RightSidebar } from '@/components/RightSidebar'
 import { Footer } from '@/components/Footer'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
+import { AmbientBubbles } from '@/components/AmbientBubbles'
+import { CustomCursor } from '@/components/CustomCursor'
 
 // ポートフォリオと同じフォント構成
 const syne = Syne({
@@ -81,11 +83,13 @@ export default function RootLayout({
         <Providers>
           <ThemeProvider>
             <SidebarProvider>
-              <div className="flex flex-col min-h-screen bg-background text-foreground">
+              <CustomCursor />
+              <AmbientBubbles />
+              <div className="flex flex-col min-h-screen bg-background text-foreground relative z-10">
                 <Header />
-                <div className="flex flex-1 bg-background transition-colors duration-300">
+                <div className="flex flex-1 bg-transparent transition-colors duration-300">
                   <LeftSidebar />
-                  <main className="flex-1 min-w-0 w-full max-w-full overflow-x-clip bg-background">
+                  <main className="flex-1 min-w-0 w-full max-w-full overflow-x-clip bg-transparent">
                     <div className="page-cq min-h-[100dvh] w-full min-w-0 max-w-full">{children}</div>
                   </main>
                   <RightSidebar />

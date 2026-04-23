@@ -31,7 +31,7 @@ export function EntryCard({ entry }: { entry: Entry }) {
         )}
       >
         {/* サムネイル */}
-        <div className="relative h-52 sm:h-60 overflow-hidden bg-[#111116]">
+        <div className="relative h-52 sm:h-60 overflow-hidden bg-[#111116]" data-cursor="view">
           {entry.thumbnail ? (
             <Image
               src={entry.thumbnail}
@@ -78,12 +78,12 @@ export function EntryCard({ entry }: { entry: Entry }) {
           </h3>
 
           {/* 作者 */}
-          <p className="flex items-center gap-1.5 text-xs text-[#8A8A95] font-body">
+          <div className="flex items-center gap-1.5 text-xs text-[#8A8A95] font-body">
             <CustomIcon name="user" size={14} className="text-[#CDFF50]/60 flex-shrink-0" aria-hidden />
             <span className="truncate">
               {entry.author?.username || (entry.twitter_username ? `@${entry.twitter_username}` : '匿名')}
             </span>
-          </p>
+          </div>
 
           {/* スタッツ */}
           <div className="mt-auto flex items-center gap-4 text-xs border-t border-white/6 pt-3">
