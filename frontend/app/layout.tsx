@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Geist } from 'next/font/google'
+import { Syne, Plus_Jakarta_Sans } from 'next/font/google'
 import { preconnect, prefetchDNS } from 'react-dom'
 import './globals.css'
 import { Providers } from './providers'
@@ -12,13 +12,27 @@ import { Footer } from '@/components/Footer'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans',display:'optional',preload:true});
+// ポートフォリオと同じフォント構成
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-display',
+  display: 'swap',
+  preload: true,
+})
 
-const inter = Inter({ subsets: ['latin'], display: 'optional', preload: true })
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-body',
+  display: 'swap',
+  preload: true,
+})
 
 export const metadata: Metadata = {
   title: 'VRChat フォトコンテスト',
-  description: 'VRChatのフォトコンテストプラットフォーム',
+  description: 'VRChatのフォトコンテストプラットフォーム — メタバースの奇跡の瞬間をシェアしよう',
 }
 
 export const viewport: Viewport = {
@@ -35,7 +49,11 @@ export default function RootLayout({
   prefetchDNS('https://api.vrchat-photocontest-platform.site');
 
   return (
-    <html lang="ja" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
+    <html
+      lang="ja"
+      suppressHydrationWarning
+      className={cn('dark', syne.variable, plusJakartaSans.variable)}
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -43,17 +61,21 @@ export default function RootLayout({
               (function() {
                 try {
                   const theme = localStorage.getItem('theme');
-                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  if (theme === 'light') {
+                    document.documentElement.classList.remove('dark');
+                  } else {
                     document.documentElement.classList.add('dark');
                   }
-                } catch (e) {}
+                } catch (e) {
+                  document.documentElement.classList.add('dark');
+                }
               })();
             `,
           }}
         />
       </head>
       <body
-        className={`${inter.className} min-h-screen bg-background text-foreground transition-colors duration-300`}
+        className="font-body min-h-screen bg-background text-foreground transition-colors duration-300"
         suppressHydrationWarning
       >
         <Providers>

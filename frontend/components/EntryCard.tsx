@@ -1,9 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { CustomIcon } from '@/components/ui/custom-icon'
-
 
 interface Entry {
   id: string
@@ -22,88 +20,96 @@ interface Entry {
 export function EntryCard({ entry }: { entry: Entry }) {
   return (
     <Link href={`/entries/${entry.id}`} className="group block h-full">
-      <Card
+      <article
         className={cn(
-          "relative h-full overflow-hidden transition-all duration-500",
-          "border-white/20 bg-white/40 backdrop-blur-lg dark:border-white/10 dark:bg-black/40",
-          "hover:-translate-y-1.5 hover:border-cyan-500/50 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] dark:hover:shadow-[0_0_25px_rgba(6,182,212,0.3)] flex flex-col"
+          'relative h-full overflow-hidden flex flex-col',
+          // ポートフォリオのwork-item風
+          'border border-white/6 bg-[#16161E]',
+          'transition-all duration-500',
+          'hover:-translate-y-1.5 hover:border-white/12',
+          'hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)]',
         )}
       >
-        <div className={cn(
-          "relative h-48 w-full overflow-hidden sm:h-56 lg:h-64",
-          "bg-slate-900"
-        )}>
+        {/* サムネイル */}
+        <div className="relative h-52 sm:h-60 overflow-hidden bg-[#111116]">
           {entry.thumbnail ? (
             <Image
               src={entry.thumbnail}
               alt={entry.title}
               fill
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:opacity-90"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
               unoptimized
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center relative">
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 via-transparent to-purple-600/20" />
-              <span className="relative z-10 transition-transform duration-700 group-hover:scale-125 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]">
-                <CustomIcon name="entries" size={80} />
+              {/* グリッドパターン */}
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px]" />
+              <span className="relative z-10 text-[#8A8A95] group-hover:text-[#CDFF50] transition-colors duration-500">
+                <CustomIcon name="entries" size={64} />
               </span>
             </div>
           )}
-          <div className={cn(
-            "absolute inset-0 opacity-80 transition-opacity duration-500 group-hover:opacity-60",
-            "bg-gradient-to-t from-black/80 via-black/10 to-transparent"
-          )} />
-          {/* Glowing line border underneath the thumbnail on hover */}
-          <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
+          {/* グラデーションオーバーレイ */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F]/90 via-[#0B0B0F]/20 to-transparent transition-opacity duration-500 opacity-80 group-hover:opacity-60" />
+
+          {/* ホバー時テキスト（ポートフォリオのwork-overlay風） */}
+          <div className="absolute inset-0 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <span className="text-xs font-medium tracking-[0.15em] uppercase text-[#CDFF50] font-body">
+              View Entry →
+            </span>
+          </div>
+
+          {/* ホバー時のアクセントライン */}
+          <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-[#CDFF50] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </div>
 
-        <CardContent className="relative flex flex-1 flex-col space-y-3 p-4 sm:p-5 lg:p-6">
-          {/* Subtle background glow on hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 dark:from-cyan-500/10 dark:to-purple-500/10 pointer-events-none" />
-
-          <h3 className={cn(
-            "relative line-clamp-2 text-base font-bold text-foreground",
-            "transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-cyan-500 group-hover:to-purple-500 group-hover:bg-clip-text group-hover:text-transparent dark:group-hover:from-cyan-400 dark:group-hover:to-purple-400 sm:text-lg"
-          )}>
+        {/* コンテンツ */}
+        <div className="relative flex flex-1 flex-col gap-3 p-4 sm:p-5">
+          {/* タイトル */}
+          <h3
+            className={cn(
+              'line-clamp-2 font-display font-bold text-sm sm:text-base',
+              'text-[#F0EDE8] group-hover:text-[#CDFF50]',
+              'transition-colors duration-300 tracking-wide uppercase'
+            )}
+          >
             {entry.title}
           </h3>
-          <p className="relative flex items-center gap-1.5 text-xs text-muted-foreground sm:text-sm">
-            <CustomIcon 
-              name="user" 
-              size={18} 
-              className="text-cyan-500 drop-shadow-[0_0_3px_rgba(6,182,212,0.4)]" 
-              aria-hidden 
-            />
-            <span className="truncate font-semibold text-foreground/80 dark:text-foreground/70">
-              {entry.author?.username || (entry.twitter_username ? `@${entry.twitter_username}` : '匿名ユーザー')}
+
+          {/* 作者 */}
+          <p className="flex items-center gap-1.5 text-xs text-[#8A8A95] font-body">
+            <CustomIcon name="user" size={14} className="text-[#CDFF50]/60 flex-shrink-0" aria-hidden />
+            <span className="truncate">
+              {entry.author?.username || (entry.twitter_username ? `@${entry.twitter_username}` : '匿名')}
             </span>
           </p>
 
-          <div className="relative mt-auto flex flex-wrap items-center gap-4 text-xs sm:gap-5 sm:text-sm border-t border-border/40 pt-3">
-            <div className="flex items-center gap-1.5 text-muted-foreground sm:gap-2">
-              <CustomIcon name="star" size={16} className="text-pink-500 drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" aria-hidden />
-              <span className="font-semibold text-foreground/90">{entry.vote_count}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-muted-foreground sm:gap-2">
-              <CustomIcon name="stats" size={16} className="text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]" aria-hidden />
-              <span className="font-semibold text-foreground/90">{entry.view_count}</span>
-            </div>
+          {/* スタッツ */}
+          <div className="mt-auto flex items-center gap-4 text-xs border-t border-white/6 pt-3">
+            <span className="flex items-center gap-1.5 text-[#55555F]">
+              <CustomIcon name="star" size={14} className="text-[#CDFF50]/70" aria-hidden />
+              <span className="font-semibold text-[#8A8A95]">{entry.vote_count}</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-[#55555F]">
+              <CustomIcon name="stats" size={14} className="text-[#CDFF50]/50" aria-hidden />
+              <span className="font-semibold text-[#8A8A95]">{entry.view_count}</span>
+            </span>
             {entry.twitter_url && (
               <a
                 href={entry.twitter_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={e => e.stopPropagation()}
-                className="ml-auto flex items-center gap-1 rounded-full bg-black/5 px-2 py-1 text-sky-600 transition-colors hover:bg-sky-500/10 hover:text-sky-500 dark:bg-white/5 dark:text-sky-400 dark:hover:bg-sky-400/20 dark:hover:text-sky-300"
+                onClick={(e) => e.stopPropagation()}
+                className="ml-auto flex items-center gap-1 text-[#55555F] hover:text-[#CDFF50] transition-colors duration-300"
                 title="Xで見る"
               >
-                  <CustomIcon name="twitter" size={18} />
+                <CustomIcon name="twitter" size={14} />
               </a>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </article>
     </Link>
   )
 }

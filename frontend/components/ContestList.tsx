@@ -57,9 +57,9 @@ export function ContestList() {
 
   if (isLoading) {
     return (
-      <div className="cq-contest-grid grid w-full min-w-0 max-w-full grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
+      <div className="cq-contest-grid grid w-full min-w-0 max-w-full grid-cols-1 gap-4 sm:gap-5">
         {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} className="h-80 rounded-xl sm:h-96" />
+          <Skeleton key={i} className="h-80 rounded-none bg-white/4 border border-white/6" />
         ))}
       </div>
     )
@@ -86,66 +86,58 @@ export function ContestList() {
             <button
               key={option}
               onClick={() => setPhase(option === 'all' ? null : option)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-1.5 text-xs font-body font-medium tracking-[0.1em] uppercase border transition-all duration-300 ${
                 phase === option
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
-                  : 'bg-muted text-foreground/80 hover:bg-muted/80 hover:text-foreground'
+                  ? 'border-[#CDFF50]/50 bg-[#CDFF50]/10 text-[#CDFF50]'
+                  : 'border-white/8 bg-white/4 text-[#8A8A95] hover:border-white/15 hover:text-[#F0EDE8]'
               }`}
             >
-              {option === 'all' ? 'すべて' : getPhaseLabel(option)}
+              {option === 'all' ? 'All' : getPhaseLabel(option)}
             </button>
           ))}
         </div>
 
         {/* 検索ボックス */}
         <div className="relative flex-1 sm:max-w-xs">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-            <CustomIcon name="search" size={16} />
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#55555F] pointer-events-none">
+            <CustomIcon name="search" size={14} />
           </div>
           <input
             type="search"
             value={search}
             onChange={e => setSearch(e.target.value || null)}
             placeholder="コンテストを検索..."
-            className="w-full rounded-lg border border-border bg-background pl-10 pr-3 py-1.5 text-sm transition-colors focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+            className="w-full border border-white/8 bg-white/4 text-[#F0EDE8] placeholder:text-[#55555F] pl-9 pr-3 py-2 text-sm font-body transition-all duration-300 focus:border-[#CDFF50]/40 focus:outline-none focus:bg-[#CDFF50]/5"
           />
         </div>
       </div>
 
       {/* コンテスト一覧 */}
       {filteredData.length === 0 ? (
-        <div className="w-full min-w-0 max-w-full rounded-3xl border border-white/20 bg-white/5 p-8 text-center backdrop-blur-xl dark:border-white/10 dark:bg-black/20 sm:p-20 shadow-[0_0_30px_rgba(168,85,247,0.1)] relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-cyan-500/10 pointer-events-none opacity-50 transition-opacity duration-500 group-hover:opacity-100" />
-          <div className="relative z-10">
-            <div className="flex justify-center mb-6">
-              <CustomIcon name="contest" size={96} className="opacity-70 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
-            </div>
-            <p className="text-balance text-lg font-bold text-foreground sm:text-xl tracking-wider">
-              {phase !== 'all' || search
-                ? 'SYS.ERROR: CONDITIONS NOT MET (条件に一致するコンテストが見つかりません)'
-                : 'SYS.STANDBY: NO ACTIVE CONTESTS (現在開催中のコンテストはありません)'}
-            </p>
-            {(phase !== 'all' || search) && (
-              <button
-                onClick={() => {
-                  setPhase(null)
-                  setSearch(null)
-                }}
-                className="mt-6 text-sm text-cyan-400 underline hover:text-cyan-300 transition-colors drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]"
-              >
-                [ RESET_FILTERS ]
-              </button>
-            )}
-            {!search && phase === 'all' && (
-              <p className="mt-4 text-balance text-sm text-foreground/60 font-medium">
-                新しいコンテストをお楽しみに！
-              </p>
-            )}
+        <div className="w-full border border-white/6 bg-white/[0.02] py-20 text-center">
+          <div className="flex justify-center mb-6 text-[#55555F]">
+            <CustomIcon name="contest" size={64} />
           </div>
+          <p className="font-display font-bold text-sm uppercase tracking-[0.15em] text-[#8A8A95]">
+            {phase !== 'all' || search
+              ? '条件に一致するコンテストが見つかりません'
+              : '現在開催中のコンテストはありません'}
+          </p>
+          {(phase !== 'all' || search) && (
+            <button
+              onClick={() => {
+                setPhase(null)
+                setSearch(null)
+              }}
+              className="mt-6 text-xs tracking-[0.15em] uppercase text-[#CDFF50] hover:text-[#CDFF50]/70 transition-colors duration-300 font-body"
+            >
+              フィルタをリセット
+            </button>
+          )}
         </div>
       ) : (
         <motion.div
-          className="cq-contest-grid grid w-full min-w-0 max-w-full grid-cols-1 gap-4 sm:gap-6 lg:gap-8"
+          className="cq-contest-grid grid w-full min-w-0 max-w-full grid-cols-1 gap-4 sm:gap-5"
           initial={prefersReducedMotion ? false : 'hidden'}
           animate={prefersReducedMotion ? undefined : 'visible'}
           variants={prefersReducedMotion ? undefined : staggerContainer}

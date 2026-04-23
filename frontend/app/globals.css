@@ -2,68 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   PORTFOLIO DESIGN TOKENS
+   ======================================== */
+:root {
+  /* ポートフォリオのカラートークンをCSS変数として定義 */
+  --color-bg-primary: #0B0B0F;
+  --color-bg-secondary: #111116;
+  --color-bg-tertiary: #1A1A22;
+  --color-bg-card: #16161E;
+  --color-text-primary: #F0EDE8;
+  --color-text-secondary: #8A8A95;
+  --color-text-muted: #55555F;
+  --color-accent: #CDFF50;
+  --color-accent-dim: rgba(205, 255, 80, 0.15);
+  --color-accent-glow: rgba(205, 255, 80, 0.4);
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(255, 255, 255, 0.12);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Shadcn/Radix UI tokens — Light mode */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 262 83% 58%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 262 83% 58%;
+  --radius: 0.5rem;
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 222.2 84% 4.9%;
+  --sidebar-primary: 262 83% 58%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 210 40% 96.1%;
+  --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-ring: 262 83% 58%;
+}
+
+.dark {
+  /* ダークモードはポートフォリオカラー完全適用 */
+  --background: 240 8% 5%;         /* #0B0B0F */
+  --foreground: 30 15% 94%;        /* #F0EDE8 */
+  --card: 240 8% 8%;               /* #16161E */
+  --card-foreground: 30 15% 94%;
+  --popover: 240 8% 7%;            /* #111116 */
+  --popover-foreground: 30 15% 94%;
+  --primary: 80 100% 65%;          /* #CDFF50 accent lime */
+  --primary-foreground: 240 8% 5%;
+  --secondary: 240 8% 10%;         /* #1A1A22 */
+  --secondary-foreground: 30 15% 94%;
+  --muted: 240 8% 10%;
+  --muted-foreground: 240 4% 54%;  /* #8A8A95 */
+  --accent: 80 100% 65%;           /* #CDFF50 */
+  --accent-foreground: 240 8% 5%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 240 8% 13%;            /* rgba(255,255,255,0.06) 相当 */
+  --input: 240 8% 10%;
+  --ring: 80 100% 65%;
+  --sidebar: 240 8% 7%;
+  --sidebar-foreground: 30 15% 94%;
+  --sidebar-primary: 80 100% 65%;
+  --sidebar-primary-foreground: 240 8% 5%;
+  --sidebar-accent: 240 8% 10%;
+  --sidebar-accent-foreground: 30 15% 94%;
+  --sidebar-border: 240 8% 13%;
+  --sidebar-ring: 80 100% 65%;
+  color-scheme: dark;
+}
+
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
-    --radius: 0.5rem;
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 262 83% 58%;
-  }
-
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 0 0% 10%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 10%;
-    --ring: 262 83% 58%;
-    --sidebar: 0 0% 6%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 262 83% 58%;
-  }
-
   * {
     @apply border-border;
   }
@@ -71,14 +94,33 @@
   body {
     @apply bg-background text-foreground transition-colors duration-300 antialiased;
   }
+}
 
-  .dark {
-    color-scheme: dark;
-  }
+/* ========================================
+   NOISE TEXTURE OVERLAY (ポートフォリオから移植)
+   ======================================== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ========================================
+   TEXT SELECTION (アクセントカラー)
+   ======================================== */
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
 }
 
 @layer components {
-  /* メイン列の実幅を基準にグリッド列数を変える（サイドバー表示時も整合） */
+  /* メイン列の実幅を基準にグリッド列数を変える */
   .page-cq {
     container-type: inline-size;
     container-name: page;
@@ -141,16 +183,28 @@
     @apply bg-transparent;
   }
 
+  /* ポートフォリオ風グラスモーフィズム */
   .glass {
+    background: rgba(22, 22, 30, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-light {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
-  .dark .glass {
-    background: rgb(0, 0, 0);
-    border: 1px solid rgba(75, 85, 99, 0.3);
+  /* アクセントグロー */
+  .glow-accent {
+    box-shadow: 0 0 20px var(--color-accent-glow);
+  }
+
+  .glow-accent-sm {
+    box-shadow: 0 0 10px var(--color-accent-glow);
   }
 
   .glow-purple {
@@ -161,46 +215,63 @@
     box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
   }
 
-  .scrollbar-custom {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(192, 132, 252) rgb(229, 231, 235);
+  /* カードの共通スタイル（ポートフォリオwork-item風） */
+  .brand-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    transition: border-color 0.6s ease, transform 0.6s var(--ease-out-expo), box-shadow 0.6s ease;
   }
 
-  .dark .scrollbar-custom {
-    scrollbar-color: rgb(147, 51, 234) rgb(31, 41, 55);
+  .brand-card:hover {
+    border-color: var(--color-border-hover);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+
+  /* アクセントラインの装飾 */
+  .accent-line::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: var(--color-accent);
+    margin-right: 0.75rem;
+    vertical-align: middle;
+  }
+
+  /* セクション区切りライン */
+  .section-divider-line {
+    height: 1px;
+    background: var(--color-border-hover);
+  }
+
+  /* スクロールバー */
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(205, 255, 80, 0.3) transparent;
   }
 
   .scrollbar-custom::-webkit-scrollbar {
-    width: 8px;
+    width: 4px;
   }
 
   .scrollbar-custom::-webkit-scrollbar-track {
-    background: rgb(229, 231, 235);
-    border-radius: 4px;
-  }
-
-  .dark .scrollbar-custom::-webkit-scrollbar-track {
-    background: rgb(31, 41, 55);
+    background: transparent;
   }
 
   .scrollbar-custom::-webkit-scrollbar-thumb {
-    background: rgb(192, 132, 252);
+    background: rgba(205, 255, 80, 0.3);
     border-radius: 4px;
   }
 
   .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    background: rgb(168, 85, 247);
-  }
-
-  .dark .scrollbar-custom::-webkit-scrollbar-thumb {
-    background: rgb(147, 51, 234);
-  }
-
-  .dark .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    background: rgb(168, 85, 247);
+    background: rgba(205, 255, 80, 0.5);
   }
 }
 
+/* ========================================
+   KEYFRAMES
+   ======================================== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -275,6 +346,18 @@
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ========================================
+   ANIMATION CLASSES
+   ======================================== */
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out;
 }
@@ -304,4 +387,8 @@
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradient 3s ease infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }

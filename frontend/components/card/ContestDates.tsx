@@ -7,16 +7,16 @@ interface ContestDatesProps {
 
 export function ContestDates({ startAt, endAt }: ContestDatesProps) {
   return (
-    <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-        <span className="text-green-600 dark:text-green-400">🟢</span>
-        <span className="font-semibold">開始:</span>
-        <span className="truncate">{formatDate(startAt)}</span>
+    <div className="space-y-1.5 text-xs font-body">
+      <div className="flex items-center gap-2 text-[#55555F]">
+        <span className="inline-block w-3 h-px bg-[#CDFF50]/50 flex-shrink-0" />
+        <span className="text-[#8A8A95] tracking-wide">開始</span>
+        <span className="ml-auto truncate text-[#8A8A95]">{formatDate(startAt)}</span>
       </div>
-      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-        <span className="text-red-600 dark:text-red-400">🔴</span>
-        <span className="font-semibold">終了:</span>
-        <span className="truncate">{formatDate(endAt)}</span>
+      <div className="flex items-center gap-2 text-[#55555F]">
+        <span className="inline-block w-3 h-px bg-white/20 flex-shrink-0" />
+        <span className="text-[#55555F] tracking-wide">終了</span>
+        <span className="ml-auto truncate text-[#55555F]">{formatDate(endAt)}</span>
       </div>
     </div>
   )
