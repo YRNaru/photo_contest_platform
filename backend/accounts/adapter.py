@@ -10,6 +10,8 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth import get_user_model, login
 from django.http import HttpResponseRedirect
 
+from .redirects import get_post_login_redirect_path
+
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
@@ -41,7 +43,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             if request.user.is_authenticated:
                 logger.info(f"User already authenticated: {request.user.email}")
                 sociallogin.connect(request, request.user)
-                raise ImmediateHttpResponse(HttpResponseRedirect("/accounts/profile/"))
+                raise ImmediateHttpResponse(HttpResponseRedirect(get_post_login_redirect_path(request)))
 
             # メールアドレスを取得
             email = None
@@ -88,7 +90,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
 
                 # プロフィールページにリダイレクト
                 logger.info("Redirecting to profile page")
-                raise ImmediateHttpResponse(HttpResponseRedirect("/accounts/profile/"))
+                raise ImmediateHttpResponse(HttpResponseRedirect(get_post_login_redirect_path(request)))
             else:
                 logger.info("No existing user found, will create new user")
         except ImmediateHttpResponse:

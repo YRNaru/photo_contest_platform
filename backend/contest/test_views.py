@@ -1,6 +1,7 @@
 from datetime import timedelta
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
@@ -284,3 +285,274 @@ class JudgeScoreMyScoresAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
         self.assertGreaterEqual(len(response.data), 1)
+
+
+class TweetRegistrationAPITests(APITestCase):
+    """ツイート登録APIのテスト"""
+
+    def setUp(self):
+        self.owner = User.objects.create_user(username="tweetowner", email="owner@example.com", password="testpass123")
+        self.creator = User.objects.create_user(
+            username="contestcreator",
+            email="creator@example.com",
+            password="testpass123",
+        )
+        self.other_user = User.objects.create_user(
+            username="outsider",
+            email="outsider@example.com",
+            password="testpass123",
+        )
+        self.contest = Contest.objects.create(
+            slug="tweet-contest",
+            title="Tweet Contest",
+            creator=self.creator,
+            twitter_hashtag="contest",
+            twitter_auto_approve=False,
+            max_entries_per_user=1,
+            max_images_per_entry=2,
+            start_at=timezone.now() - timedelta(hours=1),
+            end_at=timezone.now() + timedelta(days=1),
+        )
+        SocialAccount.objects.create(
+            user=self.owner,
+            provider="twitter_oauth2",
+            uid="111",
+            extra_data={"username": "tweetowner"},
+        )
+
+    def make_tweet_data(self, **overrides):
+        tweet_data = {
+            "id": "1111111111111111111",
+            "text": "A beautiful contest shot https://x.com/example/status/1111111111111111111",
+            "author_id": "111",
+            "author_username": "tweetowner",
+            "author_name": "Tweet Owner",
+            "media_urls": [
+                "https://example.com/photo1.jpg",
+                "https://example.com/photo2.jpg",
+            ],
+            "media_types": ["photo", "photo"],
+            "contains_non_photo_media": False,
+            "url": "https://x.com/tweetowner/status/1111111111111111111",
+        }
+        tweet_data.update(overrides)
+        return tweet_data
+
+    def make_download_response(self):
+        response = Mock()
+        response.status_code = 200
+        response.content = b"fake image bytes"
+        return response
+
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_tweet_preview_returns_defaults(self, mock_fetch_tweet):
+        self.client.force_authenticate(user=self.owner)
+        mock_fetch_tweet.return_value = self.make_tweet_data()
+
+        response = self.client.post(
+            "/api/entries/tweet_preview/",
+            {"tweet_url": "https://x.com/tweetowner/status/1111111111111111111"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["tweet_id"], "1111111111111111111")
+        self.assertEqual(response.data["author_id"], "111")
+        self.assertEqual(response.data["default_description"], self.make_tweet_data()["text"])
+        self.assertTrue(response.data["default_title"])
+
+    @patch("contest.twitter_integration.requests.get")
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_as_owner_success(self, mock_fetch_tweet, mock_requests_get):
+        self.client.force_authenticate(user=self.owner)
+        mock_fetch_tweet.return_value = self.make_tweet_data()
+        mock_requests_get.return_value = self.make_download_response()
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/tweetowner/status/1111111111111111111",
+                "title": "Owner Title",
+                "description": "Owner Description",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["status"], "pending")
+
+        entry = Entry.objects.get(twitter_tweet_id="1111111111111111111")
+        self.assertEqual(entry.author, self.owner)
+        self.assertEqual(entry.title, "Owner Title")
+        self.assertEqual(entry.description, "Owner Description")
+        self.assertEqual(entry.source, "twitter")
+        self.assertFalse(entry.approved)
+
+    @patch("contest.twitter_integration.requests.get")
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_as_creator_proxy_success(self, mock_fetch_tweet, mock_requests_get):
+        self.client.force_authenticate(user=self.creator)
+        mock_fetch_tweet.return_value = self.make_tweet_data(
+            id="2222222222222222222",
+            author_id="999",
+            author_username="otheruser",
+            author_name="Other User",
+            url="https://x.com/otheruser/status/2222222222222222222",
+        )
+        mock_requests_get.return_value = self.make_download_response()
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/otheruser/status/2222222222222222222",
+                "title": "Proxy Title",
+                "description": "Proxy Description",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        entry = Entry.objects.get(twitter_tweet_id="2222222222222222222")
+        self.assertIsNone(entry.author)
+        self.assertEqual(entry.twitter_user_id, "999")
+
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_rejects_other_users_tweet(self, mock_fetch_tweet):
+        self.client.force_authenticate(user=self.other_user)
+        mock_fetch_tweet.return_value = self.make_tweet_data()
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/tweetowner/status/1111111111111111111",
+                "title": "Nope",
+                "description": "Nope",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("連携済みX投稿", str(response.data))
+
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_rejects_duplicate_tweet(self, mock_fetch_tweet):
+        Entry.objects.create(
+            contest=self.contest,
+            title="Existing Tweet",
+            twitter_tweet_id="1111111111111111111",
+            twitter_user_id="111",
+            source="twitter",
+            approved=True,
+        )
+        self.client.force_authenticate(user=self.owner)
+        mock_fetch_tweet.return_value = self.make_tweet_data()
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/tweetowner/status/1111111111111111111",
+                "title": "Duplicate",
+                "description": "Duplicate",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("既に登録", str(response.data))
+
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_rejects_video_tweet(self, mock_fetch_tweet):
+        self.client.force_authenticate(user=self.owner)
+        mock_fetch_tweet.return_value = self.make_tweet_data(
+            media_urls=[],
+            media_types=["video"],
+            contains_non_photo_media=True,
+        )
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/tweetowner/status/1111111111111111111",
+                "title": "Video",
+                "description": "Video",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("動画・GIF", str(response.data))
+
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_rejects_tweet_without_images(self, mock_fetch_tweet):
+        self.client.force_authenticate(user=self.owner)
+        mock_fetch_tweet.return_value = self.make_tweet_data(
+            media_urls=[],
+            media_types=[],
+            contains_non_photo_media=False,
+        )
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/tweetowner/status/1111111111111111111",
+                "title": "No Image",
+                "description": "No Image",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("写真付きツイート", str(response.data))
+
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_rejects_max_entries_over_limit(self, mock_fetch_tweet):
+        Entry.objects.create(
+            contest=self.contest,
+            author=self.owner,
+            title="Existing Entry",
+            twitter_user_id="111",
+            approved=True,
+        )
+        self.client.force_authenticate(user=self.owner)
+        mock_fetch_tweet.return_value = self.make_tweet_data(id="3333333333333333333", url="https://x.com/tweetowner/status/3333333333333333333")
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/tweetowner/status/3333333333333333333",
+                "title": "Second Entry",
+                "description": "Second Entry",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("最大1件", str(response.data))
+
+    @patch("contest.twitter_integration.requests.get")
+    @patch("contest.twitter_integration.TwitterFetcher.fetch_tweet_by_id")
+    def test_register_tweet_respects_twitter_auto_approve(self, mock_fetch_tweet, mock_requests_get):
+        self.contest.twitter_auto_approve = True
+        self.contest.save(update_fields=["twitter_auto_approve"])
+        self.client.force_authenticate(user=self.owner)
+        mock_fetch_tweet.return_value = self.make_tweet_data(
+            id="4444444444444444444",
+            url="https://x.com/tweetowner/status/4444444444444444444",
+        )
+        mock_requests_get.return_value = self.make_download_response()
+
+        response = self.client.post(
+            f"/api/contests/{self.contest.slug}/register_tweet/",
+            {
+                "tweet_url": "https://x.com/tweetowner/status/4444444444444444444",
+                "title": "Approved Entry",
+                "description": "Approved Entry",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["status"], "published")
+
+        entry = Entry.objects.get(twitter_tweet_id="4444444444444444444")
+        self.assertTrue(entry.approved)

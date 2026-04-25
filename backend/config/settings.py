@@ -139,6 +139,10 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     "http://localhost:13000,http://127.0.0.1:13000",
 ).split(",")
 
+CHROME_EXTENSION_IDS = [value.strip() for value in os.environ.get("CHROME_EXTENSION_IDS", "").split(",") if value.strip()]
+if CHROME_EXTENSION_IDS:
+    CORS_ALLOWED_ORIGINS += [f"chrome-extension://{extension_id}" for extension_id in CHROME_EXTENSION_IDS]
+
 # 本番環境のフロントエンドURLを追加
 # CORS_ALLOWED_ORIGINS は環境変数で設定済みのため、ここでの追加は不要
 

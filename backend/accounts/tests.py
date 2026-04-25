@@ -4,6 +4,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
+from .redirects import EXTENSION_REDIRECT_SESSION_KEY
 from .serializers import UserDetailSerializer, UserSerializer
 
 User = get_user_model()
@@ -530,3 +531,58 @@ class UserPermissionsTest(APITestCase):
         """管理者ユーザーの権限"""
         self.assertTrue(self.admin_user.is_staff)
         self.assertTrue(self.admin_user.is_superuser)
+
+
+class ExtensionAuthFlowTests(APITestCase):
+    """Chrome拡張向けOAuth導線のテスト"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="extensionuser",
+            email="extension@example.com",
+            password="testpass123",
+        )
+
+    def test_extension_login_rejects_invalid_redirect_uri(self):
+        response = self.client.get(
+            "/accounts/extension/login/twitter_oauth2/",
+            {"redirect_uri": "https://example.com/callback"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_extension_login_redirects_to_provider_and_stores_session(self):
+        redirect_uri = "https://abcdefghijklmnop.chromiumapp.org/oauth2"
+
+        response = self.client.get(
+            "/accounts/extension/login/twitter_oauth2/",
+            {"redirect_uri": redirect_uri},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn("/accounts/twitter_oauth2/login/", response.url)
+        self.assertEqual(self.client.session[EXTENSION_REDIRECT_SESSION_KEY], redirect_uri)
+
+    def test_extension_auth_complete_redirects_with_tokens(self):
+        session = self.client.session
+        session[EXTENSION_REDIRECT_SESSION_KEY] = "https://abcdefghijklmnop.chromiumapp.org/oauth2"
+        session.save()
+        self.client.force_login(self.user)
+
+        response = self.client.get("/accounts/extension/auth-complete/")
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn("chromiumapp.org/oauth2", response.url)
+        self.assertIn("access_token=", response.url)
+        self.assertIn("refresh_token=", response.url)
+
+    def test_profile_redirects_extension_flow_to_auth_complete(self):
+        session = self.client.session
+        session[EXTENSION_REDIRECT_SESSION_KEY] = "https://abcdefghijklmnop.chromiumapp.org/oauth2"
+        session.save()
+        self.client.force_login(self.user)
+
+        response = self.client.get("/accounts/profile/")
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn("/accounts/extension/auth-complete/", response.url)

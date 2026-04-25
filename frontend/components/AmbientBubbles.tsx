@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const bubbleColors = [
   'rgba(205, 255, 80, 0.45)',   // Lime accent
@@ -11,6 +11,7 @@ const bubbleColors = [
 ]
 
 export function AmbientBubbles() {
+  const timeoutIdsRef = useRef<number[]>([])
   const [bubbles, setBubbles] = useState<
     Array<{
       id: string
@@ -38,20 +39,27 @@ export function AmbientBubbles() {
       setBubbles((prev) => [...prev, { id, size, left, duration, drift, opacity, color }])
 
       // Clean up bubble after animation
-      setTimeout(() => {
+      const removeBubbleTimeoutId = window.setTimeout(() => {
         setBubbles((prev) => prev.filter((b) => b.id !== id))
+        timeoutIdsRef.current = timeoutIdsRef.current.filter((timeoutId) => timeoutId !== removeBubbleTimeoutId)
       }, duration * 1000)
+      timeoutIdsRef.current.push(removeBubbleTimeoutId)
     }
 
     // Initial batch
     for (let i = 0; i < 8; i++) {
-      setTimeout(createBubble, i * 600)
+      const initialTimeoutId = window.setTimeout(createBubble, i * 600)
+      timeoutIdsRef.current.push(initialTimeoutId)
     }
 
     // Continuously spawn
     const interval = setInterval(createBubble, 2000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      timeoutIdsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId))
+      timeoutIdsRef.current = []
+    }
   }, [])
 
   return (

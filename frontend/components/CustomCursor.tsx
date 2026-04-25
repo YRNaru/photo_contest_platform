@@ -6,12 +6,17 @@ import { cn } from '@/lib/utils'
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null)
   const dotRef = useRef<HTMLDivElement>(null)
+  const [isEnabled, setIsEnabled] = useState(false)
   const [isHover, setIsHover] = useState(false)
   const [isView, setIsView] = useState(false)
 
   useEffect(() => {
-    // Disable on touch devices
-    if (window.matchMedia('(pointer: coarse)').matches) return
+    const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
+    if (!pointerQuery.matches) {
+      setIsEnabled(false)
+      return
+    }
+    setIsEnabled(true)
 
     let mouseX = 0
     let mouseY = 0
@@ -80,6 +85,10 @@ export function CustomCursor() {
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
+
+  if (!isEnabled) {
+    return null
+  }
 
   // Hide entirely on touch devices via CSS
   return (

@@ -92,13 +92,21 @@ class TwitterFetcher:
             
             # メディア情報
             media_urls = []
+            media_types = []
+            contains_non_photo_media = False
             if hasattr(tweet, "attachments") and "media_keys" in tweet.attachments:
                 media_dict = {m.media_key: m for m in includes.get("media", [])}
                 for media_key in tweet.attachments["media_keys"]:
                     media = media_dict.get(media_key)
-                    if media and media.type == "photo" and hasattr(media, "url"):
+                    media_type = getattr(media, "type", None) if media else None
+                    if media_type:
+                        media_types.append(media_type)
+
+                    if media and media_type == "photo" and hasattr(media, "url"):
                         media_urls.append(media.url)
                     elif media:
+                        if media_type in {"animated_gif", "video"}:
+                            contains_non_photo_media = True
                         logger.debug(
                             f"Skipping media {media_key}: type={getattr(media, 'type', None)}, "
                             f"has_url={hasattr(media, 'url')}"
@@ -112,6 +120,8 @@ class TwitterFetcher:
                 "author_username": user.username if user else None,
                 "author_name": user.name if user else None,
                 "media_urls": media_urls,
+                "media_types": media_types,
+                "contains_non_photo_media": contains_non_photo_media,
                 "url": f"https://twitter.com/{user.username if user else 'i'}/status/{tweet.id}",
             }
             
@@ -231,7 +241,7 @@ class TwitterFetcher:
             logger.error(f"Error fetching tweets: {str(e)}")
             return []
 
-    def create_entry_from_tweet(self, contest, tweet_data):
+    def create_entry_from_tweet(self, contest, tweet_data, *, author=None, title=None, description=None, approved=None):
         """
         ツイートからエントリーを作成
 
@@ -251,8 +261,6 @@ class TwitterFetcher:
             # Twitterユーザーに対応するローカルユーザーを取得または作成
             # ユーザーがログインしていない場合は、authorをNullにする
             # または、Twitter情報だけで仮ユーザーを作成
-            author = None
-
             # author_idの存在確認
             if not tweet_data.get("author_id"):
                 logger.error(f"Tweet {tweet_data['id']} has no author_id: {tweet_data}")
@@ -267,16 +275,18 @@ class TwitterFetcher:
             # タイトルを「ユーザー名_応募N」形式で生成
             entry_number = existing_entries_count + 1
             username = tweet_data.get("author_name") or tweet_data.get("author_username") or "不明"
-            title = f"{username}_応募{entry_number}"
-            
+            generated_title = (title or "").strip() or f"{username}_応募{entry_number}"
+
             # 説明はツイート本文をそのまま使用
-            text = tweet_data["text"]
+            text = tweet_data["text"] if description is None else description.strip()
+
+            entry_approved = contest.twitter_auto_approve if approved is None else approved
 
             # エントリー作成
             entry = Entry.objects.create(
                 contest=contest,
                 author=author,
-                title=title,
+                title=generated_title[:200],
                 description=text,
                 tags=contest.twitter_hashtag,
                 source="twitter",
@@ -284,7 +294,7 @@ class TwitterFetcher:
                 twitter_user_id=str(tweet_data["author_id"]),
                 twitter_username=tweet_data["author_username"],
                 twitter_url=tweet_data["url"],
-                approved=contest.twitter_auto_approve,
+                approved=entry_approved,
             )
             
             logger.info(

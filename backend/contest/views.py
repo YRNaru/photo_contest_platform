@@ -1,3 +1,5 @@
+import os
+
 from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
@@ -21,8 +23,18 @@ from .serializers import (
     JudgeScoreCreateSerializer,
     JudgeScoreDetailSerializer,
     JudgingCriteriaSerializer,
+    RegisterTweetSerializer,
+    TweetPreviewSerializer,
     VoteSerializer,
 )
+
+
+def build_frontend_entry_url(entry_id) -> str | None:
+    """Build an absolute frontend URL for an entry when configured."""
+    frontend_url = os.environ.get("FRONTEND_URL", "").rstrip("/")
+    if not frontend_url:
+        return None
+    return f"{frontend_url}/entries/{entry_id}"
 
 
 class ContestViewSet(viewsets.ModelViewSet):
@@ -306,6 +318,34 @@ class ContestViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def register_tweet(self, request, slug=None):  # type: ignore
+        """ツイートから応募を登録（本人またはコンテスト作成者/スタッフ）"""
+        contest = self.get_object()
+        serializer = RegisterTweetSerializer(
+            data=request.data,
+            context={"contest": contest, "request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        entry = serializer.save()
+        entry_serializer = EntryDetailSerializer(entry, context={"request": request})
+
+        response_data = {
+            "detail": (
+                "ツイートから作品を公開しました。"
+                if entry.approved
+                else "ツイートから作品を登録しました。承認待ちです。"
+            ),
+            "status": "published" if entry.approved else "pending",
+            "entry": entry_serializer.data,
+        }
+
+        entry_url = build_frontend_entry_url(entry.id)
+        if entry_url:
+            response_data["entry_url"] = entry_url
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 class EntryViewSet(viewsets.ModelViewSet):
     """エントリーViewSet"""
@@ -338,6 +378,14 @@ class EntryViewSet(viewsets.ModelViewSet):
         instance.save(update_fields=["view_count"])
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def tweet_preview(self, request):
+        """ツイートURLから応募前プレビューを取得"""
+        serializer = TweetPreviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        preview_data = serializer.save()
+        return Response(preview_data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def vote(self, request, pk=None):  # type: ignore

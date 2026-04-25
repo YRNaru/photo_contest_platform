@@ -96,7 +96,7 @@ def moderate_image(entry_image_id):
 def cleanup_old_thumbnails():
     """古いサムネイルのクリーンアップ（定期実行）"""
     # TODO: 実装
-    pass
+    logger.info("cleanup_old_thumbnails: not yet implemented, skipping.")
 
 
 @shared_task

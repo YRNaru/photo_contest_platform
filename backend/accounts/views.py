@@ -1,7 +1,8 @@
 import os
+from urllib.parse import urlencode
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import (
@@ -14,6 +15,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
+from .redirects import (
+    ALLOWED_EXTENSION_PROVIDERS,
+    DEFAULT_PROFILE_PATH,
+    EXTENSION_REDIRECT_SESSION_KEY,
+    get_post_login_redirect_path,
+    is_valid_extension_redirect_uri,
+)
 from .serializers import UserDetailSerializer, UserSerializer
 
 
@@ -69,11 +77,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
                 )
 
         # アバター画像のアップロード
-        try:
-            if request.FILES and "avatar" in request.FILES:
-                user.avatar = request.FILES["avatar"]
-        except (KeyError, AttributeError):
-            pass
+        if request.FILES and "avatar" in request.FILES:
+            user.avatar = request.FILES["avatar"]
 
         # 変更があれば保存
         has_username_update = "username" in request.data
@@ -147,6 +152,47 @@ def twitter_login(_request: Request) -> HttpResponse:
     return redirect("/accounts/twitter_oauth2/login/")
 
 
+def build_token_redirect_url(target_url: str, user: User, *, request: HttpRequest | None = None) -> str:
+    """Build a redirect URL containing JWT tokens for the authenticated user."""
+    refresh = RefreshToken.for_user(user)
+    params = {
+        "access_token": str(refresh.access_token),
+        "refresh_token": str(refresh),
+    }
+
+    if request is not None:
+        serializer = UserDetailSerializer(user, context={"request": request})
+        params["user_id"] = str(serializer.data["id"])
+
+    separator = "&" if "?" in target_url else "?"
+    return f"{target_url}{separator}{urlencode(params)}"
+
+
+def extension_login(request: HttpRequest, provider: str) -> HttpResponse:
+    """Start an OAuth flow for the Chrome extension."""
+    redirect_uri = request.GET.get("redirect_uri", "").strip()
+
+    if provider not in ALLOWED_EXTENSION_PROVIDERS:
+        return HttpResponseBadRequest("Unsupported OAuth provider.")
+
+    if not redirect_uri or not is_valid_extension_redirect_uri(redirect_uri):
+        return HttpResponseBadRequest("Invalid extension redirect URI.")
+
+    request.session[EXTENSION_REDIRECT_SESSION_KEY] = redirect_uri
+    return redirect(f"/accounts/{provider}/login/")
+
+
+@login_required
+def extension_auth_complete(request: HttpRequest) -> HttpResponse:
+    """Complete the extension auth flow and return JWT tokens."""
+    redirect_uri = request.session.pop(EXTENSION_REDIRECT_SESSION_KEY, "").strip()
+
+    if not redirect_uri or not is_valid_extension_redirect_uri(redirect_uri):
+        return HttpResponseBadRequest("Invalid extension redirect URI.")
+
+    return redirect(build_token_redirect_url(redirect_uri, request.user, request=request))
+
+
 @login_required
 def profile(request: HttpRequest) -> HttpResponse:
     """
@@ -156,14 +202,13 @@ def profile(request: HttpRequest) -> HttpResponse:
     """
     user = request.user
 
-    # JWTトークンを生成
-    refresh = RefreshToken.for_user(user)
-    access_token = str(refresh.access_token)
-    refresh_token = str(refresh)
+    path = get_post_login_redirect_path(request)
+    if path != DEFAULT_PROFILE_PATH:
+        return redirect(path)
 
     # フロントエンドのプロフィールページにリダイレクト（トークン付き）
     frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:13000")
-    redirect_url = f"{frontend_url}/profile?" f"access_token={access_token}&refresh_token={refresh_token}"
+    redirect_url = build_token_redirect_url(f"{frontend_url}/profile", user, request=request)
     return redirect(redirect_url)
 
 

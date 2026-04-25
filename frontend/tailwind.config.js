@@ -126,10 +126,10 @@ module.exports = {
           to: { height: '0' },
         },
         bubbleFloat: {
-          '0%': { transform: 'translateY(0) scale(0.6)', opacity: '0' },
-          '10%': { opacity: '0.12' },
-          '80%': { opacity: '0.12' },
-          '100%': { transform: 'translateY(-110vh) scale(1)', opacity: '0' },
+          '0%': { transform: 'translate3d(0, 0, 0) scale(0.6)', opacity: '0' },
+          '10%': { opacity: 'var(--bubble-opacity, 0.12)' },
+          '80%': { opacity: 'var(--bubble-opacity, 0.12)' },
+          '100%': { transform: 'translate3d(var(--bubble-drift, 0px), -110vh, 0) scale(1)', opacity: '0' },
         },
         scrollPulse: {
           '0%,100%': { opacity: '1', transform: 'scaleY(1)' },
