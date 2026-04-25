@@ -11,6 +11,7 @@ import { staggerContainer, staggerItem } from '@/lib/motion'
 import { getPhaseLabel } from '@/lib/utils'
 import { useMemo } from 'react'
 import { CustomIcon } from '@/components/ui/custom-icon'
+import { cn } from '@/lib/utils'
 
 /** フィルタ対象のフェーズ一覧（'all' はフィルタなしを意味する） */
 const PHASE_OPTIONS = ['all', 'upcoming', 'submission', 'voting', 'closed'] as const
@@ -59,7 +60,10 @@ export function ContestList() {
     return (
       <div className="cq-contest-grid grid w-full min-w-0 max-w-full grid-cols-1 gap-4 sm:gap-5">
         {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} className="h-80 rounded-none bg-white/4 border border-white/6" />
+          <Skeleton
+            key={i}
+            className="h-80 rounded-none border border-zinc-200/80 bg-zinc-200/50 dark:border-white/6 dark:bg-white/4"
+          />
         ))}
       </div>
     )
@@ -86,11 +90,12 @@ export function ContestList() {
             <button
               key={option}
               onClick={() => setPhase(option === 'all' ? null : option)}
-              className={`px-3 py-1.5 text-xs font-body font-medium tracking-[0.1em] uppercase border transition-all duration-300 ${
+              className={cn(
+                'border px-3 py-1.5 font-body text-xs font-medium uppercase tracking-[0.1em] transition-all duration-300',
                 phase === option
-                  ? 'border-[#CDFF50]/50 bg-[#CDFF50]/10 text-[#CDFF50]'
-                  : 'border-white/8 bg-white/4 text-[#8A8A95] hover:border-white/15 hover:text-[#F0EDE8]'
-              }`}
+                  ? 'border-lime-600/60 bg-lime-100 text-lime-900 dark:border-[#CDFF50]/50 dark:bg-[#CDFF50]/10 dark:text-[#CDFF50]'
+                  : 'border-zinc-200/90 bg-zinc-50/90 text-zinc-700 hover:border-zinc-400/80 hover:text-zinc-950 dark:border-white/8 dark:bg-white/4 dark:text-[#8A8A95] dark:hover:border-white/15 dark:hover:text-[#F0EDE8]'
+              )}
             >
               {option === 'all' ? 'All' : getPhaseLabel(option)}
             </button>
@@ -99,7 +104,7 @@ export function ContestList() {
 
         {/* 検索ボックス */}
         <div className="relative flex-1 sm:max-w-xs">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#55555F] pointer-events-none">
+          <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-[#55555F]">
             <CustomIcon name="search" size={14} />
           </div>
           <input
@@ -107,18 +112,18 @@ export function ContestList() {
             value={search}
             onChange={e => setSearch(e.target.value || null)}
             placeholder="コンテストを検索..."
-            className="w-full border border-white/8 bg-white/4 text-[#F0EDE8] placeholder:text-[#55555F] pl-9 pr-3 py-2 text-sm font-body transition-all duration-300 focus:border-[#CDFF50]/40 focus:outline-none focus:bg-[#CDFF50]/5"
+            className="w-full border border-zinc-200/90 bg-white py-2 pl-9 pr-3 font-body text-sm text-zinc-900 placeholder:text-zinc-500 transition-all duration-300 focus:border-lime-500/50 focus:outline-none focus:ring-1 focus:ring-lime-500/30 dark:border-white/8 dark:bg-white/4 dark:text-[#F0EDE8] dark:placeholder:text-[#55555F] dark:focus:border-[#CDFF50]/40 dark:focus:bg-[#CDFF50]/5 dark:focus:ring-0"
           />
         </div>
       </div>
 
       {/* コンテスト一覧 */}
       {filteredData.length === 0 ? (
-        <div className="w-full border border-white/6 bg-white/[0.02] py-20 text-center">
-          <div className="flex justify-center mb-6 text-[#55555F]">
+        <div className="w-full border border-zinc-200/80 bg-zinc-50/50 py-20 text-center dark:border-white/6 dark:bg-white/[0.02]">
+          <div className="mb-6 flex justify-center text-zinc-500 dark:text-[#55555F]">
             <CustomIcon name="contest" size={64} />
           </div>
-          <p className="font-display font-bold text-sm uppercase tracking-[0.15em] text-[#8A8A95]">
+          <p className="font-display text-sm font-bold uppercase tracking-[0.15em] text-zinc-600 dark:text-[#8A8A95]">
             {phase !== 'all' || search
               ? '条件に一致するコンテストが見つかりません'
               : '現在開催中のコンテストはありません'}
@@ -129,7 +134,7 @@ export function ContestList() {
                 setPhase(null)
                 setSearch(null)
               }}
-              className="mt-6 text-xs tracking-[0.15em] uppercase text-[#CDFF50] hover:text-[#CDFF50]/70 transition-colors duration-300 font-body"
+              className="mt-6 font-body text-xs uppercase tracking-[0.15em] text-lime-800 transition-colors duration-300 hover:text-lime-950 dark:text-[#CDFF50] dark:hover:text-[#CDFF50]/70"
             >
               フィルタをリセット
             </button>

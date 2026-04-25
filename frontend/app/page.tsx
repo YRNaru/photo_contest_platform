@@ -23,28 +23,28 @@ function HeroAction({ href, icon, label, sub }: HeroActionProps) {
       href={href}
       className={cn(
         'group relative flex items-center gap-4 overflow-hidden',
-        'border border-white/8 bg-white/[0.03]',
-        'px-5 py-4 rounded-2xl backdrop-blur-sm',
-        'hover:border-[#CDFF50]/40 hover:bg-[#CDFF50]/5',
-        'transition-all duration-500',
-        'hover:shadow-[0_0_30px_rgba(205,255,80,0.12)]'
+        'rounded-2xl border border-zinc-200/90 bg-white/70 px-5 py-4 backdrop-blur-sm',
+        'hover:border-lime-500/50 hover:bg-lime-50/80 hover:shadow-[0_0_30px_rgba(132,204,22,0.15)]',
+        'dark:border-white/8 dark:bg-white/[0.03] dark:hover:border-[#CDFF50]/40 dark:hover:bg-[#CDFF50]/5',
+        'dark:hover:shadow-[0_0_30px_rgba(205,255,80,0.12)]',
+        'transition-all duration-500'
       )}
     >
       {/* hover shine */}
-      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-[#CDFF50]/0 via-[#CDFF50]/8 to-[#CDFF50]/0 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-lime-500/0 via-lime-500/12 to-lime-500/0 transition-transform duration-700 group-hover:translate-x-full dark:from-[#CDFF50]/0 dark:via-[#CDFF50]/8 dark:to-[#CDFF50]/0" />
 
-      <span className="relative z-10 flex-shrink-0 text-[#CDFF50]/70 group-hover:text-[#CDFF50] transition-colors duration-300">
+      <span className="relative z-10 flex-shrink-0 text-lime-700 transition-colors duration-300 group-hover:text-lime-800 dark:text-[#CDFF50]/70 dark:group-hover:text-[#CDFF50]">
         <CustomIcon name={icon} size={28} />
       </span>
-      <span className="relative z-10 text-left min-w-0">
-        <span className="block text-sm font-semibold tracking-wide text-[#F0EDE8] group-hover:text-[#CDFF50] transition-colors duration-300 font-display">
+      <span className="relative z-10 min-w-0 text-left">
+        <span className="block font-display text-sm font-semibold tracking-wide text-zinc-900 transition-colors duration-300 group-hover:text-lime-900 dark:text-[#F0EDE8] dark:group-hover:text-[#CDFF50]">
           {label}
         </span>
-        <span className="block text-xs text-[#55555F] group-hover:text-[#8A8A95] transition-colors duration-300 mt-0.5">
+        <span className="mt-0.5 block text-xs text-zinc-600 transition-colors duration-300 group-hover:text-zinc-800 dark:text-[#55555F] dark:group-hover:text-[#8A8A95]">
           {sub}
         </span>
       </span>
-      <span className="relative z-10 ml-auto text-[#55555F] group-hover:text-[#CDFF50] group-hover:translate-x-1 transition-all duration-300">
+      <span className="relative z-10 ml-auto text-zinc-500 transition-all duration-300 group-hover:translate-x-1 group-hover:text-lime-700 dark:text-[#55555F] dark:group-hover:text-[#CDFF50]">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
           <path d="M7 17L17 7M17 7H7M17 7V17" />
         </svg>
@@ -68,28 +68,29 @@ function FeatureCard({ icon, title, description, index }: FeatureCardProps) {
   return (
     <div
       className={cn(
-        'group relative overflow-hidden border border-white/6 bg-white/[0.025]',
-        'p-6 sm:p-8 rounded-2xl backdrop-blur-sm',
-        'hover:border-[#CDFF50]/30 hover:-translate-y-1.5',
-        'transition-all duration-500',
-        'hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]',
+        'group relative overflow-hidden rounded-2xl border border-zinc-200/80 bg-white/80 p-6 backdrop-blur-sm',
+        'hover:-translate-y-1.5 hover:border-lime-400/50 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)]',
+        'dark:border-white/6 dark:bg-white/[0.025] dark:hover:border-[#CDFF50]/30',
+        'dark:hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]',
+        'sm:p-8',
+        'transition-all duration-500'
       )}
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* 背景グロー */}
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#CDFF50]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-full bg-lime-400/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100 dark:bg-[#CDFF50]/5" />
 
       <div className="relative z-10">
-        <div className="mb-5 inline-flex items-center justify-center w-12 h-12 rounded-xl border border-white/10 bg-white/5 group-hover:border-[#CDFF50]/40 group-hover:bg-[#CDFF50]/10 transition-all duration-500">
-          <span className="text-[#8A8A95] group-hover:text-[#CDFF50] transition-colors duration-300">
+        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200/90 bg-zinc-50/90 transition-all duration-500 group-hover:border-lime-400/40 group-hover:bg-lime-50 dark:border-white/10 dark:bg-white/5 dark:group-hover:border-[#CDFF50]/40 dark:group-hover:bg-[#CDFF50]/10">
+          <span className="text-zinc-600 transition-colors duration-300 group-hover:text-lime-800 dark:text-[#8A8A95] dark:group-hover:text-[#CDFF50]">
             <CustomIcon name={icon} size={24} />
           </span>
         </div>
 
-        <h3 className="text-base font-bold font-display text-[#F0EDE8] mb-2 group-hover:text-[#CDFF50] transition-colors duration-300 uppercase tracking-wide">
+        <h3 className="mb-2 font-display text-base font-bold uppercase tracking-wide text-zinc-900 transition-colors duration-300 group-hover:text-lime-900 dark:text-[#F0EDE8] dark:group-hover:text-[#CDFF50]">
           {title}
         </h3>
-        <p className="text-sm text-[#8A8A95] leading-relaxed">
+        <p className="text-sm leading-relaxed text-zinc-600 dark:text-[#8A8A95]">
           {description}
         </p>
       </div>
@@ -103,18 +104,18 @@ function FeatureCard({ icon, title, description, index }: FeatureCardProps) {
 
 function SectionHeader({ label, title, count }: { label: string; title: string; count?: string }) {
   return (
-    <div className="flex items-end justify-between mb-10 gap-4">
+    <div className="mb-10 flex items-end justify-between gap-4">
       <div>
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#CDFF50] mb-3 flex items-center gap-3">
-          <span className="inline-block w-5 h-px bg-[#CDFF50]" />
+        <p className="mb-3 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-lime-700 dark:text-[#CDFF50]">
+          <span className="inline-block h-px w-5 bg-lime-600 dark:bg-[#CDFF50]" />
           {label}
         </p>
-        <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl leading-none tracking-tight uppercase text-[#F0EDE8]">
+        <h2 className="whitespace-pre-line font-display text-4xl font-black uppercase leading-none tracking-tight text-zinc-900 dark:text-[#F0EDE8] sm:text-5xl lg:text-6xl">
           {title}
         </h2>
       </div>
       {count && (
-        <span className="text-xs font-medium tracking-[0.15em] uppercase text-[#55555F] flex-shrink-0">
+        <span className="shrink-0 text-xs font-medium uppercase tracking-[0.15em] text-zinc-500 dark:text-[#55555F]">
           {count}
         </span>
       )}
@@ -137,7 +138,7 @@ export default function HomePage() {
 
         {/* アンビエントテキスト */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display font-black uppercase text-[#F0EDE8] opacity-[0.018] pointer-events-none whitespace-nowrap select-none"
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-display font-black uppercase text-zinc-300/40 dark:text-[#F0EDE8] dark:opacity-[0.018]"
           style={{ fontSize: 'clamp(8rem, 22vw, 28rem)', lineHeight: 1 }}
           aria-hidden
         >
@@ -145,8 +146,8 @@ export default function HomePage() {
         </div>
 
         {/* 右端の縦線装飾 */}
-        <div className="absolute top-[30%] right-6 sm:right-12 w-px h-[30vh] bg-white/6 hidden md:block">
-          <span className="absolute -top-8 left-1/2 -translate-x-1/2 rotate-90 text-[0.55rem] tracking-[0.2em] text-[#55555F] whitespace-nowrap font-body">
+        <div className="absolute top-[30%] right-6 hidden h-[30vh] w-px bg-zinc-200/80 dark:bg-white/6 sm:right-12 md:block">
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 rotate-90 whitespace-nowrap font-body text-[0.55rem] tracking-[0.2em] text-zinc-500 dark:text-[#55555F]">
             VRC PHOTO CONTEST
           </span>
         </div>
@@ -154,8 +155,8 @@ export default function HomePage() {
         {/* コンテンツ */}
         <div className="relative z-10 w-full max-w-6xl mx-auto">
           {/* ラベル */}
-          <p className="text-xs sm:text-sm font-medium tracking-[0.2em] uppercase text-[#CDFF50] mb-6 flex items-center gap-3 font-body animate-fadeInUp">
-            <span className="inline-block w-10 h-px bg-[#CDFF50]" />
+          <p className="mb-6 flex animate-fadeInUp items-center gap-3 font-body text-xs font-medium uppercase tracking-[0.2em] text-lime-700 dark:text-[#CDFF50] sm:text-sm">
+            <span className="inline-block h-px w-10 bg-lime-600 dark:bg-[#CDFF50]" />
             VRChat Photo Contest Platform
           </p>
 
@@ -165,16 +166,16 @@ export default function HomePage() {
           {/* 下部エリア */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 animate-fadeInUp" style={{ animationDelay: '200ms' }}>
             {/* サブテキスト */}
-            <p className="max-w-[38ch] text-sm sm:text-base text-[#8A8A95] font-light leading-[1.8] font-body">
+            <p className="max-w-[38ch] font-body text-sm font-light leading-[1.8] text-zinc-700 dark:text-[#8A8A95] sm:text-base">
               メタバースの日常から奇跡の瞬間まで。<br className="hidden sm:inline" />
               あなたの視点が創り出す新しい世界のアートを<br className="hidden sm:inline" />
               見せてください。
             </p>
 
             {/* スクロールインジケーター */}
-            <div className="flex flex-col items-center gap-2 text-[0.65rem] tracking-[0.15em] uppercase text-[#55555F] font-body sm:flex invisible sm:visible">
+            <div className="invisible flex flex-col items-center gap-2 font-body text-[0.65rem] uppercase tracking-[0.15em] text-zinc-500 sm:visible sm:flex dark:text-[#55555F]">
               <span>Scroll</span>
-              <div className="w-px h-14 bg-gradient-to-b from-[#CDFF50] to-transparent animate-scrollPulse" />
+              <div className="h-14 w-px animate-scrollPulse bg-gradient-to-b from-lime-500 to-transparent dark:from-[#CDFF50]" />
             </div>
           </div>
         </div>
@@ -185,7 +186,7 @@ export default function HomePage() {
 
       {/* ===== SECTION DIVIDER ===== */}
       <div className="px-4 sm:px-8 max-w-6xl mx-auto">
-        <div className="h-px bg-white/10" />
+        <div className="h-px bg-zinc-200/90 dark:bg-white/10" />
       </div>
 
       {/* ===== ACTION LINKS ===== */}
@@ -203,7 +204,7 @@ export default function HomePage() {
 
       {/* ===== SECTION DIVIDER ===== */}
       <div className="px-4 sm:px-8 max-w-6xl mx-auto">
-        <div className="h-px bg-white/10" />
+        <div className="h-px bg-zinc-200/90 dark:bg-white/10" />
       </div>
 
       {/* ===== ACTIVE CONTESTS ===== */}
@@ -212,7 +213,7 @@ export default function HomePage() {
           <SectionHeader label="Now Live" title={`Active\nContests`} />
           <Suspense
             fallback={
-              <div className="h-[400px] w-full rounded-2xl border border-white/6 bg-white/[0.02] animate-pulse" />
+              <div className="h-[400px] w-full animate-pulse rounded-2xl border border-zinc-200/80 bg-zinc-100/80 dark:border-white/6 dark:bg-white/[0.02]" />
             }
           >
             <ContestList />
@@ -222,7 +223,7 @@ export default function HomePage() {
 
       {/* ===== SECTION DIVIDER ===== */}
       <div className="px-4 sm:px-8 max-w-6xl mx-auto">
-        <div className="h-px bg-white/10" />
+        <div className="h-px bg-zinc-200/90 dark:bg-white/10" />
       </div>
 
       {/* ===== FEATURES ===== */}

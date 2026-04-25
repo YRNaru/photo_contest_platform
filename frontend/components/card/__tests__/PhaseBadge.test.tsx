@@ -25,24 +25,28 @@ describe('PhaseBadge', () => {
   it('applies correct color for upcoming', () => {
     const { container } = render(<PhaseBadge phase="upcoming" />)
     const badge = container.firstChild
-    expect(badge).toHaveClass('text-[#8A8A95]')
+    expect(badge).toHaveClass('text-zinc-700')
+    expect(badge).toHaveClass('dark:text-[#8A8A95]')
   })
 
   it('applies correct color for submission', () => {
     const { container } = render(<PhaseBadge phase="submission" />)
     const badge = container.firstChild
-    expect(badge).toHaveClass('text-[#CDFF50]')
+    expect(badge).toHaveClass('text-lime-900')
+    expect(badge).toHaveClass('dark:text-[#CDFF50]')
   })
 
   it('applies correct color for voting', () => {
     const { container } = render(<PhaseBadge phase="voting" />)
     const badge = container.firstChild
-    expect(badge).toHaveClass('text-[#CDFF50]')
+    expect(badge).toHaveClass('text-lime-900')
+    expect(badge).toHaveClass('dark:text-[#CDFF50]')
   })
 
   it('applies correct color for closed', () => {
     const { container } = render(<PhaseBadge phase="closed" />)
     const badge = container.firstChild
-    expect(badge).toHaveClass('text-[#55555F]')
+    expect(badge).toHaveClass('text-zinc-600')
+    expect(badge).toHaveClass('dark:text-[#55555F]')
   })
 })

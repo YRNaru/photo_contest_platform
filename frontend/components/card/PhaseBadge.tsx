@@ -12,13 +12,12 @@ export function PhaseBadge({ phase }: PhaseBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 text-[0.65rem] font-bold font-body tracking-[0.12em] uppercase',
-        'border rounded-sm',
+        'inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 font-body text-[0.65rem] font-bold uppercase tracking-[0.12em]',
         isActive
-          ? 'border-[#CDFF50]/40 bg-[#CDFF50]/10 text-[#CDFF50]'
+          ? 'border-lime-600/50 bg-lime-100 text-lime-900 dark:border-[#CDFF50]/40 dark:bg-[#CDFF50]/10 dark:text-[#CDFF50]'
           : isUpcoming
-            ? 'border-[#8A8A95]/30 bg-white/4 text-[#8A8A95]'
-            : 'border-white/10 bg-white/4 text-[#55555F]'
+            ? 'border-zinc-300/90 bg-zinc-100/90 text-zinc-700 dark:border-[#8A8A95]/30 dark:bg-white/4 dark:text-[#8A8A95]'
+            : 'border-zinc-200/90 bg-zinc-50/90 text-zinc-600 dark:border-white/10 dark:bg-white/4 dark:text-[#55555F]'
       )}
     >
       {isActive && (
