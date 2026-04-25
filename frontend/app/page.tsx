@@ -131,7 +131,7 @@ export default function HomePage() {
   return (
     <div className="relative">
       {/* ===== HERO ===== */}
-      <section className="relative min-h-[90vh] flex flex-col justify-end overflow-hidden px-4 sm:px-8 pb-16 sm:pb-24">
+      <section className="relative flex min-h-[90vh] flex-col justify-end overflow-x-clip overflow-y-visible px-4 sm:px-8 pb-16 sm:pb-24">
         {/* 背景グロー（ポートフォリオと同じ配置） */}
         <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] max-w-3xl max-h-3xl bg-[radial-gradient(circle,rgba(205,255,80,0.12)_0%,transparent_70%)] blur-[80px] pointer-events-none" />
         <div className="absolute bottom-[-30%] left-[-15%] w-[40vw] h-[40vw] max-w-2xl max-h-2xl bg-[radial-gradient(circle,rgba(205,255,80,0.06)_0%,transparent_70%)] blur-[60px] pointer-events-none" />
@@ -152,8 +152,8 @@ export default function HomePage() {
           </span>
         </div>
 
-        {/* コンテンツ */}
-        <div className="relative z-10 w-full max-w-6xl mx-auto">
+        {/* コンテンツ（HeroTitle の cqi 基準。min-w-0 で flex 子の最小幅0を確保） */}
+        <div className="relative z-10 mx-auto w-full min-w-0 max-w-6xl pr-0 [container-type:inline-size] md:pr-20">
           {/* ラベル */}
           <p className="mb-6 flex animate-fadeInUp items-center gap-3 font-body text-xs font-medium uppercase tracking-[0.2em] text-lime-700 dark:text-[#CDFF50] sm:text-sm">
             <span className="inline-block h-px w-10 bg-lime-600 dark:bg-[#CDFF50]" />
