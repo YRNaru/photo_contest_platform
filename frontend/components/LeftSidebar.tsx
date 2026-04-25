@@ -36,8 +36,9 @@ export function LeftSidebar() {
     <aside
       className={cn(
         'sticky top-16 z-40 h-[calc(100vh-4rem)]',
-        'border-r border-white/6',
-        'bg-[#111116]/80 backdrop-blur-2xl',
+        'border-r border-black/10 dark:border-white/6',
+        'bg-white/70 backdrop-blur-2xl dark:bg-[#111116]/80',
+        'shadow-[4px_0_24px_rgba(0,0,0,0.04)] dark:shadow-none',
         'transition-all duration-700 ease-out max-xl:hidden',
         isLeftOpen ? 'w-72 opacity-100' : 'w-0 opacity-0'
       )}
@@ -51,15 +52,15 @@ export function LeftSidebar() {
       >
         {/* サイドバーヘッダー */}
         <div
-          className="mb-5 pb-4 border-b border-white/6 transition-all duration-500"
+          className="mb-5 border-b border-black/10 pb-4 transition-all duration-500 dark:border-white/6"
           style={{
             transitionDelay: isLeftOpen ? '150ms' : '0ms',
             opacity: isLeftOpen ? 1 : 0,
             transform: isLeftOpen ? 'translateX(0)' : 'translateX(-20px)',
           }}
         >
-          <h2 className="text-[0.6rem] font-semibold font-body tracking-[0.25em] uppercase text-[#CDFF50] flex items-center gap-2">
-            <span className="inline-block w-4 h-px bg-[#CDFF50]" />
+          <h2 className="flex items-center gap-2 font-body text-[0.6rem] font-semibold uppercase tracking-[0.25em] text-lime-700 dark:text-[#CDFF50]">
+            <span className="inline-block h-px w-4 bg-lime-600 dark:bg-[#CDFF50]" />
             Navigation
           </h2>
         </div>
@@ -75,25 +76,27 @@ export function LeftSidebar() {
                 transitionDelay: isLeftOpen ? `${150 + index * 60}ms` : '0ms',
               }}
               className={cn(
-                'group flex items-center gap-3 px-4 py-2.5 rounded-lg',
-                'transition-all duration-400 font-body text-sm',
+                'group flex items-center gap-3 rounded-lg px-4 py-2.5',
+                'font-body text-sm transition-all duration-400',
                 isLeftOpen ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0',
                 isActive
-                  ? 'bg-[#CDFF50]/10 border border-[#CDFF50]/30 text-[#CDFF50] font-semibold'
-                  : 'border border-transparent text-[#8A8A95] hover:bg-white/4 hover:border-white/8 hover:text-[#F0EDE8]'
+                  ? 'border border-lime-500/40 bg-lime-500/10 font-semibold text-lime-900 dark:border-[#CDFF50]/30 dark:bg-[#CDFF50]/10 dark:text-[#CDFF50]'
+                  : 'border border-transparent text-zinc-600 hover:border-zinc-200/90 hover:bg-zinc-100/90 hover:text-zinc-950 dark:text-[#8A8A95] dark:hover:border-white/8 dark:hover:bg-white/4 dark:hover:text-[#F0EDE8]'
               )}
             >
               <span
                 className={cn(
                   'flex-shrink-0 transition-colors duration-300',
-                  isActive ? 'text-[#CDFF50]' : 'text-[#55555F] group-hover:text-[#CDFF50]'
+                  isActive
+                    ? 'text-lime-700 dark:text-[#CDFF50]'
+                    : 'text-zinc-500 group-hover:text-lime-700 dark:text-[#55555F] dark:group-hover:text-[#CDFF50]'
                 )}
               >
                 {item.icon}
               </span>
               <span className="font-medium tracking-wide">{item.label}</span>
               {isActive && (
-                <span className="ml-auto inline-block w-1 h-4 bg-[#CDFF50] rounded-full" />
+                <span className="ml-auto inline-block h-4 w-1 rounded-full bg-lime-500 dark:bg-[#CDFF50]" />
               )}
             </Link>
           )
@@ -102,7 +105,7 @@ export function LeftSidebar() {
         {/* 未ログイン時のCTA */}
         {!isAuthenticated && (
           <div
-            className="mt-6 pt-4 border-t border-white/6 transition-all duration-500"
+            className="mt-6 border-t border-black/10 pt-4 transition-all duration-500 dark:border-white/6"
             style={{
               transitionDelay: isLeftOpen ? `${150 + menuItems.length * 60}ms` : '0ms',
               opacity: isLeftOpen ? 1 : 0,
@@ -117,7 +120,7 @@ export function LeftSidebar() {
         {isAuthenticated && (
           <>
             <div
-              className="my-5 border-t border-white/6 transition-all duration-500"
+              className="my-5 border-t border-black/10 transition-all duration-500 dark:border-white/6"
               style={{
                 transitionDelay: isLeftOpen ? `${150 + menuItems.length * 60}ms` : '0ms',
                 opacity: isLeftOpen ? 1 : 0,
@@ -132,15 +135,16 @@ export function LeftSidebar() {
                   transitionDelay: isLeftOpen ? `${150 + (menuItems.length + 1) * 60}ms` : '0ms',
                 }}
                 className={cn(
-                  'group relative overflow-hidden flex items-center gap-3 px-4 py-2.5 rounded-lg',
-                  'border border-[#CDFF50]/20 bg-[#CDFF50]/5 text-[#CDFF50]',
-                  'hover:border-[#CDFF50]/40 hover:bg-[#CDFF50]/10',
-                  'font-semibold text-sm font-body transition-all duration-400',
-                  'hover:shadow-[0_0_20px_rgba(205,255,80,0.1)]',
+                  'group relative flex items-center gap-3 overflow-hidden rounded-lg px-4 py-2.5',
+                  'border border-lime-500/35 bg-lime-500/[0.07] text-lime-900',
+                  'hover:border-lime-500/50 hover:bg-lime-500/12 hover:shadow-[0_0_20px_rgba(132,204,22,0.12)]',
+                  'dark:border-[#CDFF50]/20 dark:bg-[#CDFF50]/5 dark:text-[#CDFF50]',
+                  'dark:hover:border-[#CDFF50]/40 dark:hover:bg-[#CDFF50]/10 dark:hover:shadow-[0_0_20px_rgba(205,255,80,0.1)]',
+                  'font-body text-sm font-semibold transition-all duration-400',
                   isLeftOpen ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
                 )}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#CDFF50]/0 via-[#CDFF50]/8 to-[#CDFF50]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-lime-500/0 via-lime-500/15 to-lime-500/0 transition-transform duration-700 group-hover:translate-x-full dark:from-[#CDFF50]/0 dark:via-[#CDFF50]/8 dark:to-[#CDFF50]/0" />
                 <CustomIcon name="plus" size={18} className="relative z-10 group-hover:rotate-90 transition-transform duration-300" />
                 <span className="relative z-10">新規コンテスト作成</span>
               </Link>
@@ -152,14 +156,15 @@ export function LeftSidebar() {
                   transitionDelay: isLeftOpen ? `${150 + (menuItems.length + 2) * 60}ms` : '0ms',
                 }}
                 className={cn(
-                  'group relative overflow-hidden flex items-center gap-3 px-4 py-2.5 rounded-lg',
-                  'border border-[#CDFF50] bg-[#CDFF50] text-[#0B0B0F]',
-                  'hover:bg-[#CDFF50]/90 hover:shadow-[0_0_25px_rgba(205,255,80,0.3)]',
-                  'font-bold text-sm font-body transition-all duration-400',
+                  'group relative flex items-center gap-3 overflow-hidden rounded-lg border border-lime-500 bg-lime-400 px-4 py-2.5',
+                  'text-zinc-950 hover:bg-lime-300 hover:shadow-[0_0_25px_rgba(132,204,22,0.25)]',
+                  'dark:border-[#CDFF50] dark:bg-[#CDFF50] dark:text-[#0B0B0F]',
+                  'dark:hover:bg-[#CDFF50]/90 dark:hover:shadow-[0_0_25px_rgba(205,255,80,0.3)]',
+                  'font-body text-sm font-bold transition-all duration-400',
                   isLeftOpen ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'
                 )}
               >
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+                <div className="absolute inset-0 bg-white/0 transition-colors duration-300 group-hover:bg-white/10" />
                 <CustomIcon name="camera" size={18} className="relative z-10 group-hover:scale-110 transition-transform duration-300" />
                 <span className="relative z-10">コンテストに投稿する</span>
               </Link>

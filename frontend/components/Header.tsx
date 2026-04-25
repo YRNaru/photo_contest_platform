@@ -26,14 +26,13 @@ export function Header() {
     <header
       className={cn(
         'sticky top-0 z-50',
-        'bg-[#0B0B0F]/80 backdrop-blur-xl',
-        'border-b border-white/6',
-        // ポートフォリオ風のmix-blend-difference効果をソフトに再現
-        'shadow-[0_1px_0_0_rgba(255,255,255,0.04)]'
+        'bg-white/80 backdrop-blur-xl dark:bg-[#0B0B0F]/80',
+        'border-b border-black/10 dark:border-white/6',
+        'shadow-[0_1px_0_0_rgba(0,0,0,0.06)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.04)]'
       )}
     >
       {/* アクセントラインアニメーション（ヘッダー下部） */}
-      <div className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#CDFF50]/20 to-transparent pointer-events-none" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-lime-500/35 dark:via-[#CDFF50]/20 to-transparent" />
 
       <div
         className={cn(
