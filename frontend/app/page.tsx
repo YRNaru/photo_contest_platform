@@ -131,7 +131,8 @@ export default function HomePage() {
   return (
     <div className="relative">
       {/* ===== HERO ===== */}
-      <section className="relative flex min-h-[90vh] flex-col justify-end overflow-x-clip overflow-y-visible px-4 sm:px-8 pb-16 sm:pb-24">
+      {/* 以前は justify-end + min-h-90vh で塊を下端に置いていたため、ラベル・タイトルの上に不自然な余白が付いていた */}
+      <section className="relative flex flex-col justify-start overflow-x-clip overflow-y-visible px-4 pb-16 pt-2 sm:px-8 sm:pb-24 sm:pt-4">
         {/* 背景グロー（ポートフォリオと同じ配置） */}
         <div className="absolute top-[-20%] right-[-10%] w-[60vw] h-[60vw] max-w-3xl max-h-3xl bg-[radial-gradient(circle,rgba(205,255,80,0.12)_0%,transparent_70%)] blur-[80px] pointer-events-none" />
         <div className="absolute bottom-[-30%] left-[-15%] w-[40vw] h-[40vw] max-w-2xl max-h-2xl bg-[radial-gradient(circle,rgba(205,255,80,0.06)_0%,transparent_70%)] blur-[60px] pointer-events-none" />
